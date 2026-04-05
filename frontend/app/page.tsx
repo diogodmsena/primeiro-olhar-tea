@@ -5,6 +5,8 @@ import { useDropzone, FileRejection } from "react-dropzone";
 import { UploadCloud, Activity, Heart, PlusCircle, CheckCircle2, Puzzle, ArrowRight } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useI18n } from "./contexts/I18nContext";
+import { LanguageSelector } from "../components/LanguageSelector";
 
 // Logo Amigável (Cores do Autismo) com formas padrões Tailwind para garantir cores puras
 const CSSLogo = () => (
@@ -43,6 +45,7 @@ const AutismPuzzleSymbol = () => (
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useI18n();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [concerns, setConcerns] = useState("");
@@ -107,13 +110,16 @@ export default function Home() {
       <header className="relative z-20 w-full px-6 py-6 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
         <CSSLogo />
         <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
-          <a href="#" className="hover:text-blue-500 transition-colors">Início</a>
-          <a href="#" className="hover:text-blue-500 transition-colors">Como Funciona</a>
-          <a href="#" className="hover:text-blue-500 transition-colors">Comunidade</a>
+          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.home')}</a>
+          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</a>
+          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.community')}</a>
         </nav>
-        <button className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
-          Área do Profissional
-        </button>
+        <div className="flex items-center gap-4">
+          <LanguageSelector />
+          <button className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
+            {t('nav.professionalArea')}
+          </button>
+        </div>
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-24">
@@ -122,14 +128,14 @@ export default function Home() {
         <section className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-24">
           <div className="w-full lg:w-1/2 space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-sm shadow-sm">
-              <Heart className="w-4 h-4 fill-emerald-600/20" /> Feito com carinho para famílias
+              <Heart className="w-4 h-4 fill-emerald-600/20" /> {t('hero.badge')}
             </span>
             <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight tracking-tight">
-              Apoio precoce,<br />
-              <span className="text-blue-500">futuro brilhante.</span>
+              {t('hero.titleStart')}<br />
+              <span className="text-blue-500">{t('hero.titleHighlight')}</span>
             </h1>
             <p className="text-xl text-slate-600 max-w-lg leading-relaxed font-medium">
-              Nossa plataforma de triagem utiliza uma inteligência artificial acolhedora para avaliar sinais de neurodivergência de forma leve e acessível.
+              {t('hero.subtitle')}
             </p>
             {/* CTA VISÍVEL NO HERO SECTION */}
             <div className="pt-4">
@@ -137,7 +143,7 @@ export default function Home() {
                 onClick={scrollToForm}
                 className="bg-blue-500 text-white hover:bg-blue-600 font-extrabold text-xl py-4 px-10 rounded-full transition-all shadow-soft hover:shadow-soft-hover transform hover:-translate-y-1 flex items-center gap-3"
               >
-                Quero Iniciar Avaliação <ArrowRight className="w-6 h-6" />
+                {t('hero.cta')} <ArrowRight className="w-6 h-6" />
               </button>
             </div>
           </div>
@@ -155,8 +161,8 @@ export default function Home() {
           </div>
 
           <div className="text-center mb-16 pt-6">
-            <h2 className="text-3xl font-black text-slate-800 mb-4">Primeiro Passo</h2>
-            <p className="text-slate-500 font-medium text-lg">Preencha com calma. Você está em um ambiente seguro.</p>
+            <h2 className="text-3xl font-black text-slate-800 mb-4">{t('form.headerBadge')}</h2>
+            <p className="text-slate-500 font-medium text-lg">{t('form.headerSubtitle')}</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-10">
@@ -165,7 +171,7 @@ export default function Home() {
             <div className="space-y-4">
               <label className="flex items-center text-xl font-bold text-slate-700">
                 <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 mr-4 shadow-sm">1</span>
-                Vídeo da Criança
+                {t('form.step1Title')}
               </label>
               <div 
                 {...getRootProps()} 
@@ -178,13 +184,13 @@ export default function Home() {
                   <div className="flex flex-col items-center text-emerald-500">
                     <CheckCircle2 className="w-20 h-20 mb-4 fill-emerald-500/10" />
                     <p className="font-extrabold text-xl">{videoFile.name}</p>
-                    <p className="text-sm mt-3 font-semibold text-slate-500">Clique novamente para trocar</p>
+                    <p className="text-sm mt-3 font-semibold text-slate-500">{t('form.dropzoneSuccessSubtitle')}</p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
                     <UploadCloud className="w-20 h-20 mb-6 text-blue-500 opacity-80" />
-                    <p className="font-bold text-xl text-slate-700 text-center mb-2">Arraste um vídeo aqui ou clique</p>
-                    <p className="font-medium text-slate-400">MP4 ou MOV (10 a 15 segundos)</p>
+                    <p className="font-bold text-xl text-slate-700 text-center mb-2">{t('form.dropzoneDefaultTitle')}</p>
+                    <p className="font-medium text-slate-400">{t('form.dropzoneDefaultSubtitle')}</p>
                   </div>
                 )}
               </div>
@@ -196,41 +202,41 @@ export default function Home() {
             <div className="space-y-8">
               <label className="flex items-center text-xl font-bold text-slate-700">
                 <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mr-4 shadow-sm">2</span>
-                Observações do Cotidiano
+                {t('form.step2Title')}
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
-                  <label className="block font-bold text-slate-600 text-base">Quais comportamentos te chamaram atenção?</label>
+                  <label className="block font-bold text-slate-600 text-base">{t('form.q1Label')}</label>
                   <textarea 
                     value={concerns}
                     onChange={(e) => setConcerns(e.target.value)}
-                    placeholder="Ex: Ele cruza as perninhas, balança muito as mãos..."
+                    placeholder={t('form.q1Placeholder')}
                     className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 min-h-[140px] focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-700 placeholder-slate-400"
                   />
                 </div>
                 
                 <div className="space-y-3">
-                  <label className="block font-bold text-slate-600 text-base">Há atrasos na fala ou comunicação?</label>
+                  <label className="block font-bold text-slate-600 text-base">{t('form.q2Label')}</label>
                   <textarea 
                     value={communication}
                     onChange={(e) => setCommunication(e.target.value)}
-                    placeholder="Ex: Ainda não formula frases completas..."
+                    placeholder={t('form.q2Placeholder')}
                     className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 min-h-[140px] focus:outline-none focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-400/10 transition-all font-medium text-slate-700 placeholder-slate-400"
                   />
                 </div>
               </div>
 
               <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
-                <label className="block font-bold text-slate-700 text-base">A criança responde quando é chamada pelo nome?</label>
+                <label className="block font-bold text-slate-700 text-base">{t('form.q3Label')}</label>
                 <div className="flex gap-8 mt-4">
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <input type="radio" value="yes" checked={responds === "yes"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
-                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">Sim, responde</span>
+                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">{t('form.q3OptYes')}</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <input type="radio" value="no" checked={responds === "no"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
-                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">Não, raramente</span>
+                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">{t('form.q3OptNo')}</span>
                   </label>
                 </div>
               </div>
@@ -246,10 +252,12 @@ export default function Home() {
                 {loading ? (
                   <>
                     <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Analisando com Carinho...
+                    {t('form.submitLoading')}
                   </>
                 ) : (
-                  <>Iniciar Avaliação <ArrowRight className="w-7 h-7" /></>
+                  <>
+                    {t('form.submitButton')} <ArrowRight className="w-7 h-7" />
+                  </>
                 )}
               </button>
             </div>
@@ -260,7 +268,7 @@ export default function Home() {
 
       {/* LUDIC FOOTER */}
       <footer className="w-full pb-10 pt-20 border-t border-slate-200 mt-20 text-center relative overflow-hidden bg-white">
-         <p className="text-slate-500 font-bold">Primeiro Olhar © {new Date().getFullYear()}. Criado para acolher e transformar.</p>
+         <p className="text-slate-500 font-bold">{t('footer.text', { year: String(new Date().getFullYear()) })}</p>
          <div className="flex justify-center gap-3 mt-6">
             <div className="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div>
             <div className="w-3 h-3 rounded-full bg-amber-400 opacity-60"></div>

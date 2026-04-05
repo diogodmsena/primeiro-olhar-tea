@@ -10,6 +10,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 export default function ResultadoPage() {
   const params = useParams();
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -32,7 +33,7 @@ export default function ResultadoPage() {
         } else {
           setTimeout(fetchStatus, 1500);
         }
-      } catch(err) {
+      } catch {
         setError(true);
         setLoading(false);
       }
