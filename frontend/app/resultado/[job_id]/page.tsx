@@ -82,14 +82,22 @@ export default function ResultadoPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8 font-sans pb-20">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <main className="min-h-screen bg-slate-50 p-8 font-sans pb-20 print:bg-white print:p-0">
+      <div className="max-w-5xl mx-auto space-y-6 print:space-y-4">
         
-        <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors">
+        {/* LOGO EXCLUSIVA PARA IMPRESSÃO */}
+        <div className="hidden print:flex items-center gap-2 mb-2 border-b pb-4 border-slate-200">
+          <div className="font-extrabold text-3xl tracking-tight text-slate-800">
+            Primeiro<span className="text-blue-500">Olhar</span>
+          </div>
+          <span className="ml-auto text-sm text-slate-500 font-bold">Relatório Especializado</span>
+        </div>
+
+        <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors print:hidden">
           <ArrowLeft className="w-4 h-4 mr-1" /> Nova Triagem
         </button>
 
-        <header className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <header className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print:shadow-none print:border-none print:p-0 print:mb-6">
              <div>
                 <h1 className="text-2xl font-semibold text-slate-800">Resultado da Triagem</h1>
                 <p className="text-slate-500 mt-1 flex items-center"><FileText className="w-4 h-4 mr-1" /> ID: {params.job_id} | Modelo: Gemma 4</p>
@@ -108,11 +116,11 @@ export default function ResultadoPage() {
              </div>
         </header>
 
-        <div className="grid md:grid-cols-5 gap-6">
+        <div className="grid md:grid-cols-5 gap-6 print:gap-4 print:block">
            
            {/* Radar Chart */}
-           <div className="md:col-span-2 space-y-6">
-               <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col">
+           <div className="md:col-span-2 space-y-6 print:break-inside-avoid print:mb-8">
+               <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col print:shadow-none print:border-none print:p-0">
                    <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b pb-2">Distribuição Multimodal (Radar)</h3>
                    <div className="flex-grow w-full min-h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
@@ -128,7 +136,7 @@ export default function ResultadoPage() {
            </div>
 
            {/* Explainability Engine (Gemma) */}
-           <div className="md:col-span-3 bg-white p-8 rounded-2xl shadow-sm border border-sky-100 ring-1 ring-sky-50">
+           <div className="md:col-span-3 bg-white p-8 rounded-2xl shadow-sm border border-sky-100 ring-1 ring-sky-50 print:shadow-none print:border-none print:ring-0 print:p-0">
                <div className="flex items-center space-x-3 mb-6 border-b border-slate-100 pb-4">
                    <div className="bg-sky-100 p-2 rounded-lg">
                        <BrainCircuit className="w-6 h-6 text-sky-600" />
@@ -143,11 +151,11 @@ export default function ResultadoPage() {
                   <Markdown>{gemma_report}</Markdown>
                </div>
 
-               <div className="mt-12 pt-6 border-t border-slate-100 flex justify-end gap-4">
+               <div className="mt-12 pt-6 border-t border-slate-100 flex justify-end gap-4 print:hidden">
                    <button className="bg-white border border-slate-200 text-slate-600 font-medium py-2 px-6 rounded-lg hover:bg-slate-50 transition-colors">
                        Revisar Features Brutas
                    </button>
-                   <button className="bg-sky-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-sky-700 shadow-md shadow-sky-200 transition-all">
+                   <button onClick={() => window.print()} className="bg-sky-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-sky-700 shadow-md shadow-sky-200 transition-all">
                        Compartilhar Relatório Físico
                    </button>
                </div>

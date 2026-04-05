@@ -5,6 +5,7 @@ import { useDropzone, FileRejection } from "react-dropzone";
 import { UploadCloud, Activity, Heart, PlusCircle, CheckCircle2, Puzzle, ArrowRight } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useI18n } from "./contexts/I18nContext";
 import { LanguageSelector } from "../components/LanguageSelector";
 
@@ -116,9 +117,9 @@ export default function Home() {
         </nav>
         <div className="flex items-center gap-4">
           <LanguageSelector />
-          <button className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
+          <Link href="/dashboard" className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
             {t('nav.professionalArea')}
-          </button>
+          </Link>
         </div>
       </header>
 

@@ -36,3 +36,27 @@
 .animate-float-delayed {
   animation: float 6s ease-in-out 3s infinite;
 }
+
+/* Accessibility Modes (A11y Panel) */
+.high-contrast {
+  filter: invert(1) hue-rotate(180deg) brightness(1.2);
+}
+
+.high-contrast img, 
+.high-contrast svg {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.large-font {
+  font-size: 115% !important;
+}
+

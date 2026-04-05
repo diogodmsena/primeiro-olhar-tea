@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "./contexts/I18nContext";
+import { AccessibilityProvider } from "./contexts/AccessibilityContext";
+import { AccessibilityWidget } from "../components/AccessibilityWidget";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -24,7 +26,10 @@ export default function RootLayout({
     <html lang="pt-BR" className="scroll-smooth">
       <body className={`${nunito.variable} font-sans antialiased bg-soft-bg text-slate-800`}>
         <I18nProvider>
-          {children}
+          <AccessibilityProvider>
+            {children}
+            <AccessibilityWidget />
+          </AccessibilityProvider>
         </I18nProvider>
       </body>
     </html>
