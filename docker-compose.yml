@@ -7,8 +7,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-    environment:
-      - GEMMA_API_KEY=${GEMMA_API_KEY:-mock}
+    env_file:
+      - ./backend/.env
 
   frontend:
     build:

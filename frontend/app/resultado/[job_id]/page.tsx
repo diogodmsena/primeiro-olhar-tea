@@ -123,7 +123,7 @@ export default function ResultadoPage() {
                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col print:shadow-none print:border-none print:p-0">
                    <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b pb-2">Distribuição Multimodal (Radar)</h3>
                    <div className="flex-grow w-full min-h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height={300}>
                         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                           <PolarGrid stroke="#e2e8f0" />
                           <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11 }} />
