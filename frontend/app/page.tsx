@@ -2,36 +2,42 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { UploadCloud, FileVideo, Activity, BrainCircuit, Heart, PlusCircle, CheckCircle2 } from "lucide-react";
+import { UploadCloud, Activity, Heart, PlusCircle, CheckCircle2, Puzzle, ArrowRight } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-// Lúdico Logo construído puramente com CSS e divs (cores do autismo)
+// Logo Amigável (Cores do Autismo) com formas padrões Tailwind para garantir cores puras
 const CSSLogo = () => (
-  <div className="flex items-center">
-    <div className="flex gap-1">
-      <div className="w-6 h-6 rounded-full bg-autism-blue opacity-90 shadow-soft"></div>
-      <div className="w-6 h-6 rounded-full bg-autism-yellow opacity-90 shadow-soft -ml-2"></div>
-      <div className="w-6 h-6 rounded-full bg-autism-red opacity-90 shadow-soft -ml-2"></div>
-      <div className="w-6 h-6 rounded-full bg-autism-green opacity-90 shadow-soft -ml-2"></div>
+  <div className="flex items-center gap-2">
+    <div className="grid grid-cols-2 gap-1 animate-float">
+      <div className="w-4 h-4 bg-blue-500 rounded-sm rounded-tl-xl shadow-soft"></div>
+      <div className="w-4 h-4 bg-amber-400 rounded-sm rounded-tr-xl shadow-soft"></div>
+      <div className="w-4 h-4 bg-rose-500 rounded-sm rounded-bl-xl shadow-soft"></div>
+      <div className="w-4 h-4 bg-emerald-500 rounded-sm rounded-br-xl shadow-soft"></div>
     </div>
-    <span className="ml-3 font-extrabold text-2xl tracking-tight text-slate-800">
-      Gemma<span className="text-autism-blue">4</span>Good
+    <span className="font-extrabold text-3xl tracking-tight text-slate-800">
+      Primeiro<span className="text-blue-500">Olhar</span>
     </span>
   </div>
 );
 
-// Formas Flutuantes de CSS para Hero Section
-const FloatingShapes = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div className="absolute top-[10%] left-[5%] w-32 h-32 bg-autism-yellow/10 rounded-full blur-3xl animate-float"></div>
-    <div className="absolute top-[40%] right-[10%] w-64 h-64 bg-autism-blue/10 rounded-full blur-3xl animate-float-delayed"></div>
-    <div className="absolute bottom-[20%] left-[15%] w-48 h-48 bg-autism-green/10 rounded-full blur-3xl animate-float"></div>
-    
-    {/* Micro formas para decorar */}
-    <div className="absolute top-[20%] right-[25%] w-4 h-4 bg-autism-red/40 rounded-full animate-float"></div>
-    <div className="absolute top-[50%] left-[10%] w-6 h-6 border-4 border-autism-blue/30 rounded-full animate-float-delayed"></div>
-    <div className="absolute bottom-[30%] right-[20%] w-5 h-5 bg-autism-yellow/40 rounded-md rotate-12 animate-float"></div>
+// Símbolo do Autismo usando Lucide Puzzle para o Hero Section
+const AutismPuzzleSymbol = () => (
+  <div className="relative w-80 h-80 flex items-center justify-center">
+      {/* Background flutuante */}
+      <div className="absolute inset-0 bg-white rounded-[4rem] shadow-soft-hover animate-float"></div>
+      <div className="absolute w-64 h-64 rounded-full border-8 border-dashed border-amber-400/20 animate-[spin_60s_linear_infinite]"></div>
+      
+      {/* Quebra-cabeça Múltiplo (As 4 cores clássicas do autismo) */}
+      <div className="grid grid-cols-2 gap-0 relative z-10 animate-float-delayed scale-110">
+        <Puzzle className="w-16 h-16 text-blue-500 fill-blue-500/20" />
+        <Puzzle className="w-16 h-16 text-amber-400 fill-amber-400/20 rotate-90" />
+        <Puzzle className="w-16 h-16 text-rose-500 fill-rose-500/20 -rotate-90" />
+        <Puzzle className="w-16 h-16 text-emerald-500 fill-emerald-500/20 rotate-180" />
+      </div>
+
+      <Heart className="absolute top-10 right-10 w-10 h-10 text-rose-500 animate-float-delayed" />
+      <Activity className="absolute bottom-12 left-10 w-12 h-12 text-emerald-500 animate-float" />
   </div>
 );
 
@@ -89,19 +95,23 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="min-h-screen relative font-sans text-slate-800 selection:bg-autism-yellow/30">
-      <FloatingShapes />
+  // Função para fazer o scroll macio até o formulário de avaliação
+  const scrollToForm = () => {
+    document.getElementById('avaliacao-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
+  return (
+    <div className="min-h-screen relative font-sans text-slate-800 selection:bg-amber-400/30 bg-slate-50 overflow-x-hidden">
+      
       {/* HEADER */}
-      <header className="relative z-10 w-full px-6 py-6 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
+      <header className="relative z-20 w-full px-6 py-6 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
         <CSSLogo />
-        <nav className="hidden md:flex gap-8 font-semibold text-slate-600">
-          <a href="#" className="hover:text-autism-blue transition-colors">Início</a>
-          <a href="#" className="hover:text-autism-blue transition-colors">Como Funciona</a>
-          <a href="#" className="hover:text-autism-blue transition-colors">Apoio Familiar</a>
+        <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
+          <a href="#" className="hover:text-blue-500 transition-colors">Início</a>
+          <a href="#" className="hover:text-blue-500 transition-colors">Como Funciona</a>
+          <a href="#" className="hover:text-blue-500 transition-colors">Comunidade</a>
         </nav>
-        <button className="hidden md:flex bg-autism-blue text-white px-6 py-3 rounded-full font-bold hover:bg-blue-600 transition-colors shadow-soft hover:shadow-soft-hover">
+        <button className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
           Área do Profissional
         </button>
       </header>
@@ -109,133 +119,138 @@ export default function Home() {
       <main className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-24">
         
         {/* HERO SECTION */}
-        <section className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-20">
-          <div className="w-full lg:w-1/2 space-y-8 relative">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-autism-green/10 text-autism-green font-bold text-sm">
-              <Heart className="w-4 h-4" /> Feito com carinho para famílias
+        <section className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-24">
+          <div className="w-full lg:w-1/2 space-y-8 relative z-10">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-sm shadow-sm">
+              <Heart className="w-4 h-4 fill-emerald-600/20" /> Feito com carinho para famílias
             </span>
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight">
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight tracking-tight">
               Apoio precoce,<br />
-              <span className="text-autism-blue">futuro brilhante.</span>
+              <span className="text-blue-500">futuro brilhante.</span>
             </h1>
-            <p className="text-xl text-slate-600 max-w-lg leading-relaxed">
-              Nossa plataforma de triagem utiliza inteligência artificial acolhedora para avaliar sinais de neurodivergência de forma leve, acessível e no conforto do seu lar.
+            <p className="text-xl text-slate-600 max-w-lg leading-relaxed font-medium">
+              Nossa plataforma de triagem utiliza uma inteligência artificial acolhedora para avaliar sinais de neurodivergência de forma leve e acessível.
             </p>
+            {/* CTA VISÍVEL NO HERO SECTION */}
+            <div className="pt-4">
+              <button 
+                onClick={scrollToForm}
+                className="bg-blue-500 text-white hover:bg-blue-600 font-extrabold text-xl py-4 px-10 rounded-full transition-all shadow-soft hover:shadow-soft-hover transform hover:-translate-y-1 flex items-center gap-3"
+              >
+                Quero Iniciar Avaliação <ArrowRight className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
-          <div className="w-full lg:w-1/2 flex justify-center lg:justify-end relative">
-            {/* CSS Lúdico Hero Illustration */}
-            <div className="relative w-80 h-80 flex items-center justify-center">
-               <div className="absolute inset-0 bg-white rounded-t-full rounded-bl-full shadow-soft-hover animate-float"></div>
-               <div className="absolute w-64 h-64 rounded-full border-8 border-dashed border-autism-yellow/30 animate-[spin_60s_linear_infinite]"></div>
-               <BrainCircuit className="w-24 h-24 text-autism-blue opacity-90" />
-               <Heart className="absolute top-12 right-12 w-10 h-10 text-autism-red animate-float-delayed" />
-               <Activity className="absolute bottom-16 left-12 w-12 h-12 text-autism-green animate-float" />
-            </div>
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-end relative z-10">
+            <AutismPuzzleSymbol />
           </div>
         </section>
 
         {/* CONTAINER DO FORMULÁRIO */}
-        <section className="bg-white rounded-[2.5rem] shadow-soft p-8 md:p-14 max-w-4xl mx-auto border-4 border-slate-50 relative">
-          <div className="absolute -top-6 -right-6 w-12 h-12 bg-autism-yellow rounded-full flex items-center justify-center shadow-soft animate-float">
-             <PlusCircle className="text-white w-6 h-6" />
+        <section id="avaliacao-form" className="bg-white rounded-[2.5rem] shadow-soft hover:shadow-soft-hover transition-shadow duration-500 p-8 md:p-14 max-w-4xl mx-auto border border-blue-50 relative mt-16 scroll-mt-24">
+          
+          <div className="absolute -top-6 top-0 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-gradient-to-tr from-amber-400 to-amber-300 rounded-full flex items-center justify-center shadow-soft animate-float border-4 border-white">
+             <PlusCircle className="text-white w-8 h-8" />
           </div>
 
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-slate-800 mb-4">Iniciar Nova Avaliação</h2>
-            <p className="text-slate-500 font-medium">Preencha com calma. Nós daremos o primeiro passo juntos.</p>
+          <div className="text-center mb-16 pt-6">
+            <h2 className="text-3xl font-black text-slate-800 mb-4">Primeiro Passo</h2>
+            <p className="text-slate-500 font-medium text-lg">Preencha com calma. Você está em um ambiente seguro.</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-10">
             
             {/* FILE UPLOAD CARD */}
             <div className="space-y-4">
-              <label className="flex items-center text-lg font-bold text-slate-700">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-autism-blue/20 text-autism-blue mr-3">1</span>
-                Vídeo Corto da Criança
+              <label className="flex items-center text-xl font-bold text-slate-700">
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 mr-4 shadow-sm">1</span>
+                Vídeo da Criança
               </label>
               <div 
                 {...getRootProps()} 
                 className={`border-4 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer ${
-                  isDragActive ? "border-autism-blue bg-autism-blue/5" : "border-slate-200 hover:border-autism-blue/50 hover:bg-slate-50"
+                  isDragActive ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-400 hover:bg-blue-50/50"
                 }`}
               >
                 <input {...getInputProps()} />
                 {videoFile ? (
-                  <div className="flex flex-col items-center text-autism-green">
-                    <CheckCircle2 className="w-16 h-16 mb-4" />
-                    <p className="font-bold text-lg">{videoFile.name}</p>
-                    <p className="text-sm mt-2 font-medium">Clique para trocar de arquivo</p>
+                  <div className="flex flex-col items-center text-emerald-500">
+                    <CheckCircle2 className="w-20 h-20 mb-4 fill-emerald-500/10" />
+                    <p className="font-extrabold text-xl">{videoFile.name}</p>
+                    <p className="text-sm mt-3 font-semibold text-slate-500">Clique novamente para trocar</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center text-slate-400">
-                    <UploadCloud className="w-16 h-16 mb-4 text-autism-blue/60" />
-                    <p className="font-bold text-lg text-slate-600 text-center">Arraste um vídeo aqui ou clique para selecionar</p>
-                    <p className="text-sm mt-2">MP4 ou MOV (10 a 15 segundos recomendados)</p>
+                  <div className="flex flex-col items-center">
+                    <UploadCloud className="w-20 h-20 mb-6 text-blue-500 opacity-80" />
+                    <p className="font-bold text-xl text-slate-700 text-center mb-2">Arraste um vídeo aqui ou clique</p>
+                    <p className="font-medium text-slate-400">MP4 ou MOV (10 a 15 segundos)</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <hr className="border-slate-100" />
+            <hr className="border-slate-100 my-8" />
 
             {/* PARENT TEXT INPUTS */}
             <div className="space-y-8">
-              <label className="flex items-center text-lg font-bold text-slate-700">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-autism-green/20 text-autism-green mr-3">2</span>
-                Observações Diárias
+              <label className="flex items-center text-xl font-bold text-slate-700">
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mr-4 shadow-sm">2</span>
+                Observações do Cotidiano
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
-                  <label className="block font-bold text-slate-600 text-sm">Quais comportamentos chamaram sua atenção?</label>
+                  <label className="block font-bold text-slate-600 text-base">Quais comportamentos te chamaram atenção?</label>
                   <textarea 
                     value={concerns}
                     onChange={(e) => setConcerns(e.target.value)}
-                    placeholder="Ex: Ele cruza as perninhas e balança muito as mãos..."
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 min-h-[120px] focus:outline-none focus:border-autism-green/50 focus:bg-white transition-colors"
+                    placeholder="Ex: Ele cruza as perninhas, balança muito as mãos..."
+                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 min-h-[140px] focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-slate-700 placeholder-slate-400"
                   />
                 </div>
                 
                 <div className="space-y-3">
-                  <label className="block font-bold text-slate-600 text-sm">Há atrasos na fala ou comunicação?</label>
+                  <label className="block font-bold text-slate-600 text-base">Há atrasos na fala ou comunicação?</label>
                   <textarea 
                     value={communication}
                     onChange={(e) => setCommunication(e.target.value)}
                     placeholder="Ex: Ainda não formula frases completas..."
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 min-h-[120px] focus:outline-none focus:border-autism-yellow/50 focus:bg-white transition-colors"
+                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 min-h-[140px] focus:outline-none focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-400/10 transition-all font-medium text-slate-700 placeholder-slate-400"
                   />
                 </div>
               </div>
 
-              <div className="space-y-3 bg-slate-50 p-6 rounded-2xl">
-                <label className="block font-bold text-slate-600 text-sm mb-4">A criança responde quando é chamada pelo nome?</label>
-                <div className="flex gap-6">
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                <label className="block font-bold text-slate-700 text-base">A criança responde quando é chamada pelo nome?</label>
+                <div className="flex gap-8 mt-4">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="yes" checked={responds === "yes"} onChange={(e)=>setResponds(e.target.value)} className="w-5 h-5 accent-autism-blue" />
-                    <span className="font-semibold text-slate-600 group-hover:text-autism-blue transition-colors">Sim, prontamente</span>
+                    <input type="radio" value="yes" checked={responds === "yes"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">Sim, responde</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="no" checked={responds === "no"} onChange={(e)=>setResponds(e.target.value)} className="w-5 h-5 accent-autism-red" />
-                    <span className="font-semibold text-slate-600 group-hover:text-autism-red transition-colors">Não / Raramente</span>
+                    <input type="radio" value="no" checked={responds === "no"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">Não, raramente</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            {/* SUBMIT */}
-            <div className="pt-6 flex justify-center">
+            {/* BOTÃO SUBMIT SEMPRE VISÍVEL COM CORES NATIVAS DO TAILWIND */}
+            <div className="pt-10 flex justify-center">
               <button 
                 type="submit" 
                 disabled={loading || !videoFile}
-                className="w-full md:w-auto bg-autism-blue hover:bg-blue-600 text-white font-extrabold text-xl py-5 px-16 rounded-full disabled:opacity-50 transition-all shadow-soft hover:shadow-soft-hover transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-extrabold text-2xl py-6 px-16 rounded-[2rem] disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-soft hover:shadow-soft-hover transform hover:-translate-y-1 flex items-center justify-center gap-4"
               >
                 {loading ? (
                   <>
-                    <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Analisando com Carinho...
                   </>
-                ) : "Iniciar Avaliação"}
+                ) : (
+                  <>Iniciar Avaliação <ArrowRight className="w-7 h-7" /></>
+                )}
               </button>
             </div>
             
@@ -244,14 +259,13 @@ export default function Home() {
       </main>
 
       {/* LUDIC FOOTER */}
-      <footer className="w-full pb-10 pt-20 border-t border-slate-200 mt-20 text-center relative overflow-hidden">
-         <p className="text-slate-400 font-medium">Gemma4-Good © 2024. Construído para auxiliar e transformar.</p>
-         {/* Subtle autism color dots in footer */}
-         <div className="flex justify-center gap-2 mt-6">
-            <div className="w-2 h-2 rounded-full bg-autism-blue opacity-50"></div>
-            <div className="w-2 h-2 rounded-full bg-autism-yellow opacity-50"></div>
-            <div className="w-2 h-2 rounded-full bg-autism-red opacity-50"></div>
-            <div className="w-2 h-2 rounded-full bg-autism-green opacity-50"></div>
+      <footer className="w-full pb-10 pt-20 border-t border-slate-200 mt-20 text-center relative overflow-hidden bg-white">
+         <p className="text-slate-500 font-bold">Primeiro Olhar © {new Date().getFullYear()}. Criado para acolher e transformar.</p>
+         <div className="flex justify-center gap-3 mt-6">
+            <div className="w-3 h-3 rounded-full bg-blue-500 opacity-60"></div>
+            <div className="w-3 h-3 rounded-full bg-amber-400 opacity-60"></div>
+            <div className="w-3 h-3 rounded-full bg-rose-500 opacity-60"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-500 opacity-60"></div>
          </div>
       </footer>
 

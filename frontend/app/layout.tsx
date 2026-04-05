@@ -10,7 +10,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Gemma4-Good | Triagem Autismo",
+  title: "Primeiro Olhar | Triagem Precoce do Autismo",
   description: "Plataforma amigável e acessível para triagem precoce de sinais de autismo utilizando Inteligência Artificial.",
 };
 
