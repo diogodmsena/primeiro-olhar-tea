@@ -12,7 +12,7 @@ export function AccessibilityWidget() {
     <>
       {/* Floating Toggle Button */}
       <button 
-        onClick={() => setIsOpen(true)}
+        onClick={() => setIsOpen(prev => !prev)}
         className="fixed bottom-6 right-6 p-4 rounded-full bg-slate-800 text-white shadow-lg hover:bg-slate-700 hover:scale-105 transition-all z-50 group print:hidden focus:outline-none focus:ring-4 focus:ring-slate-800/20"
         aria-label="Abrir Painel de Acessibilidade"
       >

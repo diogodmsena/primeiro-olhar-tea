@@ -12,56 +12,55 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     """
     Integração real via Google GenAI Multimodal.
     Faz upload do video e gera a resposta com base nele + form.
+    Raises Exception on any failure — caller handles error state.
     """
     api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
-    is_mock = not api_key or api_key.lower() == "mock"
     
-    if is_mock:
-        logger.info("Executando modelo em modo MOCK (Sem chave Google AI Studio)")
-        time.sleep(2)
-        return generate_mock_response(parent_answers)
+    if not api_key or api_key.lower() == "mock":
+        raise ValueError("API Key do Google AI Studio não configurada. Configure GEMMA_API_KEY no arquivo .env")
         
-    try:
-        logger.info(f"Fazendo upload do vídeo na Cloud de Inferência: {video_path}")
-        client = genai.Client(api_key=api_key)
-        video_file = client.files.upload(path=video_path)
-        
-        # Aguarda processamento do vídeo (compatível com google-genai 0.3.x)
-        def get_file_state(f):
-            try:
-                s = f.state
-                if s is None:
-                    return "ACTIVE"
-                if isinstance(s, str):
-                    return s.upper()
-                if hasattr(s, 'name'):
-                    return s.name.upper()
-                return str(s).upper()
-            except Exception:
+    logger.info(f"Fazendo upload do vídeo na Cloud de Inferência: {video_path}")
+    client = genai.Client(api_key=api_key)
+    video_file = client.files.upload(path=video_path)
+    
+    # Aguarda processamento do vídeo (compatível com google-genai 0.3.x)
+    def get_file_state(f):
+        try:
+            s = f.state
+            if s is None:
                 return "ACTIVE"
-        
+            if isinstance(s, str):
+                return s.upper()
+            if hasattr(s, 'name'):
+                return s.name.upper()
+            return str(s).upper()
+        except Exception:
+            return "ACTIVE"
+    
+    time.sleep(3)
+    video_file = client.files.get(name=video_file.name)
+    state = get_file_state(video_file)
+    retries = 0
+    while state == "PROCESSING" and retries < 30:
+        logger.info(f"Aguardando Gemini processar vídeo... (tentativa {retries+1})")
         time.sleep(3)
         video_file = client.files.get(name=video_file.name)
         state = get_file_state(video_file)
-        retries = 0
-        while state == "PROCESSING" and retries < 30:
-            logger.info(f"Aguardando Gemini processar vídeo... (tentativa {retries+1})")
-            time.sleep(3)
-            video_file = client.files.get(name=video_file.name)
-            state = get_file_state(video_file)
-            retries += 1
+        retries += 1
 
-        if state == "FAILED":
-            raise ValueError("O processamento de vídeo pelo servidor do Google falhou.")
-            
-        logger.info(f"Vídeo processado! Estado: {state}. Rodando Inferência LLM...")
+    if state == "FAILED":
+        raise ValueError("O processamento de vídeo pelo servidor do Google falhou.")
+        
+    logger.info(f"Vídeo processado! Estado: {state}. Rodando Inferência LLM...")
 
-        context = f"""Respostas Paternas / Anamnese:
+    context = f"""Respostas Paternas / Anamnese:
 - Preocupações principais: {parent_answers.get('concerns', 'Não relatado')}
 - Atraso na comunicação: {parent_answers.get('communication_delays', 'Não relatado')}
-- Responde ao nome?: {parent_answers.get('responds_to_name', 'Não')}"""
-        
-        prompt = f"""You are "Gemma-4-Good", an advanced autism screening system.
+- Responde ao nome?: {parent_answers.get('responds_to_name', 'Não')}
+- Brinca de faz de conta? (dar comida pra boneca, fazer carrinho voar): {parent_answers.get('pretend_play', 'Não informado')}
+- Gosta de enfileirar objetos, girar rodas, focar em partes específicas?: {parent_answers.get('object_lining', 'Não informado')}"""
+    
+    prompt = f"""You are "Gemma-4-Good", an advanced autism screening system.
 Analyze the attached video and the parent questionnaire below to produce a clinical screening report.
 
 PARENT QUESTIONNAIRE:
@@ -94,38 +93,34 @@ REQUIRED JSON SCHEMA (return EXACTLY this structure with real values):
         "score": 0.5,
         "level": "MÉDIO"
     }},
-    "gemma_report": "## Relatório de Triagem\\n\\nTexto completo do relatório clínico."
+    "gemma_report": "**Análise do Questionário Parental:**\\n(escreva aqui a análise baseada no questionário)\\n\\n**Sumário dos Indicadores:**\\n(escreva aqui o sumário do que foi detectado no vídeo e áudio)\\n\\n**Nível de Risco:**\\n(escreva sobre o risco e oriente a família)"
 }}
 
 Output ONLY the JSON object. No text before or after it."""
 
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=[video_file, prompt],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json"
-            )
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=[video_file, prompt],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json"
         )
-        
-        raw_text = response.text
-        logger.info(f"Resposta bruta do Gemini (500 chars): {raw_text[:500]}")
-        
-        parsed = try_parse_json(raw_text)
-        
-        if parsed:
-            try:
-                client.files.delete(name=video_file.name)
-            except Exception:
-                pass
-            logger.info("Inferência JSON concluída com sucesso!")
-            return parsed
-        else:
-            logger.error(f"JSON inválido após tentativas de reparo: {raw_text[:1000]}")
-            return generate_mock_response(parent_answers)
-
-    except Exception as e:
-        logger.error(f"Erro na integração Multimodal: {e}")
-        return generate_mock_response(parent_answers)
+    )
+    
+    raw_text = response.text
+    logger.info(f"Resposta bruta do Gemini (500 chars): {raw_text[:500]}")
+    
+    parsed = try_parse_json(raw_text)
+    
+    if parsed:
+        try:
+            client.files.delete(name=video_file.name)
+        except Exception:
+            pass
+        logger.info("Inferência JSON concluída com sucesso!")
+        return parsed
+    else:
+        logger.error(f"JSON inválido após tentativas de reparo: {raw_text[:1000]}")
+        raise ValueError("Não foi possível interpretar a resposta do modelo de IA. Tente novamente.")
 
 
 def try_parse_json(text: str):
@@ -156,12 +151,3 @@ def try_parse_json(text: str):
     
     return None
 
-
-def generate_mock_response(answers: dict) -> dict:
-     return {
-         "video_features": {"avg_gaze_score": 0.5, "eye_contact_ratio": 0.45, "head_movement_pattern": "normal", "facial_expressivity": "low"},
-         "audio_features": {"prosody_variation": 0.30, "speech_presence": True, "audio_reactivity": "low"},
-         "text_features": {"parent_concerns": [answers.get('concerns', '')], "contextual_flags": ["Atraso de fala observado na anamnese"]},
-         "risk_score": {"score": 0.88, "level": "ALTO"},
-         "gemma_report": f"**Relatório Fallback MOCK**\n\nO backend não encontrou sua API Key e ativou o modo fail-safe. Detalhes: {answers.get('concerns')}. Considere contatar a moderação médica local."
-     }

@@ -4,8 +4,19 @@ from typing import Dict, Any
 # For production/scale, replace with Redis or PostgreSQL
 _JOBS: Dict[str, Any] = {}
 
-def start_job(job_id: str):
-    _JOBS[job_id] = {"status": "processing", "result": None, "error": None}
+def start_job(job_id: str, metadata: dict = None):
+    _JOBS[job_id] = {
+        "status": "processing", 
+        "result": None, 
+        "error": None,
+        "metadata": metadata or {}
+    }
+
+def reset_job_to_processing(job_id: str):
+    if job_id in _JOBS:
+        _JOBS[job_id]["status"] = "processing"
+        _JOBS[job_id]["error"] = None
+        _JOBS[job_id]["result"] = None
 
 def get_job(job_id: str) -> Any:
     return _JOBS.get(job_id)

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks
+from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks, HTTPException
 import uuid
 import json
 from api.models import ProcessJobResponse, ProcessJobResponse, FinalReportResponse, ParentQuestions
-from utils.storage import start_job, get_job, update_job_success, update_job_error
+from utils.storage import start_job, get_job, update_job_success, update_job_error, reset_job_to_processing
 from utils.logger import get_logger
 from services.gemma_explainability import analyze_multimodal_case
 import os
@@ -42,7 +42,6 @@ async def create_triagem(
     Receives video and parent questionnaire, starts background processing.
     """
     job_id = str(uuid.uuid4())
-    start_job(job_id)
     
     # Save the physical payload to Docker's internal /tmp space for file-uploading
     os.makedirs("/tmp/triagem_videos", exist_ok=True)
@@ -50,11 +49,38 @@ async def create_triagem(
     
     with open(video_path, "wb") as buffer:
         shutil.copyfileobj(video.file, buffer)
+        
+    start_job(job_id, metadata={"parent_answers": parent_answers, "video_path": video_path})
     
     # Enqueue background task
     background_tasks.add_task(orchestration_pipeline, job_id, parent_answers, video_path)
     
     return ProcessJobResponse(job_id=job_id, status="processing", message="Triagem iniciada.")
+
+
+@router.post("/triagem/{job_id}/retry", response_model=ProcessJobResponse)
+async def retry_triagem(
+    job_id: str,
+    background_tasks: BackgroundTasks
+):
+    """
+    Retries an existing job that failed, using the same stored video and answers.
+    """
+    job_data = get_job(job_id)
+    if not job_data:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    metadata = job_data.get("metadata", {})
+    video_path = metadata.get("video_path")
+    parent_answers = metadata.get("parent_answers")
+    
+    if not video_path or not parent_answers or not os.path.exists(video_path):
+        raise HTTPException(status_code=400, detail="Cannot retry: Original files or payload missing from memory")
+        
+    reset_job_to_processing(job_id)
+    background_tasks.add_task(orchestration_pipeline, job_id, parent_answers, video_path)
+    
+    return ProcessJobResponse(job_id=job_id, status="processing", message="Triagem reiniciada.")
 
 @router.get("/triagem/{job_id}", response_model=FinalReportResponse)
 async def get_triagem_status(job_id: str):
@@ -69,6 +95,13 @@ async def get_triagem_status(job_id: str):
     
     if status == "processing":
         return FinalReportResponse(job_id=job_id, status="processing")
+    
+    if status == "error":
+        return FinalReportResponse(
+            job_id=job_id, 
+            status="error",
+            error_message=job_data.get("error", "Erro desconhecido no processamento.")
+        )
     
     # Done state
     result = job_data.get("result", {})

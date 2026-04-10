@@ -33,6 +33,7 @@ class RiskScoreOutput(BaseModel):
 class FinalReportResponse(BaseModel):
     job_id: str
     status: str
+    error_message: Optional[str] = None
     video_features: Optional[VideoFeatureOutput] = None
     audio_features: Optional[AudioFeatureOutput] = None
     text_features: Optional[TextFeatureOutput] = None

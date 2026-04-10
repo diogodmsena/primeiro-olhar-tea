@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { I18nProvider } from "./contexts/I18nContext";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { AccessibilityWidget } from "../components/AccessibilityWidget";
 
 const nunito = Nunito({
@@ -24,11 +26,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="scroll-smooth">
+      <head>
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className={`${nunito.variable} font-sans antialiased bg-soft-bg text-slate-800`}>
         <I18nProvider>
           <AccessibilityProvider>
-            {children}
-            <AccessibilityWidget />
+            <AuthProvider>
+              {children}
+              <AccessibilityWidget />
+            </AuthProvider>
           </AccessibilityProvider>
         </I18nProvider>
       </body>

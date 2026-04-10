@@ -8,16 +8,21 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useI18n } from "./contexts/I18nContext";
 import { LanguageSelector } from "../components/LanguageSelector";
+import { UserMenu } from "../components/UserMenu";
 
-// Logo Amigável (Cores do Autismo) com formas padrões Tailwind para garantir cores puras
+import Image from "next/image";
+
+// Logo com logo_v4 e texto
 const CSSLogo = () => (
   <div className="flex items-center gap-2">
-    <div className="grid grid-cols-2 gap-1 animate-float">
-      <div className="w-4 h-4 bg-blue-500 rounded-sm rounded-tl-xl shadow-soft"></div>
-      <div className="w-4 h-4 bg-amber-400 rounded-sm rounded-tr-xl shadow-soft"></div>
-      <div className="w-4 h-4 bg-rose-500 rounded-sm rounded-bl-xl shadow-soft"></div>
-      <div className="w-4 h-4 bg-emerald-500 rounded-sm rounded-br-xl shadow-soft"></div>
-    </div>
+    <Image 
+      src="/logo_v4.png" 
+      alt="Ícone Primeiro Olhar" 
+      width={40} 
+      height={40} 
+      className="w-8 h-8 md:w-10 md:h-10 object-contain animate-float" 
+      priority
+    />
     <span className="font-extrabold text-3xl tracking-tight text-slate-800">
       Primeiro<span className="text-blue-500">Olhar</span>
     </span>
@@ -52,6 +57,8 @@ export default function Home() {
   const [concerns, setConcerns] = useState("");
   const [communication, setCommunication] = useState("");
   const [responds, setResponds] = useState("yes");
+  const [pretendPlay, setPretendPlay] = useState("");
+  const [objectLining, setObjectLining] = useState("");
 
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
     if (acceptedFiles.length > 0) {
@@ -79,7 +86,9 @@ export default function Home() {
       const parentAnswers = {
         concerns,
         communication_delays: communication,
-        responds_to_name: responds
+        responds_to_name: responds,
+        pretend_play: pretendPlay,
+        object_lining: objectLining
       };
       
       formData.append("parent_answers", JSON.stringify(parentAnswers));
@@ -112,21 +121,18 @@ export default function Home() {
         <CSSLogo />
         <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
           <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.home')}</a>
-          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</a>
-          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.community')}</a>
+          <Link href="/como-funciona" className="hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</Link>
         </nav>
         <div className="flex items-center gap-4">
           <LanguageSelector />
-          <Link href="/dashboard" className="hidden md:flex bg-white text-blue-500 border-2 border-blue-500 px-6 py-2.5 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm">
-            {t('nav.professionalArea')}
-          </Link>
+          <UserMenu />
         </div>
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-24">
         
         {/* HERO SECTION */}
-        <section className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-24">
+        <section className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-24 min-h-[calc(100vh-120px)]">
           <div className="w-full lg:w-1/2 space-y-8 relative z-10">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-sm shadow-sm">
               <Heart className="w-4 h-4 fill-emerald-600/20" /> {t('hero.badge')}
@@ -161,7 +167,7 @@ export default function Home() {
              <PlusCircle className="text-white w-8 h-8" />
           </div>
 
-          <div className="text-center mb-16 pt-6">
+          <div className="text-center mb-8 pt-6">
             <h2 className="text-3xl font-black text-slate-800 mb-4">{t('form.headerBadge')}</h2>
             <p className="text-slate-500 font-medium text-lg">{t('form.headerSubtitle')}</p>
           </div>
@@ -174,24 +180,37 @@ export default function Home() {
                 <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 mr-4 shadow-sm">1</span>
                 {t('form.step1Title')}
               </label>
+
+              {/* ORIENTAÇÃO DE GRAVAÇÃO */}
+              <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5">
+                <p className="font-bold text-blue-700 text-sm mb-2">💡 Dicas para um vídeo eficaz:</p>
+                <ul className="text-sm text-slate-600 space-y-1.5 list-disc list-inside">
+                  <li>Grave a criança em um ambiente tranquilo e bem iluminado</li>
+                  <li>Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</li>
+                  <li>Chame a criança pelo nome durante a gravação e observe a reação</li>
+                  <li>Ideal: 1 a 3 minutos em uma interação natural (brincar, conversar)</li>
+                  <li>Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</li>
+                </ul>
+              </div>
+
               <div 
                 {...getRootProps()} 
-                className={`border-4 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer ${
+                className={`border-4 border-dashed rounded-3xl py-6 px-10 flex flex-col items-center justify-center transition-all cursor-pointer min-h-[180px] ${
                   isDragActive ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-400 hover:bg-blue-50/50"
                 }`}
               >
                 <input {...getInputProps()} />
                 {videoFile ? (
                   <div className="flex flex-col items-center text-emerald-500">
-                    <CheckCircle2 className="w-20 h-20 mb-4 fill-emerald-500/10" />
-                    <p className="font-extrabold text-xl">{videoFile.name}</p>
-                    <p className="text-sm mt-3 font-semibold text-slate-500">{t('form.dropzoneSuccessSubtitle')}</p>
+                    <CheckCircle2 className="w-14 h-14 mb-3 fill-emerald-500/10" />
+                    <p className="font-extrabold text-lg">{videoFile.name}</p>
+                    <p className="text-sm mt-2 font-semibold text-slate-500">{t('form.dropzoneSuccessSubtitle')}</p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <UploadCloud className="w-20 h-20 mb-6 text-blue-500 opacity-80" />
-                    <p className="font-bold text-xl text-slate-700 text-center mb-2">{t('form.dropzoneDefaultTitle')}</p>
-                    <p className="font-medium text-slate-400">{t('form.dropzoneDefaultSubtitle')}</p>
+                    <UploadCloud className="w-14 h-14 mb-3 text-blue-500 opacity-80" />
+                    <p className="font-bold text-lg text-slate-700 text-center mb-1">{t('form.dropzoneDefaultTitle')}</p>
+                    <p className="font-medium text-slate-400 text-sm">{t('form.dropzoneDefaultSubtitle')}</p>
                   </div>
                 )}
               </div>
@@ -206,6 +225,49 @@ export default function Home() {
                 {t('form.step2Title')}
               </label>
               
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                <label className="block font-bold text-slate-700 text-base">{t('form.q3Label')}</label>
+                <div className="flex gap-8 mt-4">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" value="yes" checked={responds === "yes"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">{t('form.q3OptYes')}</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" value="no" checked={responds === "no"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">{t('form.q3OptNo')}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                <label className="block font-bold text-slate-700 text-base">{t('form.q4Label')}</label>
+                <p className="text-sm text-slate-500 font-medium -mt-2">{t('form.q4Hint')}</p>
+                <div className="flex gap-8 mt-4">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" name="pretendPlay" value="yes" checked={pretendPlay === "yes"} onChange={(e)=>setPretendPlay(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">{t('form.optYes')}</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" name="pretendPlay" value="no" checked={pretendPlay === "no"} onChange={(e)=>setPretendPlay(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">{t('form.optNo')}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
+                <label className="block font-bold text-slate-700 text-base">{t('form.q5Label')}</label>
+                <div className="flex gap-8 mt-4">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" name="objectLining" value="yes" checked={objectLining === "yes"} onChange={(e)=>setObjectLining(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">{t('form.optYes')}</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" name="objectLining" value="no" checked={objectLining === "no"} onChange={(e)=>setObjectLining(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
+                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">{t('form.optNo')}</span>
+                  </label>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
                   <label className="block font-bold text-slate-600 text-base">{t('form.q1Label')}</label>
@@ -225,20 +287,6 @@ export default function Home() {
                     placeholder={t('form.q2Placeholder')}
                     className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 min-h-[140px] focus:outline-none focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-400/10 transition-all font-medium text-slate-700 placeholder-slate-400"
                   />
-                </div>
-              </div>
-
-              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">
-                <label className="block font-bold text-slate-700 text-base">{t('form.q3Label')}</label>
-                <div className="flex gap-8 mt-4">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="yes" checked={responds === "yes"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-blue-500 cursor-pointer" />
-                    <span className="font-bold text-slate-600 group-hover:text-blue-500 transition-colors">{t('form.q3OptYes')}</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="radio" value="no" checked={responds === "no"} onChange={(e)=>setResponds(e.target.value)} className="w-6 h-6 accent-rose-500 cursor-pointer" />
-                    <span className="font-bold text-slate-600 group-hover:text-rose-500 transition-colors">{t('form.q3OptNo')}</span>
-                  </label>
                 </div>
               </div>
             </div>
