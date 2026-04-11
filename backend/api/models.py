@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 class ParentQuestions(BaseModel):
+    child_name: str
     concerns: str
     communication_delays: str
     responds_to_name: str
@@ -39,3 +40,4 @@ class FinalReportResponse(BaseModel):
     text_features: Optional[TextFeatureOutput] = None
     risk_score: Optional[RiskScoreOutput] = None
     gemma_report: Optional[str] = None
+    child_name: Optional[str] = None

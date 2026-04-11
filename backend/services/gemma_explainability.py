@@ -53,7 +53,9 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         
     logger.info(f"Vídeo processado! Estado: {state}. Rodando Inferência LLM...")
 
-    context = f"""Respostas Paternas / Anamnese:
+    child_name = parent_answers.get('child_name', 'Criança')
+    context = f"""Respostas Paternas / Anamnese sobre {child_name}:
+- Nome documentado na triagem: {child_name}
 - Preocupações principais: {parent_answers.get('concerns', 'Não relatado')}
 - Atraso na comunicação: {parent_answers.get('communication_delays', 'Não relatado')}
 - Responde ao nome?: {parent_answers.get('responds_to_name', 'Não')}

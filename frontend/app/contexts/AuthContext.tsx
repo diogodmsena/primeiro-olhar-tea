@@ -14,6 +14,7 @@ interface AuthContextType {
   user: GoogleUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isGoogleReady: boolean;
   signIn: () => void;
   signOut: () => void;
 }
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  isGoogleReady: false,
   signIn: () => {},
   signOut: () => {},
 });
@@ -46,6 +48,7 @@ function decodeJwtPayload(token: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<GoogleUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
 
   const handleCredentialResponse = useCallback(async (response: { credential: string }) => {
     const idToken = response.credential;
@@ -146,27 +149,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initGoogle = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const google = (window as any).google;
-      if (google?.accounts?.id) {
+      if (google?.accounts?.id && !isGoogleReady) {
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
         });
+        setIsGoogleReady(true);
       }
     };
 
-    // Wait for script to load
-    if (document.querySelector('script[src*="accounts.google.com"]')) {
-      const check = setInterval(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).google?.accounts?.id) {
-          clearInterval(check);
-          initGoogle();
-        }
-      }, 100);
-      return () => clearInterval(check);
-    }
+    const check = setInterval(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window as any).google?.accounts?.id && !isGoogleReady) {
+        clearInterval(check);
+        initGoogle();
+      }
+    }, 100);
+
+    const safetyTimeout = setTimeout(() => clearInterval(check), 15000);
+
+    return () => {
+      clearInterval(check);
+      clearTimeout(safetyTimeout);
+    };
   }, [handleCredentialResponse]);
 
   useEffect(() => {
@@ -176,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [signIn]);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, isGoogleReady, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

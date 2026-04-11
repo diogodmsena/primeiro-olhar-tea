@@ -149,11 +149,6 @@ export default function ComoFuncionaPage() {
                   </div>
                 </div>
               </div>
-              {i < steps.length - 1 && (
-                <div className="flex justify-center mt-6">
-                  <div className="w-0.5 h-8 bg-slate-200 rounded-full" />
-                </div>
-              )}
             </div>
           ))}
         </section>

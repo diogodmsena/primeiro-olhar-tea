@@ -21,6 +21,7 @@ def orchestration_pipeline(job_id: str, parent_json: str, video_path: str):
         
         # Save to memory storage
         update_job_success(job_id, {
+            "child_name": parent_answers.get("child_name", ""),
             "video_features": report_data.get("video_features", {"avg_gaze_score": 1.0, "eye_contact_ratio": 1.0, "head_movement_pattern": "normal", "facial_expressivity": "normal"}),
             "audio_features": report_data.get("audio_features", {"prosody_variation": 1.0, "speech_presence": True, "audio_reactivity": "normal"}),
             "text_features": report_data.get("text_features", {"parent_concerns": [], "contextual_flags": []}),
@@ -89,6 +90,23 @@ async def get_triagem_status(job_id: str):
     """
     job_data = get_job(job_id)
     if not job_data:
+        from utils.database import get_report_by_job_id
+        saved_report = get_report_by_job_id(job_id)
+        if saved_report:
+            try:
+                report_data = json.loads(saved_report.get("report_data", "{}"))
+                return FinalReportResponse(
+                    job_id=job_id,
+                    status="done",
+                    video_features=report_data.get("video_features"),
+                    audio_features=report_data.get("audio_features"),
+                    text_features=report_data.get("text_features"),
+                    risk_score=report_data.get("risk_score"),
+                    gemma_report=report_data.get("gemma_report"),
+                    child_name=report_data.get("child_name", saved_report.get("child_name", ""))
+                )
+            except Exception as e:
+                logger.error(f"Failed to parse database report for {job_id}: {e}")
         return FinalReportResponse(job_id=job_id, status="not_found")
         
     status = job_data["status"]
@@ -112,5 +130,6 @@ async def get_triagem_status(job_id: str):
         audio_features=result.get("audio_features"),
         text_features=result.get("text_features"),
         risk_score=result.get("risk_score"),
-        gemma_report=result.get("gemma_report")
+        gemma_report=result.get("gemma_report"),
+        child_name=result.get("child_name", "")
     )

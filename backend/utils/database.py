@@ -37,10 +37,16 @@ def init_db():
             report_data TEXT NOT NULL,
             risk_score REAL DEFAULT 0,
             risk_level TEXT DEFAULT 'INDEFINIDO',
+            child_name TEXT DEFAULT '',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
+    
+    try:
+        cursor.execute("ALTER TABLE reports ADD COLUMN child_name TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass # Column already exists
     
     conn.commit()
     conn.close()
@@ -70,7 +76,7 @@ def upsert_user(google_id: str, email: str, name: str, picture: str = "") -> int
     conn.close()
     return user_id
 
-def save_report(user_id: int, job_id: str, report_data: dict, risk_score: float, risk_level: str) -> int:
+def save_report(user_id: int, job_id: str, report_data: dict, risk_score: float, risk_level: str, child_name: str = "") -> int:
     conn = get_connection()
     cursor = conn.cursor()
     
@@ -85,8 +91,8 @@ def save_report(user_id: int, job_id: str, report_data: dict, risk_score: float,
         return existing["id"]
     
     cursor.execute(
-        "INSERT INTO reports (user_id, job_id, report_data, risk_score, risk_level) VALUES (?, ?, ?, ?, ?)",
-        (user_id, job_id, json.dumps(report_data), risk_score, risk_level)
+        "INSERT INTO reports (user_id, job_id, report_data, risk_score, risk_level, child_name) VALUES (?, ?, ?, ?, ?, ?)",
+        (user_id, job_id, json.dumps(report_data), risk_score, risk_level, child_name)
     )
     report_id = cursor.lastrowid
     conn.commit()
@@ -99,7 +105,7 @@ def get_user_reports(user_id: int) -> list:
     cursor = conn.cursor()
     
     cursor.execute(
-        "SELECT id, job_id, risk_score, risk_level, created_at FROM reports WHERE user_id = ? ORDER BY created_at DESC",
+        "SELECT id, job_id, risk_score, risk_level, child_name, created_at FROM reports WHERE user_id = ? ORDER BY created_at DESC",
         (user_id,)
     )
     rows = cursor.fetchall()
@@ -111,6 +117,14 @@ def get_user_by_google_id(google_id: str):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE google_id = ?", (google_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_report_by_job_id(job_id: str) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM reports WHERE job_id = ?", (job_id,))
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None

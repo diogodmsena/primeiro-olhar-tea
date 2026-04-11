@@ -207,7 +207,9 @@ export default function ResultadoPage() {
 
         <header className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print:shadow-none print:border-none print:p-0 print:mb-6">
              <div>
-                <h1 className="text-2xl font-semibold text-slate-800">Resultado da Triagem</h1>
+                <h1 className="text-2xl font-semibold text-slate-800">
+                  Resultado da Triagem {data?.child_name ? `- ${data.child_name}` : ''}
+                </h1>
                 <p className="text-slate-500 mt-1 flex items-center"><FileText className="w-4 h-4 mr-1" /> ID: {params.job_id} | Modelo: Gemma 4</p>
              </div>
              

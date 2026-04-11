@@ -54,6 +54,7 @@ export default function Home() {
   const { t } = useI18n();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [childName, setChildName] = useState("");
   const [concerns, setConcerns] = useState("");
   const [communication, setCommunication] = useState("");
   const [responds, setResponds] = useState("yes");
@@ -84,6 +85,7 @@ export default function Home() {
       formData.append("video", videoFile);
       
       const parentAnswers = {
+        child_name: childName,
         concerns,
         communication_delays: communication,
         responds_to_name: responds,
@@ -174,11 +176,33 @@ export default function Home() {
           
           <form onSubmit={handleSubmit} className="space-y-10">
             
-            {/* FILE UPLOAD CARD */}
+            {/* IDENTIFICATION STEP */}
             <div className="space-y-4">
               <label className="flex items-center text-xl font-bold text-slate-700">
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 mr-4 shadow-sm">1</span>
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-400/10 text-amber-500 mr-4 shadow-sm">1</span>
                 {t('form.step1Title')}
+              </label>
+
+              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 mb-8">
+                <label className="block font-bold text-slate-700 text-base">{t('form.childNameLabel')}</label>
+                <div className="mt-4">
+                  <input 
+                    type="text" 
+                    value={childName}
+                    onChange={(e) => setChildName(e.target.value)}
+                    placeholder="Nome"
+                    className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-700 placeholder-slate-400"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* FILE UPLOAD CARD */}
+            <div className="space-y-4 mt-8">
+              <label className="flex items-center text-xl font-bold text-slate-700">
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 text-blue-600 mr-4 shadow-sm">2</span>
+                {t('form.step2Title')}
               </label>
 
               {/* ORIENTAÇÃO DE GRAVAÇÃO */}
@@ -221,8 +245,8 @@ export default function Home() {
             {/* PARENT TEXT INPUTS */}
             <div className="space-y-8">
               <label className="flex items-center text-xl font-bold text-slate-700">
-                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mr-4 shadow-sm">2</span>
-                {t('form.step2Title')}
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 mr-4 shadow-sm">3</span>
+                {t('form.step3Title')}
               </label>
               
               <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100">

@@ -130,12 +130,15 @@ async def create_report(req: SaveReportRequest, authorization: str = Header(defa
             risk_score = rs.get("score", 0.0)
             risk_level = rs.get("level", "INDEFINIDO")
 
+    child_name = req.report_data.get("child_name", "")
+
     report_id = save_report(
         user_id=user["id"],
         job_id=req.job_id,
         report_data=req.report_data,
         risk_score=risk_score,
         risk_level=risk_level,
+        child_name=child_name
     )
     
     return {"id": report_id, "message": "Relatório salvo com sucesso"}

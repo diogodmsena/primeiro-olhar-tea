@@ -11,6 +11,7 @@ interface ReportEntry {
   job_id: string;
   risk_score: number;
   risk_level: string;
+  child_name: string;
   created_at: string;
 }
 
@@ -134,7 +135,7 @@ export default function HistoricoPage() {
                       <FileText className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800 text-sm">Triagem #{report.job_id.slice(0, 8)}...</p>
+                      <p className="font-bold text-slate-800 text-sm">Triagem {report.child_name || `#${report.job_id.slice(0, 8)}...`}</p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="flex items-center gap-1 text-xs text-slate-500">
                           <Calendar className="w-3 h-3" />
