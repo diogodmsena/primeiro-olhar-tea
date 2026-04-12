@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import 'react-native-reanimated';
 import '../global.css';
 import { I18nProvider } from '../contexts/I18nContext';
 import { AuthProvider } from '../contexts/AuthContext';
