@@ -1,5 +1,24 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
+import { Alert } from 'react-native';
+
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+// Importação dinâmica para evitar que o Babel tente resolver o módulo nativo se não for necessário
+// No entanto, em React Native, imports de topo são mais comuns.
+// Vamos tentar importar e capturar erro ou apenas ignorar se isExpoGo.
+let GoogleSignin: any = null;
+let statusCodes: any = null;
+
+if (!isExpoGo) {
+  try {
+    const GoogleAuth = require('@react-native-google-signin/google-signin');
+    GoogleSignin = GoogleAuth.GoogleSignin;
+    statusCodes = GoogleAuth.statusCodes;
+  } catch (e) {
+    console.warn("Google Sign-in module not found even in native build.");
+  }
+}
 
 interface GoogleUser {
   email: string;
@@ -30,39 +49,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // MUST BE REPLACED WITH ACTUAL CLIENT ID
-      offlineAccess: true,
-    });
-    
-    // Check if user is already signed in
-    const checkUser = async () => {
-      try {
-        const hasSignIn = await GoogleSignin.hasPlayServices();
-        if (hasSignIn) {
-          const userInfo = await GoogleSignin.signInSilently();
-          if (userInfo && userInfo.data?.user) {
-             const u = userInfo.data.user;
-             setUser({
-               email: u.email,
-               name: u.name || 'Usuário',
-               picture: u.photo || '',
-               token: userInfo.data.idToken || '',
-               googleId: u.id
-             });
+    if (isExpoGo) {
+      console.log("Running in Expo Go: Google Sign-in functionality is mocked.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (GoogleSignin) {
+      GoogleSignin.configure({
+        webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+        offlineAccess: true,
+      });
+      
+      const checkUser = async () => {
+        try {
+          const hasSignIn = await GoogleSignin.hasPlayServices();
+          if (hasSignIn) {
+            const userInfo = await GoogleSignin.signInSilently();
+            if (userInfo && userInfo.data?.user) {
+               const u = userInfo.data.user;
+               setUser({
+                 email: u.email,
+                 name: u.name || 'Usuário',
+                 picture: u.photo || '',
+                 token: userInfo.data.idToken || '',
+                 googleId: u.id
+               });
+            }
           }
+        } catch (error) {
+           // Silently fail if not signed in
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-         // Silently fail if not signed in
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkUser();
+      };
+      checkUser();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   const signIn = async () => {
+    if (isExpoGo) {
+      Alert.alert(
+        "Ambiente Expo Go",
+        "O Login com Google real exige um 'Development Build'. Deseja usar o login de teste?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          { 
+            text: "Login de Teste", 
+            onPress: () => {
+              setUser({
+                email: 'teste@exemplo.com',
+                name: 'Usuário Teste (Expo Go)',
+                picture: 'https://ui-avatars.com/api/?name=Teste',
+                token: 'mock-token',
+                googleId: '123'
+              });
+            }
+          }
+        ]
+      );
+      return;
+    }
+
     try {
+      if (!GoogleSignin) throw new Error("Google Sign-in not initialized");
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       if (userInfo && userInfo.data?.user) {
@@ -76,14 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
          });
       }
     } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      if (statusCodes && error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled the login flow');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Operation is in progress already');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Play services not available or outdated');
       } else {
-        console.log('Some other error happened', error);
+        console.log('Sign in error', error);
       }
       throw error;
     }
@@ -91,7 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await GoogleSignin.signOut();
+      if (!isExpoGo && GoogleSignin) {
+        await GoogleSignin.signOut();
+      }
       setUser(null);
     } catch (error) {
       console.error('Error signing out', error);
