@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Header } from '../components/Header';
@@ -27,7 +27,7 @@ export default function TriagemScreen() {
   const [childName, setChildName] = useState('');
   const [concerns, setConcerns] = useState('');
   const [communicationDelays, setCommunicationDelays] = useState('');
-  const [respondsToName, setRespondsToName] = useState('');
+  const [respondsToName, setRespondsToName] = useState('yes');
   const [pretendPlay, setPretendPlay] = useState('');
   const [repetitiveBehaviors, setRepetitiveBehaviors] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,8 +109,29 @@ export default function TriagemScreen() {
     }
   };
 
+  const RadioButton = ({ label, value, selectedValue, onSelect, colorClass }: { label: string, value: string, selectedValue: string, onSelect: (val: string) => void, colorClass: 'blue' | 'rose' }) => {
+    const isSelected = value === selectedValue;
+    return (
+      <TouchableOpacity 
+        onPress={() => onSelect(value)}
+        className="flex-row items-center mr-6 py-2"
+        activeOpacity={0.7}
+      >
+        <View className={`w-6 h-6 rounded-full border-2 items-center justify-center mr-3 ${isSelected ? (colorClass === 'blue' ? 'border-blue-500' : 'border-rose-500') : 'border-slate-300'}`}>
+          {isSelected && (
+            <View className={`w-3 h-3 rounded-full ${colorClass === 'blue' ? 'bg-blue-500' : 'bg-rose-500'}`} />
+          )}
+        </View>
+        <Text className={`font-bold ${isSelected ? (colorClass === 'blue' ? 'text-blue-500' : 'text-rose-500') : 'text-slate-600'}`}>{label}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View className="flex-1 bg-white">
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      className="flex-1 bg-white"
+    >
       <Header />
       
       {/* Stepper Progress */}
@@ -124,7 +145,10 @@ export default function TriagemScreen() {
         ))}
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
+      <ScrollView 
+        contentContainerStyle={{ padding: 24, paddingBottom: 100 }}
+        keyboardShouldPersistTaps="handled"
+      >
         {step === 1 && (
           <View className="gap-4">
             <Text className="text-xl font-bold text-slate-800 mb-4">{t('form.step1Title')} - Identificação</Text>
@@ -194,10 +218,35 @@ export default function TriagemScreen() {
         )}
 
         {step === 3 && (
-          <View className="gap-4">
-            <Text className="text-xl font-bold text-slate-800 mb-4">{t('form.step3Title')}</Text>
-            
-            <View className="bg-slate-50 p-6 rounded-2xl border border-slate-100 gap-4 flex-col">
+          <View className="gap-6">
+            <Text className="text-xl font-bold text-slate-800 mb-2">{t('form.step3Title')}</Text>
+
+            <View className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 gap-2 flex-col">
+              <Text className="font-bold text-slate-700">{t('form.q3Label') || "A criança atende pelo nome?"}</Text>
+              <View className="flex-row mt-2">
+                <RadioButton label={t('form.q3OptYes') || "Sim"} value="yes" selectedValue={respondsToName} onSelect={setRespondsToName} colorClass="blue" />
+                <RadioButton label={t('form.q3OptNo') || "Não"} value="no" selectedValue={respondsToName} onSelect={setRespondsToName} colorClass="rose" />
+              </View>
+            </View>
+
+            <View className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 gap-2 flex-col">
+              <Text className="font-bold text-slate-700">{t('form.q4Label') || "A criança brinca de faz de conta?"}</Text>
+              <Text className="text-xs text-slate-400 -mt-1 mb-2">{t('form.q4Hint') || "(ex: dar comidinha para boneca)"}</Text>
+              <View className="flex-row">
+                <RadioButton label={t('form.optYes') || "Sim"} value="yes" selectedValue={pretendPlay} onSelect={setPretendPlay} colorClass="blue" />
+                <RadioButton label={t('form.optNo') || "Não"} value="no" selectedValue={pretendPlay} onSelect={setPretendPlay} colorClass="rose" />
+              </View>
+            </View>
+
+            <View className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 gap-2 flex-col">
+              <Text className="font-bold text-slate-700">{t('form.q5Label') || "Costume de enfileirar objetos?"}</Text>
+              <View className="flex-row mt-2">
+                <RadioButton label={t('form.optYes') || "Sim"} value="yes" selectedValue={repetitiveBehaviors} onSelect={setRepetitiveBehaviors} colorClass="blue" />
+                <RadioButton label={t('form.optNo') || "Não"} value="no" selectedValue={repetitiveBehaviors} onSelect={setRepetitiveBehaviors} colorClass="rose" />
+              </View>
+            </View>
+
+            <View className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 gap-4 flex-col mt-2">
                <Text className="font-bold text-slate-700">{t('form.q1Label')}</Text>
                <TextInput 
                  multiline
@@ -234,6 +283,6 @@ export default function TriagemScreen() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

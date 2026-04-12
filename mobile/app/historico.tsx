@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'rea
 import { useRouter } from 'expo-router';
 import { Header } from '../components/Header';
 import { ArrowLeft, Clock, FileText } from '../components/LucideIcons';
-import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface ReportEntry {
   id: number;
@@ -22,12 +22,13 @@ export default function HistoricoScreen() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-        // Em um app completo teríamos token, aqui mockaremos ID do usuário 1
-        // (suportado pela API original se configurada corretamente).
-        // Vamos usar mock temporario para UX ou fetch local
-        const res = await axios.get(`${apiUrl}/api/reports`, { headers: { Authorization: `Bearer mock-token` } });
-        setReports(res.data);
+        const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
+        if (savedHistory) {
+          const parsedHistory = JSON.parse(savedHistory);
+          // Ordenar do mais recente para o mais antigo
+          parsedHistory.sort((a: ReportEntry, b: ReportEntry) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          setReports(parsedHistory);
+        }
       } catch (e) {
         console.error("Unable to load history", e);
       } finally {
@@ -54,7 +55,7 @@ export default function HistoricoScreen() {
           <View className="gap-4">
             {reports.length === 0 ? (
               <View className="bg-white p-8 rounded-3xl border border-slate-100 items-center justify-center">
-                <Text className="text-slate-400 font-bold">Nenhuma avaliação encontrada.</Text>
+                <Text className="text-slate-400 font-bold">Nenhuma avaliação salva encontrada.</Text>
               </View>
             ) : (
               reports.map((report) => (

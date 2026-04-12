@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
-import { FileText, ArrowLeft, Loader2, Sparkles } from '../components/LucideIcons';
+import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save } from '../components/LucideIcons';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ResultadoScreen() {
   const { t } = useI18n();
@@ -13,6 +14,7 @@ export default function ResultadoScreen() {
   const { job_id } = useLocalSearchParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!job_id) return;
@@ -43,6 +45,50 @@ export default function ResultadoScreen() {
     return () => clearInterval(intervalId);
   }, [job_id]);
 
+  const saveReport = async () => {
+    if (!data) return;
+    setSaving(true);
+    try {
+      const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
+      let historyArray = savedHistory ? JSON.parse(savedHistory) : [];
+      
+      const exists = historyArray.find((item: any) => item.job_id === job_id);
+      if (!exists) {
+        historyArray.push({
+          id: Date.now(),
+          job_id: typeof job_id === 'string' ? job_id : job_id[0],
+          risk_score: data.risk_score?.score || 0,
+          risk_level: data.risk_score?.level?.toUpperCase() || 'BAIXO',
+          child_name: data.child_name || '',
+          created_at: new Date().toISOString()
+        });
+        await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
+        Alert.alert('Sucesso', 'Relatório salvo no seu histórico!');
+      } else {
+        Alert.alert('Aviso', 'Este relatório já foi salvo.');
+      }
+    } catch (e) {
+      Alert.alert('Erro', 'Falha ao salvar relatório.');
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const shareReport = async () => {
+    if (!data) return;
+    try {
+      const shareMessage = `*Relatório Primeiro Olhar*\nCriança: ${data.child_name || 'Não informado'}\nRisco Global: ${data.risk_score?.level || 'Indefinido'}\n\nEste é um laudo de triagem e não substitui avaliação médica. Acesse o portal para ver detalhes completos.`;
+      
+      await Share.share({
+        message: shareMessage,
+        title: 'Relatório Primeiro Olhar',
+      });
+    } catch (error: any) {
+      Alert.alert('Erro ao compartilhar', error.message);
+    }
+  };
+
   if (loading || !data) {
     return (
       <View className="flex-1 bg-slate-50">
@@ -70,10 +116,22 @@ export default function ResultadoScreen() {
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         
-        <TouchableOpacity onPress={() => router.push('/')} className="flex-row items-center mb-6">
-          <ArrowLeft color="#64748b" size={20} />
-          <Text className="text-slate-500 font-bold ml-2">Voltar ao Início</Text>
-        </TouchableOpacity>
+        <View className="flex-row items-center justify-between mb-6">
+          <TouchableOpacity onPress={() => router.push('/')} className="flex-row items-center">
+            <ArrowLeft color="#64748b" size={20} />
+            <Text className="text-slate-500 font-bold ml-2">Início</Text>
+          </TouchableOpacity>
+          <View className="flex-row items-center gap-3">
+            <TouchableOpacity onPress={saveReport} disabled={saving} className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full flex-row items-center">
+              <Save color="#3b82f6" size={16} />
+              <Text className="text-blue-600 font-bold ml-2 text-sm">{saving ? 'Salvando...' : 'Salvar'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={shareReport} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full flex-row items-center">
+              <ShareIcon color="#64748b" size={16} />
+              <Text className="text-slate-600 font-bold ml-2 text-sm">Ações</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         <View className="bg-slate-50 border border-slate-100 p-6 rounded-3xl mb-8 items-center shadow-lg shadow-slate-100">
            <View className="w-16 h-16 rounded-full bg-blue-100 items-center justify-center mb-4">
