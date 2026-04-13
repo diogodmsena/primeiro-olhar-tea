@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '../components/Header';
 import { ArrowLeft, Clock, FileText } from '../components/LucideIcons';
@@ -38,8 +38,10 @@ export default function HistoricoScreen() {
     fetchReports();
   }, []);
 
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <TouchableOpacity onPress={() => router.push('/')} className="flex-row items-center mb-6">

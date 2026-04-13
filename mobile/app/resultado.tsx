@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
@@ -110,9 +110,10 @@ export default function ResultadoScreen() {
   const level = data.risk_score?.level?.toUpperCase() || 'BAIXO';
   const displayScore = scoreMap[level as keyof typeof scoreMap] || { color: 'text-slate-500', bg: 'bg-slate-500', label: data.risk_score?.level || 'Indefinido' };
   const scoreValue = data.risk_score?.score ? Math.round(data.risk_score.score * 100) : 0;
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white" style={{ paddingTop: statusBarHeight }}>
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         
@@ -135,7 +136,7 @@ export default function ResultadoScreen() {
 
         <View className="bg-slate-50 border border-slate-100 p-6 rounded-3xl mb-8 items-center shadow-lg shadow-slate-100">
            <View className="w-16 h-16 rounded-full bg-blue-100 items-center justify-center mb-4">
-              <Sparkles className="text-blue-500" size={32} />
+              <Sparkles color="#3b82f6" size={32} />
            </View>
            <Text className="text-2xl font-bold text-slate-800 text-center">Resultado Disponível</Text>
            {data.child_name && (
@@ -189,6 +190,15 @@ export default function ResultadoScreen() {
              }}>
              {data.gemma_report || "O laudo formatado não foi gerado nesta execução."}
            </Markdown>
+        </View>
+
+        {/* DISCLAIMER LEGAL */}
+        <View className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-5">
+          <Text className="text-amber-700 font-bold text-sm mb-2">⚠ Aviso Importante</Text>
+          <Text style={{ fontSize: 15, lineHeight: 22 }} className="text-slate-500">
+            Este relatório é gerado por um sistema de inteligência artificial com finalidade exclusivamente orientativa e educacional. Os resultados apresentados{' '}
+            <Text className="font-bold text-slate-600">não constituem diagnóstico clínico</Text> e não substituem, em nenhuma hipótese, a avaliação presencial realizada por profissionais de saúde qualificados (neuropediatras, psicólogos, fonoaudiólogos ou psiquiatras). A plataforma Primeiro Olhar destina-se a auxiliar na identificação precoce de sinais que possam justificar o encaminhamento para avaliação especializada. Nenhuma decisão clínica, terapêutica ou educacional deve ser tomada com base unicamente neste relatório. Em caso de dúvida sobre o desenvolvimento da criança, procure orientação médica profissional.
+          </Text>
         </View>
 
       </ScrollView>

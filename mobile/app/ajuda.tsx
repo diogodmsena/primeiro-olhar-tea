@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../contexts/I18nContext';
 import { Header } from '../components/Header';
@@ -8,6 +8,7 @@ import { Video, FileText, Sparkles, AlertCircle, ArrowLeft, ArrowRight } from '.
 export default function ComoFuncionaScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
   const steps = [
     {
@@ -56,25 +57,25 @@ export default function ComoFuncionaScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
       <Header />
       
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         
         <TouchableOpacity onPress={() => router.push('/')} className="flex-row items-center mb-6">
           <ArrowLeft color="#64748b" size={20} />
-          <Text className="text-slate-500 font-bold ml-2">{t('how.back') || "Início"}</Text>
+          <Text className="text-slate-500 font-bold ml-2 text-base">{t('how.back') || "Início"}</Text>
         </TouchableOpacity>
 
         {/* Hero */}
         <View className="items-center py-6 mb-4">
           <View className="bg-blue-100 px-4 py-1.5 rounded-full mb-4">
-            <Text className="text-blue-600 font-bold text-xs">{t('how.badge') || "GUIA PASSO A PASSO"}</Text>
+            <Text className="text-blue-600 font-bold text-sm">{t('how.badge') || "GUIA PASSO A PASSO"}</Text>
           </View>
           <Text className="text-3xl font-black text-slate-800 text-center mb-3">
             {t('how.titleStart') || "Como o "}<Text className="text-blue-500">{t('how.titleHighlight') || "PrimeiroOlhar"}</Text>{t('how.titleEnd') || " funciona?"}
           </Text>
-          <Text className="text-base text-slate-500 font-medium text-center">
+          <Text className="text-lg text-slate-500 font-medium text-center">
             {t('how.subtitle') || "Entenda as etapas da triagem multimodal autista."}
           </Text>
         </View>
@@ -88,13 +89,13 @@ export default function ComoFuncionaScreen() {
                   {step.icon}
                 </View>
                 <View className="flex-1">
-                  <Text className="text-[10px] font-black text-slate-400 tracking-widest mb-1">PASSO {step.number}</Text>
-                  <Text className="text-lg font-bold text-slate-800 mb-2">{step.title}</Text>
-                  <Text className="text-slate-500 font-medium text-sm leading-5 mb-4">{step.description}</Text>
+                  <Text className="text-xs font-black text-slate-400 tracking-widest mb-1">PASSO {step.number}</Text>
+                  <Text className="text-xl font-bold text-slate-800 mb-2">{step.title}</Text>
+                  <Text className="text-slate-500 font-medium text-base leading-6 mb-4">{step.description}</Text>
                   
                   <View className="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100 flex-row">
                     <Text className="text-sm font-bold text-blue-500 mr-2">💡</Text>
-                    <Text className="text-xs text-slate-500 font-medium flex-1">{step.tip}</Text>
+                    <Text className="text-sm text-slate-500 font-medium flex-1">{step.tip}</Text>
                   </View>
                 </View>
               </View>
@@ -108,8 +109,8 @@ export default function ComoFuncionaScreen() {
           <View className="gap-4">
             {faqs.map((faq, i) => (
               <View key={i} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm shadow-slate-100">
-                <Text className="font-bold text-slate-700 text-base mb-2">{faq.q}</Text>
-                <Text className="text-slate-500 font-medium text-sm leading-5">{faq.a}</Text>
+                <Text className="font-bold text-slate-700 text-lg mb-2">{faq.q}</Text>
+                <Text className="text-slate-500 font-medium text-base leading-6">{faq.a}</Text>
               </View>
             ))}
           </View>
@@ -118,12 +119,12 @@ export default function ComoFuncionaScreen() {
         {/* CTA */}
         <View className="bg-blue-50 rounded-3xl p-8 border border-blue-100 items-center">
           <Text className="text-xl font-bold text-slate-800 mb-2 text-center">{t('how.ctaTitle') || "Pronto para iniciar?"}</Text>
-          <Text className="text-slate-500 font-medium text-center text-sm mb-6">{t('how.ctaDesc') || "A triagem leva menos de 5 minutos."}</Text>
+          <Text className="text-slate-500 font-medium text-center text-base mb-6">{t('how.ctaDesc') || "A triagem leva menos de 5 minutos."}</Text>
           <TouchableOpacity
             onPress={() => router.push('/triagem')}
             className="bg-blue-500 px-8 py-3.5 rounded-full flex-row items-center shadow-lg shadow-blue-500/30"
           >
-            <Text className="text-white font-bold mr-2">{t('how.ctaButton') || "Começar Triagem"}</Text>
+            <Text className="text-white font-bold mr-2 text-lg">{t('how.ctaButton') || "Começar Triagem"}</Text>
             <ArrowRight color="#ffffff" size={18} />
           </TouchableOpacity>
         </View>

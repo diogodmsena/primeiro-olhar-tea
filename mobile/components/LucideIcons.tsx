@@ -20,3 +20,9 @@ export const ArrowLeft = (props: IconProps) => <Feather name="arrow-left" {...pr
 export const Loader2 = (props: IconProps) => <Feather name="loader" {...props} />;
 export const Sparkles = (props: IconProps) => <Ionicons name="sparkles" {...props} />;
 export const Clock = (props: IconProps) => <Feather name="clock" {...props} />;
+export const AlertCircle = (props: IconProps) => <Feather name="alert-circle" {...props} />;
+export const Share = (props: IconProps) => <Feather name="share-2" {...props} />;
+export const Save = (props: IconProps) => <Feather name="save" {...props} />;
+export const LogOut = (props: IconProps) => <Feather name="log-out" {...props} />;
+export const History = (props: IconProps) => <Feather name="clock" {...props} />;
+export const ChevronDown = (props: IconProps) => <Feather name="chevron-down" {...props} />;

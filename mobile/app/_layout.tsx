@@ -15,7 +15,7 @@ export default function RootLayout() {
             <Stack.Screen name="triagem" />
             <Stack.Screen name="resultado" />
             <Stack.Screen name="historico" />
-            <Stack.Screen name="como-funciona" />
+            <Stack.Screen name="ajuda" />
           </Stack>
         </I18nProvider>
       </AuthProvider>

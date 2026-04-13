@@ -22,18 +22,18 @@ export function Header() {
   };
 
   return (
-    <View className="flex-row items-center justify-between px-6 py-4 bg-white border-b border-slate-100">
+    <View className="flex-row items-center justify-between px-6 py-4 bg-blue-200 border-b border-slate-100">
       <View className="flex-row items-center">
         <Image 
           source={require('../assets/images/logo_v4.png')} 
-          className="w-8 h-8 mr-2"
+          style={{ width: 32, height: 32, marginRight: 8 }}
           resizeMode="contain"
         />
         <Text className="text-xl font-bold text-amber-500 mr-1">Primeiro</Text>
         <Text className="text-xl font-bold text-blue-500">Olhar</Text>
       </View>
       <View className="flex-row items-center gap-4">
-        <TouchableOpacity onPress={toggleLanguage} className="p-2 bg-slate-50 rounded-full border border-slate-100 items-center justify-center min-w-[40px]">
+        <TouchableOpacity onPress={toggleLanguage} className="p-2 bg-blue-100 rounded-full border border-slate-100 items-center justify-center min-w-[40px]">
           <Text className="text-xl">{getFlag(locale)}</Text>
         </TouchableOpacity>
         <UserMenu />

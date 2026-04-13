@@ -1,6 +1,7 @@
 from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks, HTTPException
 import uuid
 import json
+import tempfile
 from api.models import ProcessJobResponse, ProcessJobResponse, FinalReportResponse, ParentQuestions
 from utils.storage import start_job, get_job, update_job_success, update_job_error, reset_job_to_processing
 from utils.logger import get_logger
@@ -44,9 +45,10 @@ async def create_triagem(
     """
     job_id = str(uuid.uuid4())
     
-    # Save the physical payload to Docker's internal /tmp space for file-uploading
-    os.makedirs("/tmp/triagem_videos", exist_ok=True)
-    video_path = f"/tmp/triagem_videos/{job_id}_{video.filename}"
+    # Save the physical payload to temp space for file-uploading
+    video_dir = os.path.join(tempfile.gettempdir(), "triagem_videos")
+    os.makedirs(video_dir, exist_ok=True)
+    video_path = os.path.join(video_dir, f"{job_id}_{video.filename}")
     
     with open(video_path, "wb") as buffer:
         shutil.copyfileobj(video.file, buffer)

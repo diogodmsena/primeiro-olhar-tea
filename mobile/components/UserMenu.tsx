@@ -33,9 +33,9 @@ export function UserMenu() {
     return (
       <TouchableOpacity 
         onPress={handleSignIn}
-        className="border-2 border-slate-200 px-4 py-1.5 rounded-full"
+        className="bg-emerald-500 px-4 py-1.5 rounded-full"
       >
-        <Text className="font-bold text-slate-600">Entrar</Text>
+        <Text className="font-bold text-white">Entrar</Text>
       </TouchableOpacity>
     );
   }
@@ -47,7 +47,7 @@ export function UserMenu() {
         className="flex-row items-center bg-white border-2 border-slate-200 pl-1.5 pr-2 py-1.5 rounded-full"
       >
         {user.picture ? (
-          <Image source={{ uri: user.picture }} className="w-7 h-7 rounded-full" />
+          <Image source={{ uri: user.picture }} style={{ width: 28, height: 28, borderRadius: 14 }} />
         ) : (
           <View className="w-7 h-7 rounded-full bg-blue-500 items-center justify-center">
             <Text className="text-white text-xs font-bold">{user.name.charAt(0)}</Text>
