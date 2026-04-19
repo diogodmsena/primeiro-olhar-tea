@@ -4,7 +4,6 @@ import Animated, {
   useAnimatedStyle, 
   withRepeat, 
   withTiming, 
-  withSequence,
   Easing,
   useSharedValue,
   withDelay,
