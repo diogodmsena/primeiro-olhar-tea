@@ -26,3 +26,7 @@ export const Save = (props: IconProps) => <Feather name="save" {...props} />;
 export const LogOut = (props: IconProps) => <Feather name="log-out" {...props} />;
 export const History = (props: IconProps) => <Feather name="clock" {...props} />;
 export const ChevronDown = (props: IconProps) => <Feather name="chevron-down" {...props} />;
+export const Eye = (props: IconProps) => <Feather name="eye" {...props} />;
+export const Smile = (props: IconProps) => <Feather name="smile" {...props} />;
+export const Ear = (props: IconProps) => <Ionicons name="ear-outline" {...props} />;
+export const Info = (props: IconProps) => <Feather name="info" {...props} />;

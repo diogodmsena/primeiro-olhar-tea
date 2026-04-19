@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert, Platform, StatusBar } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert, Platform, StatusBar, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
-import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save } from '../components/LucideIcons';
+import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -16,7 +16,40 @@ export default function ResultadoScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const { width } = Dimensions.get('window');
   const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+
+  useEffect(() => {
+    if (loading) {
+      const waitTimer = setTimeout(() => setShowCarousel(true), 5000);
+      return () => clearTimeout(waitTimer);
+    } else {
+      setShowCarousel(false);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    let slideTimer: NodeJS.Timeout;
+    if (showCarousel && loading) {
+      slideTimer = setInterval(() => {
+        setActiveSlide((prev) => {
+          const next = (prev + 1) % 4;
+          scrollViewRef.current?.scrollTo({ x: next * width, animated: true });
+          return next;
+        });
+      }, 12000);
+    }
+    return () => clearInterval(slideTimer);
+  }, [showCarousel, loading, width]);
+
+  const handleScrollEnd = (event: any) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = Math.round(event.nativeEvent.contentOffset.x / slideSize);
+    setActiveSlide(index);
+  };
 
   useEffect(() => {
     if (!job_id) return;
@@ -189,11 +222,93 @@ export default function ResultadoScreen() {
     return (
       <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
         <Header />
-        <View className="flex-1 items-center justify-center p-6">
-           <ActivityIndicator size="large" color="#3b82f6" />
-           <Text className="text-xl font-bold text-slate-700 mt-6 text-center">{t('report.processing') || 'Processando'}</Text>
-           <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">{t('report.processingSubtitle') || 'Avaliando IA...'}</Text>
-        </View>
+        {!showCarousel ? (
+          <View className="flex-1 items-center justify-center p-6">
+             <ActivityIndicator size="large" color="#3b82f6" />
+             <Text className="text-xl font-bold text-slate-700 mt-6 text-center">{t('report.processing') || 'Processando'}</Text>
+             <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">{t('report.processingSubtitle') || 'Avaliando IA...'}</Text>
+          </View>
+        ) : (
+          <View className="flex-1">
+             <View className="items-center mt-8 mb-4">
+               <ActivityIndicator size="small" color="#3b82f6" />
+               <Text className="text-slate-500 font-bold mt-2 text-sm">{t('report.processing') || 'Processando'}</Text>
+             </View>
+             
+             <ScrollView 
+                ref={scrollViewRef}
+                horizontal 
+                pagingEnabled 
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={handleScrollEnd}
+                className="flex-1"
+             >
+                {/* Slide 1: Eye Contact */}
+                <View style={{ width }} className="items-center justify-center p-6">
+                   <View className="bg-white p-8 rounded-3xl border border-blue-100 shadow-xl shadow-slate-200 w-full itmes-center">
+                      <View className="w-16 h-16 rounded-full bg-blue-50 items-center justify-center mb-6 align-self-center self-center">
+                         <Eye color="#3b82f6" size={32} />
+                      </View>
+                      <Text className="text-xl font-extrabold text-blue-900 text-center mb-4">{t('report.carEyeTitle')}</Text>
+                      <Text className="text-slate-600 text-center text-base mb-6 leading-relaxed">{t('report.carEyeDesc')}</Text>
+                      <View className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                         <Text className="text-blue-800 text-sm font-medium text-center">{t('report.carEyeAlert')}</Text>
+                      </View>
+                   </View>
+                </View>
+
+                {/* Slide 2: Expressivity */}
+                <View style={{ width }} className="items-center justify-center p-6">
+                   <View className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-xl shadow-slate-200 w-full itmes-center">
+                      <View className="w-16 h-16 rounded-full bg-emerald-50 items-center justify-center mb-6 self-center">
+                         <Smile color="#10b981" size={32} />
+                      </View>
+                      <Text className="text-xl font-extrabold text-emerald-900 text-center mb-4">{t('report.carExpTitle')}</Text>
+                      <Text className="text-slate-600 text-center text-base mb-6 leading-relaxed">{t('report.carExpDesc')}</Text>
+                      <View className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                         <Text className="text-emerald-800 text-sm font-medium text-center">{t('report.carExpAlert')}</Text>
+                      </View>
+                   </View>
+                </View>
+
+                {/* Slide 3: Prosody */}
+                <View style={{ width }} className="items-center justify-center p-6">
+                   <View className="bg-white p-8 rounded-3xl border border-amber-100 shadow-xl shadow-slate-200 w-full itmes-center">
+                      <View className="w-16 h-16 rounded-full bg-amber-50 items-center justify-center mb-6 self-center">
+                         <Ear color="#f59e0b" size={32} />
+                      </View>
+                      <Text className="text-xl font-extrabold text-amber-900 text-center mb-4">{t('report.carAudTitle')}</Text>
+                      <Text className="text-slate-600 text-center text-base mb-6 leading-relaxed">{t('report.carAudDesc')}</Text>
+                      <View className="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                         <Text className="text-amber-800 text-sm font-medium text-center">{t('report.carAudAlert')}</Text>
+                      </View>
+                   </View>
+                </View>
+
+                {/* Slide 4: Disclaimer */}
+                <View style={{ width }} className="items-center justify-center p-6">
+                   <View className="bg-white p-8 rounded-3xl border border-rose-100 shadow-xl shadow-slate-200 w-full itmes-center">
+                      <View className="w-16 h-16 rounded-full bg-rose-50 items-center justify-center mb-6 self-center">
+                         <Info color="#f43f5e" size={32} />
+                      </View>
+                      <Text className="text-xl font-extrabold text-rose-900 text-center mb-4">{t('report.carDiscTitle')}</Text>
+                      <Text className="text-slate-600 text-center text-base leading-relaxed">{t('report.carDiscDesc')}</Text>
+                   </View>
+                </View>
+
+             </ScrollView>
+
+             {/* Pagination Dots */}
+             <View className="flex-row justify-center pb-12 gap-2">
+               {[0, 1, 2, 3].map((i) => (
+                 <View 
+                   key={i} 
+                   className={`h-2 rounded-full ${activeSlide === i ? 'w-6 bg-blue-500' : 'w-2 bg-slate-300'}`} 
+                 />
+               ))}
+             </View>
+          </View>
+        )}
       </View>
     );
   }
