@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { CheckCircle2, AlertCircle, FileText, Settings, ArrowLeft, BrainCircuit, Printer, Mail, MessageCircle, Copy, Check, Save, LogIn } from "lucide-react";
+import { CheckCircle2, AlertCircle, FileText, Settings, ArrowLeft, BrainCircuit, Printer, Mail, MessageCircle, Copy, Check, Save, LogIn, Eye, Smile, Ear, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import Markdown from 'react-markdown';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { useAuth } from "@/app/contexts/AuthContext";
 import Image from "next/image";
+import { generateAndDownloadPDF } from "@/utils/pdfGenerator";
 
 export default function ResultadoPage() {
   const params = useParams();
@@ -20,6 +21,64 @@ export default function ResultadoPage() {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (loading) {
+      const waitTimer = setTimeout(() => setShowCarousel(true), 5000);
+      return () => clearTimeout(waitTimer);
+    } else {
+      setShowCarousel(false);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    let slideTimer: NodeJS.Timeout;
+    if (showCarousel && loading) {
+      slideTimer = setInterval(() => {
+        setActiveSlide((prev) => (prev + 1) % 4);
+      }, 12000);
+    }
+    return () => clearInterval(slideTimer);
+  }, [showCarousel, loading]);
+
+  const nextSlide = () => setActiveSlide((p) => (p + 1) % 4);
+  const prevSlide = () => setActiveSlide((p) => (p - 1 + 4) % 4);
+
+  const carouselCards = [
+    {
+      icon: Eye, theme: 'blue',
+      title: "Contato Visual",
+      desc: "Mede a porcentagem de tempo em que os olhos estiveram fixados numa zona de atenção direta — interagindo ou acompanhando ativamente brinquedos/pessoas.",
+      alert: "No Autismo: É comum evitar contato visual prolongado ou desviar o olhar do interlocutor devido à sobrecarga de estímulos."
+    },
+    {
+      icon: Smile, theme: 'emerald',
+      title: "Expressividade",
+      desc: "Analisa a flexibilidade e a intensidade das emoções (ex: se a criança sorri ao ser elogiada, se demonstra espanto ou espelhamento empático).",
+      alert: "No Autismo: Observa-se um afeto mais \"plano\", ou seja, expressões reduzidas/rígidas que demoram a engatilhar em contextos sociais."
+    },
+    {
+      icon: Ear, theme: 'amber',
+      title: "Prosódia / Auditivo",
+      desc: "A Prosódia é a melodia da fala. Observa como a criança reage a chamados sonoros e as variações de tom da vocalização.",
+      alert: "No Autismo: Atrasos na reposta ao nome e uma fala mais monotônica (menos oscilação de som) são sinais clássicos."
+    },
+    {
+      icon: Info, theme: 'rose',
+      title: "Sobre os Resultados",
+      desc: "Lembre-se de que os algoritmos de Inteligência Artificial processam métricas não definitivas. Nenhum relatório substitui a análise aprofundada de neuropediatras e especialistas em desenvolvimento.",
+      alert: null
+    }
+  ];
+
+  const getThemeClasses = (theme: string) => {
+    if (theme === 'emerald') return { bg: 'bg-emerald-50', textTitle: 'text-emerald-900', textIcon: 'text-emerald-500', alertBg: 'bg-emerald-100', alertText: 'text-emerald-800' };
+    if (theme === 'amber') return { bg: 'bg-amber-50', textTitle: 'text-amber-900', textIcon: 'text-amber-500', alertBg: 'bg-amber-100', alertText: 'text-amber-800' };
+    if (theme === 'rose') return { bg: 'bg-rose-50', textTitle: 'text-rose-900', textIcon: 'text-rose-500', alertBg: 'bg-rose-100', alertText: 'text-rose-800' };
+    return { bg: 'bg-blue-50', textTitle: 'text-blue-900', textIcon: 'text-blue-500', alertBg: 'bg-blue-100', alertText: 'text-blue-800' };
+  };
 
   const fetchStatus = async () => {
     if (!params.job_id) return;
@@ -63,6 +122,9 @@ export default function ResultadoPage() {
   };
 
   const handleCopyLink = async () => {
+    // Gerar e baixar PDF
+    await generateAndDownloadPDF(data, params.job_id);
+
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -79,7 +141,10 @@ export default function ResultadoPage() {
     }
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = async () => {
+    // Gerar e baixar PDF
+    await generateAndDownloadPDF(data, params.job_id);
+
     const text = `📋 *Relatório de Triagem - Primeiro Olhar*\n\n` +
       `🔬 Score de Risco: ${data.risk_score.score.toFixed(2)} (${data.risk_score.level})\n` +
       `🆔 ID: ${params.job_id}\n\n` +
@@ -88,7 +153,10 @@ export default function ResultadoPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handleShareEmail = () => {
+  const handleShareEmail = async () => {
+    // Gerar e baixar PDF
+    await generateAndDownloadPDF(data, params.job_id);
+
     const subject = `Relatório de Triagem - Primeiro Olhar (${data.risk_score.level})`;
     const body = `Olá,\n\n` +
       `Segue o relatório de triagem gerado pela plataforma Primeiro Olhar.\n\n` +
@@ -123,18 +191,77 @@ export default function ResultadoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-sky-900 bg-slate-50">
-        <Settings className="w-16 h-16 animate-spin text-sky-400 mb-6" />
-        <h2 className="text-2xl font-light">Processamento Multimodal em Andamento</h2>
-        <p className="text-slate-500 mt-2">Gemma 4 Native Function Calling atuando sobre visuais e áudio...</p>
-        
-        <div className="mt-12 space-y-4 text-sm text-slate-400 max-w-sm w-full">
-          <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Pipeline Iniciado...</div>
-          <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Video Processor (Gaze & Action)...</div>
-          <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Audio Processor (Prosody)...</div>
-          <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Risk Engine Modeling...</div>
-          <div className="flex items-center animate-pulse"><Settings className="w-4 h-4 mr-2 animate-spin text-sky-400"/> Agentic Gemma 4 Retrieval...</div>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50 transition-all duration-500 overflow-hidden">
+        {!showCarousel ? (
+          <div className="flex flex-col items-center max-w-md w-full animate-fade-in text-sky-900">
+            <Settings className="w-16 h-16 animate-spin text-sky-400 mb-6" />
+            <h2 className="text-2xl font-light text-center">Processamento Multimodal em Andamento</h2>
+            <p className="text-slate-500 mt-2 text-center text-sm md:text-base">Gemma 4 Native Function Calling atuando sobre visuais e áudio...</p>
+            
+            <div className="mt-12 space-y-4 text-sm text-slate-400 w-full px-4">
+              <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Pipeline Iniciado...</div>
+              <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Video Processor (Gaze & Action)...</div>
+              <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Audio Processor (Prosody)...</div>
+              <div className="flex items-center"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500"/> Risk Engine Modeling...</div>
+              <div className="flex items-center animate-pulse"><Settings className="w-4 h-4 mr-2 animate-spin text-sky-400"/> Agentic Gemma 4 Retrieval...</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center max-w-xl w-full animate-fade-in">
+            <div className="flex flex-col items-center mb-8">
+              <Settings className="w-8 h-8 animate-spin text-sky-400 mb-3" />
+              <h2 className="text-slate-500 font-medium tracking-wide">Processando Triagem IA...</h2>
+            </div>
+            
+            <div className="relative w-full bg-white p-6 sm:p-10 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden min-h-[380px] sm:min-h-[340px] flex items-center justify-center">
+               <button onClick={prevSlide} className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 p-1 sm:p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors z-10">
+                 <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+               </button>
+               <button onClick={nextSlide} className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 p-1 sm:p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors z-10">
+                 <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+               </button>
+
+               <div className="relative w-full h-full flex items-center justify-center">
+                  {carouselCards.map((card, idx) => {
+                    const theme = getThemeClasses(card.theme);
+                    const isVisible = activeSlide === idx;
+                    const offset = (idx - activeSlide) * 100;
+                    const opacityClass = isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none';
+                    
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`absolute top-0 flex flex-col items-center justify-center transition-all duration-700 ease-in-out w-[80%] sm:w-[70%] mx-auto h-full ${opacityClass}`}
+                        style={{ transform: `translateX(${offset}%)` }}
+                      >
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${theme.bg} flex items-center justify-center mb-4 sm:mb-6`}>
+                          <card.icon className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.textIcon}`} />
+                        </div>
+                        <h3 className={`text-lg sm:text-xl font-extrabold ${theme.textTitle} text-center mb-2 sm:mb-3`}>{card.title}</h3>
+                        <p className="text-slate-500 text-center text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">{card.desc}</p>
+                        {card.alert && (
+                          <div className={`${theme.alertBg} p-3 rounded-xl border border-transparent w-full`}>
+                            <p className={`${theme.alertText} text-[11px] sm:text-xs font-semibold text-center leading-relaxed`}>{card.alert}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+               </div>
+            </div>
+
+            <div className="flex gap-2 mt-8">
+              {carouselCards.map((_, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setActiveSlide(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${activeSlide === i ? 'w-10 bg-sky-500' : 'w-2 bg-slate-300 hover:bg-slate-400'}`} 
+                  aria-label={`Slide ${i+1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -178,51 +305,59 @@ export default function ResultadoPage() {
     { subject: 'Expressividade', A: video_features?.facial_expressivity === 'low' ? 30 : 90, fullMark: 100 },
     { subject: 'Prosódia', A: audio_features?.prosody_variation * 100, fullMark: 100 },
     { subject: 'Sintomas Narrados', A: risk_score.score * 100, fullMark: 100 },
-    { subject: 'Alerta Risco', A: risk_score.score * 100, fullMark: 100 },
+    { subject: 'Incidência', A: risk_score.score * 100, fullMark: 100 },
   ];
 
   return (
     <main className="min-h-screen bg-slate-50 p-8 font-sans pb-20 print:bg-white print:p-0">
       <div className="max-w-5xl mx-auto space-y-6 print:space-y-4">
         
-        {/* LOGO COM SÍMBOLO PARA IMPRESSÃO */}
-        <div className="hidden print:flex items-center gap-2 mb-2 border-b pb-4 border-slate-200">
-          <Image 
-            src="/logo_v4.png" 
-            alt="Ícone Primeiro Olhar" 
-            width={40} 
-            height={40} 
-            className="w-10 h-10 object-contain" 
-            priority
-          />
-          <div className="font-extrabold text-3xl tracking-tight text-slate-800">
-            Primeiro<span className="text-blue-500">Olhar</span>
-          </div>
-          <span className="ml-auto text-sm text-slate-500 font-bold">Relatório Especializado</span>
-        </div>
-
         <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors print:hidden">
           <ArrowLeft className="w-4 h-4 mr-1" /> Nova Triagem
         </button>
 
-        <header className="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print:shadow-none print:border-none print:p-0 print:mb-6">
-             <div>
-                <h1 className="text-2xl font-semibold text-slate-800">
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-slate-100 print:shadow-none print:border-none print:p-0 print:mb-6 gap-6">
+             
+             <div className="flex flex-col items-center justify-center ">
+                  <Image 
+                    src="/logo_v4.png" 
+                    alt="Ícone Primeiro Olhar" 
+                    width={40} 
+                    height={40} 
+                    className="w-10 h-10 object-contain mb-1" 
+                    priority
+                  />
+                  <div className="font-extrabold text-lg tracking-tight text-slate-800 leading-none">
+                    Primeiro<span className="text-blue-500">Olhar</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Relatório</span>
+             </div>
+
+             <div className="flex-1 border-l border-slate-200 pl-6 md:pl-8">
+                <h1 className="text-2xl font-semibold text-slate-800 ">
                   Resultado da Triagem {data?.child_name ? `- ${data.child_name}` : ''}
                 </h1>
                 <p className="text-slate-500 mt-1 flex items-center"><FileText className="w-4 h-4 mr-1" /> ID: {params.job_id} | Modelo: Gemma 4</p>
              </div>
              
-             <div className="text-right">
-                <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-1">Score de Risco Frio</p>
-                <div className="flex items-center justify-end">
-                    <span className="text-3xl font-light text-slate-700 mr-3">{risk_score.score.toFixed(2)}</span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                        isHighRisk ? "bg-red-100 text-red-700" : "bg-sky-100 text-sky-700"
-                    }`}>
-                        {risk_score.level}
-                    </span>
+             <div className="flex items-center gap-6 md:gap-8 justify-between md:justify-end w-full md:w-auto border-t border-slate-100 pt-4 md:border-t-0 md:pt-0">
+                
+                <div className="text-right border-l border-slate-200 pl-6 md:pl-8">
+                   <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-1">Nível de Indicadores</p>
+                   <div className="flex items-center justify-end">
+                       <span className="text-3xl font-light text-slate-700 mr-3">{risk_score.score.toFixed(2)}</span>
+                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                           isHighRisk ? "bg-red-100 text-red-700" : "bg-sky-100 text-sky-700"
+                       }`}>
+                           {risk_score.level === "Risco Baixo" ? "Indicadores Leves" : 
+                            risk_score.level === "Risco Moderado" ? "Indicadores Moderados" : 
+                            risk_score.level === "Risco Alto" ? "Indicadores Fortes" : 
+                            risk_score.level}
+                       </span>
+                   </div>
                 </div>
+
+
              </div>
         </header>
 
@@ -266,10 +401,10 @@ export default function ResultadoPage() {
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Compartilhar Relatório</p>
                   <div className="flex flex-wrap gap-3">
                     <button 
-                      onClick={() => window.print()} 
+                      onClick={() => generateAndDownloadPDF(data, params.job_id)} 
                       className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-2.5 px-5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm"
                     >
-                      <Printer className="w-4 h-4" /> Imprimir / PDF
+                      <Printer className="w-4 h-4" /> Download PDF
                     </button>
                     <button 
                       onClick={handleShareEmail} 
