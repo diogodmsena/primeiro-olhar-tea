@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../app/contexts/AuthContext";
+import { useI18n } from "../app/contexts/I18nContext";
 import { LogOut, History, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 export function UserMenu() {
   const { user, isAuthenticated, isLoading, signOut, isGoogleReady } = useAuth();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -85,14 +87,14 @@ export function UserMenu() {
             className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
           >
             <History className="w-4 h-4 text-blue-500" />
-            Meus Relatórios
+            {t('common.myReports')}
           </Link>
           <button 
             onClick={() => { signOut(); setOpen(false); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
           >
             <LogOut className="w-4 h-4" />
-            Sair
+            {t('common.logout')}
           </button>
         </div>
       )}

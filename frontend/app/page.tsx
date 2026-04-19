@@ -51,7 +51,7 @@ const AutismPuzzleSymbol = () => (
 
 export default function Home() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [childName, setChildName] = useState("");
@@ -90,10 +90,12 @@ export default function Home() {
         communication_delays: communication,
         responds_to_name: responds,
         pretend_play: pretendPlay,
-        object_lining: objectLining
+        object_lining: objectLining,
+        lang: locale // Passa o idioma atual para o backend
       };
       
       formData.append("parent_answers", JSON.stringify(parentAnswers));
+      formData.append("lang", locale); // Fallback como campo direto
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       
       const response = await axios.post(`${apiUrl}/api/triagem`, formData, {
