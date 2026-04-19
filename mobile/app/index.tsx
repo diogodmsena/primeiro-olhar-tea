@@ -1,55 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Easing, Platform, StatusBar } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
+import { AutismPuzzleSymbol } from '../components/AutismPuzzleSymbol';
 
 export default function Home() {
   const { t } = useI18n();
   const router = useRouter();
   const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
   
-  // React Native Animated Puzzle Mock
-  const rotation = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: 8000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scale, {
-          toValue: 1.05,
-          duration: 1500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scale, {
-          toValue: 1,
-          duration: 1500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        })
-      ])
-    ).start();
-  }, []);
-
-  const spin = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  const animatedStyle = {
-    transform: [{ rotateZ: spin }, { scale: scale }],
-  };
-
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: statusBarHeight }}>
       <Header />
@@ -62,27 +22,18 @@ export default function Home() {
           <Text className="text-4xl font-extrabold text-slate-800 leading-tight">
             {t('hero.titleStart')}
           </Text>
-          <Text className="text-4xl font-extrabold text-emerald-500 mb-4 leading-tight">
+          <Text className="text-4xl font-extrabold text-blue-500 mb-4 leading-tight">
             {t('hero.titleHighlight')}
           </Text>
           
-          <Text className="text-lg text-slate-500 leading-relaxed max-w-sm">
+          <Text className="text-lg text-slate-600 leading-relaxed max-w-sm font-medium">
             {t('hero.subtitle')}
           </Text>
         </View>
 
-        {/* Puzzle Animation View */}
-        <View className="items-center justify-center my-6">
-          <Animated.View 
-            style={[animatedStyle]} 
-            className="w-64 h-64 bg-slate-50 rounded-full flex items-center justify-center border-4 border-slate-100 shadow-xl shadow-slate-200"
-          >
-            {/* Visual representation of puzzle pieces */}
-            <View className="w-20 h-20 bg-amber-400 absolute top-8 left-12 rounded-2xl opacity-80" />
-            <View className="w-20 h-20 bg-rose-500 absolute top-8 right-12 rounded-2xl opacity-80" />
-            <View className="w-20 h-20 bg-blue-500 absolute bottom-12 left-16 rounded-2xl opacity-80" />
-            <View className="w-20 h-20 bg-emerald-500 absolute bottom-12 right-16 rounded-2xl opacity-80" />
-          </Animated.View>
+        {/* Autism Animation View - Mesma da WEB */}
+        <View className="items-center justify-center my-6 scale-90">
+          <AutismPuzzleSymbol />
         </View>
       </ScrollView>
 

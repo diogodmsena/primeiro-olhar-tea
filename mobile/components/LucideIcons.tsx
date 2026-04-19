@@ -5,6 +5,7 @@ interface IconProps {
   color?: string;
   size?: number;
   style?: any;
+  className?: string;
 }
 
 export const Menu = (props: IconProps) => <Feather name="menu" {...props} />;
@@ -30,3 +31,6 @@ export const Eye = (props: IconProps) => <Feather name="eye" {...props} />;
 export const Smile = (props: IconProps) => <Feather name="smile" {...props} />;
 export const Ear = (props: IconProps) => <Ionicons name="ear-outline" {...props} />;
 export const Info = (props: IconProps) => <Feather name="info" {...props} />;
+export const Heart = (props: IconProps) => <Feather name="heart" {...props} />;
+export const Activity = (props: IconProps) => <Feather name="activity" {...props} />;
+export const Puzzle = (props: IconProps) => <Ionicons name="extension-puzzle-outline" {...props} />;
