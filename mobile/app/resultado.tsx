@@ -9,12 +9,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ResultadoScreen() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
   const { job_id } = useLocalSearchParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
   useEffect(() => {
     if (!job_id) return;
@@ -78,12 +80,106 @@ export default function ResultadoScreen() {
   const shareReport = async () => {
     if (!data) return;
     try {
-      const shareMessage = `*Relatório Primeiro Olhar*\nCriança: ${data.child_name || 'Não informado'}\nRisco Global: ${data.risk_score?.level || 'Indefinido'}\n\nEste é um laudo de triagem e não substitui avaliação médica. Acesse o portal para ver detalhes completos.`;
+      const { printToFileAsync } = require('expo-print');
+      const { shareAsync } = require('expo-sharing');
+      const { Asset } = require('expo-asset');
+      const FileSystem = require('expo-file-system/legacy');
       
-      await Share.share({
-        message: shareMessage,
-        title: 'Relatório Primeiro Olhar',
-      });
+      let logoBase64 = '';
+      try {
+        const logoAsset = await Asset.fromModule(require('../assets/images/logo_v4.png')).downloadAsync();
+        const uri = logoAsset.localUri || logoAsset.uri;
+        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+        logoBase64 = `data:image/png;base64,${base64}`;
+      } catch (e) {
+        console.warn('Could not load logo for PDF', e);
+      }
+      
+      let localizedReport = data.gemma_report || '';
+      
+      if (locale && locale !== 'pt') {
+        setTranslating(true);
+        try {
+          const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.2:8000';
+          const res = await axios.post(`${apiURL}/api/triagem/${job_id}/translate`, {
+            target_lang: locale
+          });
+          if (res.data?.translated_report) {
+            localizedReport = res.data.translated_report;
+          }
+        } catch (e) {
+          console.warn("Translation failed", e);
+        } finally {
+          setTranslating(false);
+        }
+      }
+
+      const parseMarkdown = (text: string) => {
+        if (!text) return '';
+        let parsed = text
+          .replace(/^### (.*$)/gim, '<h3 style="color: #1e3a8a; margin-top: 12px; margin-bottom: 6px; font-size: 16px;">$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2 style="color: #1e40af; margin-top: 16px; margin-bottom: 8px; font-size: 18px;">$1</h2>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/^\s*[\-\*]\s+(.*)$/gim, '<li style="margin-left: 20px; margin-bottom: 4px;">$1</li>');
+        return parsed.replace(/\n(?!(<li|<h|<u))/g, '<br/>');
+      };
+      const dateObj = data.created_at ? new Date(data.created_at) : new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const formattedDate = `${pad(dateObj.getDate())}/${pad(dateObj.getMonth() + 1)}/${dateObj.getFullYear()} ${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+
+      const htmlContent = `
+        <html>
+          <head>
+            <style>
+              @page { margin: 20mm; }
+              body { font-family: Arial, sans-serif; padding: 0; margin: 0; color: #334155; }
+            </style>
+          </head>
+          <body>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+              <div style="display: flex; align-items: center;">
+                ${logoBase64 ? `<img src="${logoBase64}" style="width: 32px; height: 32px; margin-right: 8px;" />` : ''}
+                <span style="font-size: 24px; font-weight: 900; color: #f59e0b; margin-right: 4px;">Primeiro</span>
+                <span style="font-size: 24px; font-weight: 900; color: #3b82f6;">Olhar</span>
+              </div>
+              <span style="font-size: 13px; color: #64748b; font-weight: 500;">${formattedDate}</span>
+            </div>
+            
+            <h1 style="color: #1e40af; text-align: center; margin-bottom: 20px;">${t('report.evaluationTitle') || 'Avaliação preliminar'}</h1>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;" />
+            
+            <h2 style="margin-top: 0;">${t('report.childName') || 'Criança'}: ${data.child_name || t('auth.unnamed')}</h2>
+            <h3>${t('report.riskScore')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')} (${Math.round((data.risk_score?.score || 0) * 100)}%)</span></h3>
+            
+            <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+              <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensions')}</h4>
+              <ul style="margin: 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong> ${Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</li>
+                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong> ${data.video_features?.facial_expressivity === 'low' ? '30' : data.video_features?.facial_expressivity === 'high' ? '90' : '70'}/100</li>
+                <li><strong>${t('report.auditory')}:</strong> ${Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</li>
+              </ul>
+              <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
+                <p style="margin: 0 0 5px 0;">${t('report.dimHelpEye')}</p>
+                <p style="margin: 0 0 5px 0;">${t('report.dimHelpExp')}</p>
+                <p style="margin: 0;">${t('report.dimHelpAud')}</p>
+              </div>
+            </div>
+            
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 20px; margin-top: 20px; border-radius: 8px; line-height: 1.6; text-align: justify;">
+              ${parseMarkdown(localizedReport) || t('report.noReport')}
+            </div>
+
+            <div style="margin-top: 40px; font-size: 12px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 15px; background-color: #fffbeb; padding: 15px; border-radius: 8px; border: 1px solid #fde68a; text-align: justify;">
+              <strong style="color: #b45309; display: block; margin-bottom: 8px; font-size: 14px;">${t('report.warningTitle')}</strong>
+              ${t('report.warningText1')} <strong>${t('report.warningTextBold')}</strong> ${t('report.warningText2')}
+            </div>
+          </body>
+        </html>
+      `;
+
+      const { uri } = await printToFileAsync({ html: htmlContent });
+      await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
     } catch (error: any) {
       Alert.alert('Erro ao compartilhar', error.message);
     }
@@ -91,26 +187,25 @@ export default function ResultadoScreen() {
 
   if (loading || !data) {
     return (
-      <View className="flex-1 bg-slate-50">
+      <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
         <Header />
         <View className="flex-1 items-center justify-center p-6">
            <ActivityIndicator size="large" color="#3b82f6" />
-           <Text className="text-xl font-bold text-slate-700 mt-6 text-center">Processando Análise Multimodal</Text>
-           <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">A inteligência artificial está avaliando as reações visuais e sonoras com segurança...</Text>
+           <Text className="text-xl font-bold text-slate-700 mt-6 text-center">{t('report.processing') || 'Processando'}</Text>
+           <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">{t('report.processingSubtitle') || 'Avaliando IA...'}</Text>
         </View>
       </View>
     );
   }
 
   const scoreMap = {
-    'BAIXO': { color: 'text-emerald-500', bg: 'bg-emerald-500', label: 'Risco Baixo' },
-    'MODERADO': { color: 'text-amber-500', bg: 'bg-amber-500', label: 'Risco Moderado' },
-    'ALTO': { color: 'text-rose-500', bg: 'bg-rose-500', label: 'Risco Alto' }
+    'BAIXO': { color: 'text-emerald-500', bg: 'bg-emerald-500', label: t('report.riskLow') || 'Risco Baixo' },
+    'MODERADO': { color: 'text-amber-500', bg: 'bg-amber-500', label: t('report.riskModerate') || 'Risco Moderado' },
+    'ALTO': { color: 'text-rose-500', bg: 'bg-rose-500', label: t('report.riskHigh') || 'Risco Alto' }
   };
   const level = data.risk_score?.level?.toUpperCase() || 'BAIXO';
-  const displayScore = scoreMap[level as keyof typeof scoreMap] || { color: 'text-slate-500', bg: 'bg-slate-500', label: data.risk_score?.level || 'Indefinido' };
+  const displayScore = scoreMap[level as keyof typeof scoreMap] || { color: 'text-slate-500', bg: 'bg-slate-500', label: data.risk_score?.level || t('report.undefined') };
   const scoreValue = data.risk_score?.score ? Math.round(data.risk_score.score * 100) : 0;
-  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: statusBarHeight }}>
@@ -120,16 +215,16 @@ export default function ResultadoScreen() {
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity onPress={() => router.push('/')} className="flex-row items-center">
             <ArrowLeft color="#64748b" size={20} />
-            <Text className="text-slate-500 font-bold ml-2">Início</Text>
+            <Text className="text-slate-500 font-bold ml-2">{t('nav.home') || 'Início'}</Text>
           </TouchableOpacity>
           <View className="flex-row items-center gap-3">
             <TouchableOpacity onPress={saveReport} disabled={saving} className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full flex-row items-center">
               <Save color="#3b82f6" size={16} />
-              <Text className="text-blue-600 font-bold ml-2 text-sm">{saving ? 'Salvando...' : 'Salvar'}</Text>
+              <Text className="text-blue-600 font-bold ml-2 text-sm">{saving ? t('report.saving') : t('report.save')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={shareReport} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full flex-row items-center">
-              <ShareIcon color="#64748b" size={16} />
-              <Text className="text-slate-600 font-bold ml-2 text-sm">Ações</Text>
+            <TouchableOpacity onPress={shareReport} disabled={translating} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full flex-row items-center">
+              {translating ? <ActivityIndicator size="small" color="#64748b" /> : <ShareIcon color="#64748b" size={16} />}
+              <Text className="text-slate-600 font-bold ml-2 text-sm">{translating ? '...' : (t('report.share') || 'Compartilhar')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -138,16 +233,16 @@ export default function ResultadoScreen() {
            <View className="w-16 h-16 rounded-full bg-blue-100 items-center justify-center mb-4">
               <Sparkles color="#3b82f6" size={32} />
            </View>
-           <Text className="text-2xl font-bold text-slate-800 text-center">Resultado Disponível</Text>
+           <Text className="text-2xl font-bold text-slate-800 text-center">{t('report.resultAvailable') || 'Resultado Disponível'}</Text>
            {data.child_name && (
              <Text className="text-lg font-bold text-blue-500 mt-1">{data.child_name}</Text>
            )}
-           <Text className="text-slate-500 text-center mt-2 text-sm max-w-[250px]">Lembre-se, este é um relatório de triagem para apoio profissional, não um diagnóstico clínico definitivo.</Text>
+           <Text className="text-slate-500 text-center mt-2 text-sm max-w-[250px]">{t('report.resultDisclaimer')}</Text>
         </View>
 
         {/* Nível de Risco Geral */}
         <View className="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-6 shadow-sm shadow-slate-200">
-           <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">Score de Risco Global</Text>
+           <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.riskScore')}</Text>
            <View className="flex-row items-end mb-4">
               <Text className={`text-5xl font-black ${displayScore.color}`}>{scoreValue}%</Text>
               <Text className="text-slate-400 font-bold mb-2 ml-2 tracking-wide">{displayScore.label}</Text>
@@ -160,19 +255,30 @@ export default function ResultadoScreen() {
 
         {/* Avaliação em Barras */}
         <View className="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-6 shadow-sm shadow-slate-200">
-           <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">Dimensões Analisadas</Text>
+           <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.dimensions')}</Text>
 
            <View className="mb-4">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">Contato Visual</Text><Text className="text-blue-500 font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text><Text className="text-blue-500 font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} /></View>
            </View>
            <View className="mb-4">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">Expressividade Facial</Text><Text className="text-emerald-500 font-bold">Score</Text></View>
-             <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-emerald-500 rounded-full" style={{ width: `70%` }} /></View>
+             <View className="flex-row justify-between mb-1">
+               <Text className="font-bold text-slate-700">{t('report.facialExp')}</Text>
+               <Text className="text-emerald-500 font-bold">{data.video_features?.facial_expressivity === 'low' ? '30/100' : data.video_features?.facial_expressivity === 'high' ? '90/100' : '70/100'}</Text>
+             </View>
+             <View className="h-3 bg-slate-100 rounded-full w-full">
+               <View className="h-full bg-emerald-500 rounded-full" style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
+             </View>
            </View>
            <View className="mb-2">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">Contato Auditivo / Prosódia</Text><Text className="text-amber-500 font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text><Text className="text-amber-500 font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} /></View>
+           </View>
+
+           <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100">
+             <Text className="text-sm text-slate-500 mb-2 leading-tight">{t('report.dimHelpEye')}</Text>
+             <Text className="text-sm text-slate-500 mb-2 leading-tight">{t('report.dimHelpExp')}</Text>
+             <Text className="text-sm text-slate-500 leading-tight">{t('report.dimHelpAud')}</Text>
            </View>
         </View>
 
@@ -180,7 +286,7 @@ export default function ResultadoScreen() {
         <View className="bg-blue-50 border border-blue-100 p-6 rounded-3xl">
            <View className="flex-row items-center mb-4 border-b border-blue-100 pb-4">
              <FileText color="#3b82f6" size={24} />
-             <Text className="text-blue-800 font-bold ml-2 text-lg">Laudo do Especialista AI</Text>
+             <Text className="text-blue-800 font-bold ml-2 text-lg">{t('report.aiReportTitle')}</Text>
            </View>
            <Markdown style={{ 
                body: { color: '#334155', fontSize: 15, lineHeight: 24 },
@@ -188,16 +294,17 @@ export default function ResultadoScreen() {
                strong: { color: '#1e3a8a' },
                list_item: { marginBottom: 6 }
              }}>
-             {data.gemma_report || "O laudo formatado não foi gerado nesta execução."}
+             {data.gemma_report || t('report.noReport')}
            </Markdown>
         </View>
 
         {/* DISCLAIMER LEGAL */}
         <View className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-5">
-          <Text className="text-amber-700 font-bold text-sm mb-2">⚠ Aviso Importante</Text>
+          <Text className="text-amber-700 font-bold text-sm mb-2">{t('report.warningTitle')}</Text>
           <Text style={{ fontSize: 15, lineHeight: 22 }} className="text-slate-500">
-            Este relatório é gerado por um sistema de inteligência artificial com finalidade exclusivamente orientativa e educacional. Os resultados apresentados{' '}
-            <Text className="font-bold text-slate-600">não constituem diagnóstico clínico</Text> e não substituem, em nenhuma hipótese, a avaliação presencial realizada por profissionais de saúde qualificados (neuropediatras, psicólogos, fonoaudiólogos ou psiquiatras). A plataforma Primeiro Olhar destina-se a auxiliar na identificação precoce de sinais que possam justificar o encaminhamento para avaliação especializada. Nenhuma decisão clínica, terapêutica ou educacional deve ser tomada com base unicamente neste relatório. Em caso de dúvida sobre o desenvolvimento da criança, procure orientação médica profissional.
+            {t('report.warningText1')}
+            <Text className="font-bold text-slate-600">{t('report.warningTextBold')}</Text> 
+            {t('report.warningText2')}
           </Text>
         </View>
 

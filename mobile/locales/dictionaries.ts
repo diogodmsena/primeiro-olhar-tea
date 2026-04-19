@@ -6,7 +6,14 @@ export const dictionaries = {
       home: "Início",
       howItWorks: "Como Funciona",
       community: "Comunidade",
-      professionalArea: "Área do Profissional"
+      professionalArea: "Área do Profissional",
+      myHistory: "Meu Histórico",
+      back: "Voltar",
+    },
+    history: {
+      title: "Meu Histórico",
+      emptyState: "Nenhuma avaliação salva encontrada.",
+      triagemPrefix: "Triagem ",
     },
     hero: {
       badge: "Feito com carinho para famílias",
@@ -84,6 +91,46 @@ export const dictionaries = {
     },
     footer: {
       text: "Primeiro Olhar © {year}. Criado para acolher e transformar."
+    },
+    auth: {
+      signIn: "Entrar",
+      signOut: "Sair",
+      myReports: "Meus Relatórios",
+      unnamed: "Não informado"
+    },
+    report: {
+      processing: "Processando Análise Multimodal",
+      processingSubtitle: "A inteligência artificial está avaliando as reações visuais e sonoras com segurança...",
+      share: "Compartilhar",
+      save: "Salvar",
+      saving: "Salvando...",
+      successSaved: "Relatório salvo no seu histórico!",
+      alreadySaved: "Este relatório já foi salvo.",
+      resultAvailable: "Resultado Disponível",
+      evaluationTitle: "Avaliação preliminar",
+      childName: "Criança",
+      analysisParental: "**Análise do Questionário Parental:**",
+      summaryIndicators: "**Sumário dos Indicadores:**",
+      riskLevelInfo: "**Nível de Risco:**",
+      resultDisclaimer: "Lembre-se, este é um relatório de triagem para apoio profissional, não um diagnóstico clínico definitivo.",
+      riskScore: "Score de Risco Global",
+      riskLow: "Risco Baixo",
+      riskModerate: "Risco Moderado",
+      riskHigh: "Risco Alto",
+      undefined: "Indefinido",
+      dimensions: "Dimensões Analisadas",
+      eyeContact: "Contato Visual",
+      facialExp: "Expressividade Facial",
+      auditory: "Contato Auditivo / Prosódia",
+      aiReportTitle: "Laudo do Especialista AI",
+      noReport: "O laudo formatado não foi gerado nesta execução.",
+      warningTitle: "⚠ Aviso Importante",
+      warningText1: "Este relatório é gerado por um sistema de inteligência artificial com finalidade exclusivamente orientativa e educacional. Os resultados apresentados ",
+      warningTextBold: "não constituem diagnóstico clínico",
+      warningText2: " e não substituem, em nenhuma hipótese, a avaliação presencial realizada por profissionais de saúde qualificados (neuropediatras, psicólogos, fonoaudiólogos ou psiquiatras). A plataforma Primeiro Olhar destina-se a auxiliar na identificação precoce de sinais que possam justificar o encaminhamento para avaliação especializada. Nenhuma decisão clínica, terapêutica ou educacional deve ser tomada com base unicamente neste relatório. Em caso de dúvida sobre o desenvolvimento da criança, procure orientação médica profissional.",
+      dimHelpEye: "Contato visual: Mede a atenção direcionada no olhar durante as interações.",
+      dimHelpExp: "Expressividade: Analisa reações afetivas ligadas à interações sociais no vídeo.",
+      dimHelpAud: "Prosódia: Avalia a entonação na reposta auditiva e chamados vocais."
     }
   },
   en: {
@@ -91,7 +138,14 @@ export const dictionaries = {
       home: "Home",
       howItWorks: "How It Works",
       community: "Community",
-      professionalArea: "Professional Area"
+      professionalArea: "Professional Area",
+      myHistory: "My History",
+      back: "Back",
+    },
+    history: {
+      title: "My History",
+      emptyState: "No saved assessments found.",
+      triagemPrefix: "Screening ",
     },
     hero: {
       badge: "Made with care for families",
@@ -169,6 +223,46 @@ export const dictionaries = {
     },
     footer: {
       text: "Primeiro Olhar © {year}. Created to welcome and transform."
+    },
+    auth: {
+      signIn: "Sign In",
+      signOut: "Sign Out",
+      myReports: "My Reports",
+      unnamed: "Not specified"
+    },
+    report: {
+      processing: "Processing Multimodal Analysis",
+      processingSubtitle: "The artificial intelligence is safely evaluating visual and auditory reactions...",
+      share: "Share",
+      save: "Save",
+      saving: "Saving...",
+      successSaved: "Report saved to your history!",
+      alreadySaved: "This report has already been saved.",
+      resultAvailable: "Result Available",
+      evaluationTitle: "Preliminary Assessment",
+      childName: "Child",
+      analysisParental: "**Parental Questionnaire Analysis:**",
+      summaryIndicators: "**Indicators Summary:**",
+      riskLevelInfo: "**Risk Level:**",
+      resultDisclaimer: "Remember, this is a screening report for professional support, not a definitive clinical diagnosis.",
+      riskScore: "Global Risk Score",
+      riskLow: "Low Risk",
+      riskModerate: "Moderate Risk",
+      riskHigh: "High Risk",
+      undefined: "Undefined",
+      dimensions: "Dimensions Analyzed",
+      eyeContact: "Eye Contact",
+      facialExp: "Facial Expressiveness",
+      auditory: "Auditory Contact / Prosody",
+      aiReportTitle: "AI Specialist Report",
+      noReport: "The formatted report was not generated in this execution.",
+      warningTitle: "⚠ Important Notice",
+      warningText1: "This report is generated by an artificial intelligence system for purely orientational and educational purposes. The results presented ",
+      warningTextBold: "do not constitute a clinical diagnosis",
+      warningText2: " and do not replace, under any circumstances, a face-to-face evaluation by qualified health professionals (neuropediatricians, psychologists, speech therapists, or psychiatrists). The platform aims to assist in the early identification of signs that may justify referral for specialized evaluation. No clinical, therapeutic, or educational decision should be made based solely on this report. If in doubt about the child's development, seek professional medical advice.",
+      dimHelpEye: "Eye contact: Measures directed attention and focus during the interactions.",
+      dimHelpExp: "Expressivity: Analyzes emotional reactions to social stimuli.",
+      dimHelpAud: "Prosody: Evaluates vocal ability variations and auditory responses."
     }
   },
   es: {
@@ -176,7 +270,14 @@ export const dictionaries = {
       home: "Inicio",
       howItWorks: "Cómo Funciona",
       community: "Comunidad",
-      professionalArea: "Área Profesional"
+      professionalArea: "Área Profesional",
+      myHistory: "Mi Historial",
+      back: "Volver",
+    },
+    history: {
+      title: "Mi Historial",
+      emptyState: "No se encontró ninguna evaluación guardada.",
+      triagemPrefix: "Triaje ",
     },
     hero: {
       badge: "Hecho con cariño para las familias",
@@ -254,6 +355,46 @@ export const dictionaries = {
     },
     footer: {
       text: "Primeiro Olhar © {year}. Creado para acoger y transformar."
+    },
+    auth: {
+      signIn: "Entrar",
+      signOut: "Salir",
+      myReports: "Mis Reportes",
+      unnamed: "No especificado"
+    },
+    report: {
+      processing: "Procesando Análisis Multimodal",
+      processingSubtitle: "La inteligencia artificial está evaluando las reacciones visuales y auditivas de forma segura...",
+      share: "Compartir",
+      save: "Guardar",
+      saving: "Guardando...",
+      successSaved: "¡Reporte guardado en tu historial!",
+      alreadySaved: "Este reporte ya ha sido guardado.",
+      resultAvailable: "Resultado Disponible",
+      evaluationTitle: "Evaluación preliminar",
+      childName: "Niño(a)",
+      analysisParental: "**Análisis del Cuestionario Parental:**",
+      summaryIndicators: "**Resumen de Indicadores:**",
+      riskLevelInfo: "**Nivel de Riesgo:**",
+      resultDisclaimer: "Recuerda, este es un reporte de detección para apoyo profesional, no un diagnóstico clínico definitivo.",
+      riskScore: "Puntaje de Riesgo Global",
+      riskLow: "Riesgo Bajo",
+      riskModerate: "Riesgo Moderado",
+      riskHigh: "Riesgo Alto",
+      undefined: "Indefinido",
+      dimensions: "Dimensiones Analizadas",
+      eyeContact: "Contacto Visual",
+      facialExp: "Expresión Facial",
+      auditory: "Contacto Auditivo / Prosodia",
+      aiReportTitle: "Informe del Especialista IA",
+      noReport: "El informe formateado no se generó en esta ejecución.",
+      warningTitle: "⚠ Aviso Importante",
+      warningText1: "Este reporte es generado por un sistema de inteligencia artificial con fines exclusivamente orientativos y educativos. Los resultados presentados ",
+      warningTextBold: "no constituyen un diagnóstico clínico",
+      warningText2: " y no reemplazan, bajo ninguna circunstancia, una evaluación presencial realizada por profesionales de la salud calificados. La plataforma tiene como objetivo ayudar en la identificación temprana de signos que puedan justificar la derivación para evaluación especializada. Ninguna decisión clínica o terapéutica debe tomarse basándose únicamente en este reporte. En caso de duda, busque orientación médica profesional.",
+      dimHelpEye: "Contacto visual: Mide la atención dirigida y enfoque visual durante la interacción.",
+      dimHelpExp: "Expresividad: Analiza respuestas afectivas frente a estímulos sociales.",
+      dimHelpAud: "Prosodia: Evalúa variaciones en habilidades vocales y respuestas auditivas."
     }
   }
 };

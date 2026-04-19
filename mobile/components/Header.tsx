@@ -29,8 +29,8 @@ export function Header() {
           style={{ width: 32, height: 32, marginRight: 8 }}
           resizeMode="contain"
         />
-        <Text className="text-xl font-bold text-amber-500 mr-1">Primeiro</Text>
-        <Text className="text-xl font-bold text-blue-500">Olhar</Text>
+        <Text className="text-2xl font-black text-amber-500 mr-1">Primeiro</Text>
+        <Text className="text-2xl font-black text-blue-500">Olhar</Text>
       </View>
       <View className="flex-row items-center gap-4">
         <TouchableOpacity onPress={toggleLanguage} className="p-2 bg-blue-100 rounded-full border border-slate-100 items-center justify-center min-w-[40px]">

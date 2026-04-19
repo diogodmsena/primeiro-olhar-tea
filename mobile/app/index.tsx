@@ -99,13 +99,13 @@ export default function Home() {
               onPress={() => router.push('/historico')}
               className="flex-1 bg-slate-100 rounded-full py-3 items-center flex-row justify-center border border-slate-200"
             >
-              <Text className="text-slate-600 font-bold text-base">Meu Histórico</Text>
+              <Text className="text-slate-600 font-bold text-base">{t('nav.myHistory')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => router.push('/ajuda')}
               className="flex-1 bg-slate-100 rounded-full py-3 items-center flex-row justify-center border border-slate-200"
             >
-              <Text className="text-slate-600 font-bold text-base">Como Funciona</Text>
+              <Text className="text-slate-600 font-bold text-base">{t('nav.howItWorks')}</Text>
             </TouchableOpacity>
           </View>
       </View>

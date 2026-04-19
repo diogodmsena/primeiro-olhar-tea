@@ -200,8 +200,14 @@ export default function TriagemScreen() {
 
           {step === 2 && (
             <View className="gap-4">
-              <Text className="text-xl font-bold text-slate-800 mb-4">{t('form.step2Title')}</Text>
+              <Text className="text-xl font-bold text-slate-800 mb-2">{t('form.step2Title')}</Text>
               
+              <View className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-4">
+                <Text className="text-blue-800 font-bold mb-1">{t('how.step1Desc')}</Text>
+                <Text className="text-blue-600 text-sm mt-1">💡 {t('how.step1Tip')}</Text>
+              </View>
+
+
               {!videoUri ? (
                 <View className="overflow-hidden rounded-2xl bg-black h-[400] flex relative">
                   <CameraView 

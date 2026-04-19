@@ -153,3 +153,23 @@ def try_parse_json(text: str):
     
     return None
 
+async def translate_report(text: str, target_lang: str) -> str:
+    """
+    Traduz o markdown recebido para a linguagem requerida on-the-fly.
+    """
+    api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if not api_key or api_key.lower() == "mock":
+        return text
+        
+    client = genai.Client(api_key=api_key)
+    prompt = f"Translate the following clinical screening markdown to the language code '{target_lang}'. Output EXACTLY the translated markdown and nothing else. Keep the structural markdown elements exactly the same (newlines, bold headers, list dashes). Text to translate:\n\n{text}"
+    
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text
+    except Exception as e:
+        logger.error(f"Error during translation to {target_lang}: {str(e)}")
+        return text

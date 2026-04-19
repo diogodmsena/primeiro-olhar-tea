@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useI18n } from '../contexts/I18nContext';
 import { LogOut, History, ChevronDown } from './LucideIcons';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
@@ -9,6 +10,7 @@ export function UserMenu() {
   const { user, isAuthenticated, isLoading, signIn, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { t } = useI18n();
 
   if (isLoading) return <View className="w-10 h-10" />;
 
@@ -35,7 +37,7 @@ export function UserMenu() {
         onPress={handleSignIn}
         className="bg-emerald-500 px-4 py-1.5 rounded-full"
       >
-        <Text className="font-bold text-white">Entrar</Text>
+        <Text className="font-bold text-white">{t('auth.signIn') || 'Entrar'}</Text>
       </TouchableOpacity>
     );
   }
@@ -54,7 +56,7 @@ export function UserMenu() {
           </View>
         )}
         <Text className="text-slate-700 ml-1 font-bold text-sm max-w-[80px]" numberOfLines={1}>
-          {user.name.split(' ')[0]}
+          {user.name ? user.name.split(' ')[0] : t('auth.unnamed')}
         </Text>
         <ChevronDown color="#94a3b8" size={14} style={{ marginLeft: 2, transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
       </TouchableOpacity>
@@ -78,14 +80,14 @@ export function UserMenu() {
               className="flex-row items-center px-4 py-3"
             >
               <History color="#3b82f6" size={16} />
-              <Text className="text-sm text-slate-700 font-medium ml-3">Meus Relatórios</Text>
+              <Text className="text-sm text-slate-700 font-medium ml-3">{t('auth.myReports') || 'Meus Relatórios'}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={handleSignOut}
               className="flex-row items-center px-4 py-3"
             >
               <LogOut color="#ef4444" size={16} />
-              <Text className="text-sm text-red-600 font-medium ml-3">Sair</Text>
+              <Text className="text-sm text-red-600 font-medium ml-3">{t('auth.signOut') || 'Sair'}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

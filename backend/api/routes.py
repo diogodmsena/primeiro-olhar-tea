@@ -5,9 +5,10 @@ import tempfile
 from api.models import ProcessJobResponse, ProcessJobResponse, FinalReportResponse, ParentQuestions
 from utils.storage import start_job, get_job, update_job_success, update_job_error, reset_job_to_processing
 from utils.logger import get_logger
-from services.gemma_explainability import analyze_multimodal_case
+from services.gemma_explainability import analyze_multimodal_case, translate_report
 import os
 import shutil
+from pydantic import BaseModel
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -135,3 +136,33 @@ async def get_triagem_status(job_id: str):
         gemma_report=result.get("gemma_report"),
         child_name=result.get("child_name", "")
     )
+
+class TranslateRequest(BaseModel):
+    target_lang: str
+
+@router.post("/triagem/{job_id}/translate")
+async def translate_triagem_report(job_id: str, request: TranslateRequest):
+    """
+    Translates the gemma_report markdown into the requested target_lang.
+    """
+    job_data = get_job(job_id)
+    report_text = None
+    
+    if not job_data:
+        from utils.database import get_report_by_job_id
+        saved_report = get_report_by_job_id(job_id)
+        if saved_report:
+            try:
+                report_data = json.loads(saved_report.get("report_data", "{}"))
+                report_text = report_data.get("gemma_report")
+            except Exception:
+                pass
+    else:
+        result = job_data.get("result", {})
+        report_text = result.get("gemma_report")
+        
+    if not report_text:
+        raise HTTPException(status_code=404, detail="Original report not found")
+        
+    translated_text = await translate_report(report_text, request.target_lang)
+    return {"translated_report": translated_text}
