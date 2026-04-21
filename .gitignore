@@ -21,3 +21,13 @@ env/
 .DS_Store
 Thumbs.db
 log.txt
+
+# Database and Production Data
+*.db
+backend/data/
+triagem_videos/
+node_modules/
+.next/
+.expo/
+dist/
+build/

@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    ports:
+      - "127.0.0.1:8000:8000" # Apenas local, Nginx fará o proxy externo
+    volumes:
+      - backend_data:/app/data
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_PATH=/app/data/triagem.db
+
+volumes:
+  backend_data:
