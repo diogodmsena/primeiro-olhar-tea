@@ -1,4 +1,4 @@
-#!/bash
+#!/bin/bash
 
 # Script de Deploy Automático - Primeiro Olhar 🧩
 # Alvo: Oracle Cloud Always Free (Ubuntu/Debian)
