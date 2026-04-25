@@ -25,6 +25,7 @@ export default function ResultadoPage() {
   const [saving, setSaving] = useState(false);
   const [showCarousel, setShowCarousel] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -196,6 +197,8 @@ export default function ResultadoPage() {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setSaved(true);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3500);
     } catch (err: any) {
       console.error("Erro ao salvar relatório:", err);
       if (err.response?.status === 401) {
@@ -329,6 +332,22 @@ export default function ResultadoPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-8 font-sans pb-20 print:bg-white print:p-0">
+      
+      {/* Visual Centered Toast */}
+      {showToast && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] animate-in fade-in zoom-in duration-300 pointer-events-none">
+          <div className="bg-slate-900/90 backdrop-blur-md text-white px-8 py-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 text-center min-w-[320px]">
+             <div className="bg-emerald-500 rounded-full p-3 shadow-lg shadow-emerald-500/30">
+               <Check className="w-8 h-8 text-white" />
+             </div>
+             <div>
+               <p className="font-bold text-lg mb-1">{t('results.savedSuccess')}</p>
+               <p className="text-sm text-slate-300">Você pode acessá-lo depois em "Meus Relatórios".</p>
+             </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto space-y-6 print:space-y-4">
         
         <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors print:hidden">

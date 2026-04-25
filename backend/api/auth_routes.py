@@ -44,16 +44,21 @@ def verify_session_token(token: str) -> Optional[dict]:
 
 def get_user_from_token(authorization: str) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
+        logger.warning("No valid Bearer token found in Authorization header")
         raise HTTPException(status_code=401, detail="Token de autorização necessário")
     
     token = authorization.replace("Bearer ", "")
     
     # Try as session token first
-    session = verify_session_token(token)
-    if session:
+    try:
+        session = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         user = get_user_by_google_id(session["google_id"])
         if user:
             return user
+        else:
+            logger.warning(f"Session token valid but user not found in DB: {session['google_id']}")
+    except Exception as e:
+        logger.warning(f"Session token validation failed: {str(e)}")
 
     # Try as Google ID token (fallback)
     try:
@@ -61,9 +66,12 @@ def get_user_from_token(authorization: str) -> dict:
         user = get_user_by_google_id(idinfo["sub"])
         if user:
             return user
-    except Exception:
-        pass
+        else:
+            logger.warning(f"Google ID token valid but user not found in DB: {idinfo['sub']}")
+    except Exception as e:
+        logger.warning(f"Google ID token validation failed: {str(e)}")
 
+    logger.error("Token exhausted strategies and failed validation.")
     raise HTTPException(status_code=401, detail="Token inválido ou expirado")
 
 @auth_router.post("/auth/google")
