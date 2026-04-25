@@ -77,7 +77,7 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        from services.video_extractor import BehavioralVideoAnalyzer
+        from video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
         logger.info(
@@ -289,7 +289,7 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     # ─ Phase 2: Upload video to Files API ─────────────────────────────────
     client = _get_client()
     logger.info("Fase 2: Upload do vídeo para a Files API do Google...")
-    video_ref = client.files.upload(path=video_path)
+    video_ref = client.files.upload(file=video_path)
 
     # Poll until the file finishes server-side processing
     _wait_for_file_active(client, video_ref)
