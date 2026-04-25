@@ -399,6 +399,7 @@ def _strip_audio_from_video(video_path: str) -> str:
 def try_parse_json(text: str) -> dict | None:
     """
     Multi-strategy JSON extractor that handles Gemma 4 output artefacts:
+    - Lists wrapping the object ([{...}])
     - Markdown code fences (```json … ```)
     - Text preambles before the first `{`
     - JS-style inline comments
@@ -407,9 +408,17 @@ def try_parse_json(text: str) -> dict | None:
     if not text or not text.strip():
         return None
 
+    def _extract_dict(data) -> dict | None:
+        if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+            return data[0]
+        if isinstance(data, dict):
+            return data
+        return None
+
     # Strategy 1: direct parse (ideal — model obeyed)
     try:
-        return json.loads(text)
+        res = _extract_dict(json.loads(text))
+        if res: return res
     except json.JSONDecodeError:
         pass
 
@@ -417,7 +426,8 @@ def try_parse_json(text: str) -> dict | None:
     try:
         stripped = re.sub(r"```(?:json)?\s*", "", text, flags=re.IGNORECASE)
         stripped = stripped.replace("```", "").strip()
-        return json.loads(stripped)
+        res = _extract_dict(json.loads(stripped))
+        if res: return res
     except json.JSONDecodeError:
         pass
 
@@ -425,18 +435,29 @@ def try_parse_json(text: str) -> dict | None:
     try:
         start = text.index("{")
         end   = text.rindex("}") + 1
-        return json.loads(text[start:end])
+        res = _extract_dict(json.loads(text[start:end]))
+        if res: return res
     except (ValueError, json.JSONDecodeError):
         pass
 
-    # Strategy 4: aggressive cleanup — comments + trailing commas
+    # Strategy 4: extract first top-level [ … ] array if object failed
+    try:
+        start = text.index("[")
+        end   = text.rindex("]") + 1
+        res = _extract_dict(json.loads(text[start:end]))
+        if res: return res
+    except (ValueError, json.JSONDecodeError):
+        pass
+
+    # Strategy 5: aggressive cleanup — comments + trailing commas
     try:
         cleaned = re.sub(r"```(?:json)?|```", "", text, flags=re.IGNORECASE).strip()
         cleaned = re.sub(r"//[^\n]*\n", "\n", cleaned)
         cleaned = re.sub(r",\s*([}\]])", r"\1", cleaned)
         start = cleaned.index("{")
         end   = cleaned.rindex("}") + 1
-        return json.loads(cleaned[start:end])
+        res = _extract_dict(json.loads(cleaned[start:end]))
+        if res: return res
     except (ValueError, json.JSONDecodeError, Exception):
         pass
 
