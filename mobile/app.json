@@ -30,7 +30,15 @@
     },
     "scheme": "primeiroolhar",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permita que o Primeiro Olhar acesse a câmera para filmar a criança."
+        }
+      ],
+      "expo-image-picker"
     ],
     "extra": {
       "router": {},
