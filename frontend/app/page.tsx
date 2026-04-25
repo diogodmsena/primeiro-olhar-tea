@@ -55,6 +55,7 @@ export default function Home() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [childName, setChildName] = useState("");
+  const [childAge, setChildAge] = useState<number>(3);
   const [concerns, setConcerns] = useState("");
   const [communication, setCommunication] = useState("");
   const [responds, setResponds] = useState("yes");
@@ -86,6 +87,7 @@ export default function Home() {
       
       const parentAnswers = {
         child_name: childName,
+        child_age: childAge,
         concerns,
         communication_delays: communication,
         responds_to_name: responds,
@@ -185,17 +187,42 @@ export default function Home() {
                 {t('form.step1Title')}
               </label>
 
-              <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 mb-8">
-                <label className="block font-bold text-slate-700 text-base">{t('form.childNameLabel')}</label>
-                <div className="mt-4">
-                  <input 
-                    type="text" 
-                    value={childName}
-                    onChange={(e) => setChildName(e.target.value)}
-                    placeholder="Nome"
-                    className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-700 placeholder-slate-400"
-                    required
-                  />
+              <div className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-100 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Nome da Criança */}
+                  <div>
+                    <label className="block font-bold text-slate-700 text-base">{t('form.childNameLabel')}</label>
+                    <div className="mt-4">
+                      <input 
+                        type="text" 
+                        value={childName}
+                        onChange={(e) => setChildName(e.target.value)}
+                        placeholder="Nome"
+                        className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-700 placeholder-slate-400"
+                        required
+                      />
+                    </div>
+                  </div>
+                  {/* Slider de Idade */}
+                  <div>
+                    <label className="block font-bold text-slate-700 text-base">{t('form.childAgeLabel')}</label>
+                    <div className="mt-4 bg-white border-2 border-slate-200 rounded-2xl p-4 flex flex-col justify-center h-[58px]">
+                      <div className="flex justify-between items-center text-slate-500 font-bold text-xs mb-2">
+                         <span>1 ano</span>
+                         <span className="text-blue-500 text-lg">{childAge} anos</span>
+                         <span>6 anos</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="1" 
+                        max="6" 
+                        step="1"
+                        value={childAge}
+                        onChange={(e) => setChildAge(Number(e.target.value))}
+                        className="w-full accent-blue-500 cursor-pointer"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
