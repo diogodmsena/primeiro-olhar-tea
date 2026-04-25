@@ -14,7 +14,7 @@ import { generateAndDownloadPDF } from "@/utils/pdfGenerator";
 export default function ResultadoPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, signOut } = useAuth();
   const { t } = useI18n();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(null);
@@ -199,9 +199,9 @@ export default function ResultadoPage() {
       setSaved(true);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3500);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Erro ao salvar relatório:", err);
-      if (err.response?.status === 401) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
         signOut();
         alert("Sua sessão expirou ou foi recriada. Faça o login novamente com o Google para salvar.");
       } else {
@@ -342,7 +342,7 @@ export default function ResultadoPage() {
              </div>
              <div>
                <p className="font-bold text-lg mb-1">{t('results.savedSuccess')}</p>
-               <p className="text-sm text-slate-300">Você pode acessá-lo depois em "Meus Relatórios".</p>
+               <p className="text-sm text-slate-300">Você pode acessá-lo depois em Meus Relatórios.</p>
              </div>
           </div>
         </div>
