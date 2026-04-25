@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 docs/
-
+.agent/
 # Node
 node_modules/
 dist/
