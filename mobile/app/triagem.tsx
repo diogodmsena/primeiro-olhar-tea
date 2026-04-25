@@ -28,6 +28,7 @@ export default function TriagemScreen() {
 
   // Form State
   const [childName, setChildName] = useState('');
+  const [childAge, setChildAge] = useState<number>(3);
   const [concerns, setConcerns] = useState('');
   const [communicationDelays, setCommunicationDelays] = useState('');
   const [respondsToName, setRespondsToName] = useState('');
@@ -96,6 +97,7 @@ export default function TriagemScreen() {
 
       const parentData = {
         child_name: childName,
+        child_age: childAge,
         concerns,
         communication_delays: communicationDelays,
         responds_to_name: respondsToName,
@@ -186,6 +188,24 @@ export default function TriagemScreen() {
                    value={childName}
                    onChangeText={setChildName}
                  />
+
+                 <Text className="font-bold text-slate-700 mt-2">{t('form.childAgeLabel') || "Qual a idade da criança?"}</Text>
+                 <View className="flex-row justify-between mt-1">
+                   {[1, 2, 3, 4, 5, 6].map(age => (
+                     <TouchableOpacity 
+                       key={age}
+                       onPress={() => setChildAge(age)}
+                       activeOpacity={0.7}
+                       className={`w-[14%] aspect-square rounded-xl items-center justify-center border-2 ${childAge === age ? 'bg-blue-500 border-blue-500' : 'bg-white border-slate-200'}`}
+                     >
+                       <Text className={`font-bold text-lg ${childAge === age ? 'text-white' : 'text-slate-500'}`}>{age}</Text>
+                     </TouchableOpacity>
+                   ))}
+                 </View>
+                 <Text className="text-blue-500 font-bold self-center -mt-1">
+                   {childAge} {childAge === 1 ? (t('common.year') || 'ano') : (t('common.years') || 'anos')}
+                 </Text>
+
                  <View className="flex-column gap-4 mt-4">
                   <TouchableOpacity onPress={handleNext} className="bg-blue-500 p-4 rounded-xl items-center mt-4">
                     <Text className="text-white font-bold">Próximo Passo</Text>
