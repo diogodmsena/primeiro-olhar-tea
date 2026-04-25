@@ -15,20 +15,20 @@ logger = get_logger(__name__)
 
 def orchestration_pipeline(job_id: str, parent_json: str, video_path: str):
     try:
-        logger.info(f"Starting pipeline for job {job_id}")
+        logger.info(f"Starting Gemma 4 pipeline for job {job_id}")
         parent_answers = json.loads(parent_json)
         
-        # Super-Model Integrado: Envia o vídeo inteiro + Formulario para o Gemini Flash Native
+        # Hybrid pipeline: local CV analysis → Gemma 4 multimodal inference
         report_data = analyze_multimodal_case(video_path, parent_answers)
         
-        # Save to memory storage
         update_job_success(job_id, {
             "child_name": parent_answers.get("child_name", ""),
             "video_features": report_data.get("video_features", {"avg_gaze_score": 1.0, "eye_contact_ratio": 1.0, "head_movement_pattern": "normal", "facial_expressivity": "normal"}),
             "audio_features": report_data.get("audio_features", {"prosody_variation": 1.0, "speech_presence": True, "audio_reactivity": "normal"}),
             "text_features": report_data.get("text_features", {"parent_concerns": [], "contextual_flags": []}),
             "risk_score": report_data.get("risk_score", {"score": 0.0, "level": "Indefinido"}),
-            "gemma_report": report_data.get("gemma_report", "Relatório Indisponível.")
+            "gemma_report": report_data.get("gemma_report", "Relatório Indisponível."),
+            "clinical_reasoning": report_data.get("clinical_reasoning", ""),
         })
         logger.info(f"Job {job_id} completed successfully")
     except Exception as e:
@@ -106,6 +106,7 @@ async def get_triagem_status(job_id: str):
                     text_features=report_data.get("text_features"),
                     risk_score=report_data.get("risk_score"),
                     gemma_report=report_data.get("gemma_report"),
+                    clinical_reasoning=report_data.get("clinical_reasoning"),
                     child_name=report_data.get("child_name", saved_report.get("child_name", ""))
                 )
             except Exception as e:
@@ -134,6 +135,7 @@ async def get_triagem_status(job_id: str):
         text_features=result.get("text_features"),
         risk_score=result.get("risk_score"),
         gemma_report=result.get("gemma_report"),
+        clinical_reasoning=result.get("clinical_reasoning"),
         child_name=result.get("child_name", "")
     )
 

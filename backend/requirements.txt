@@ -2,8 +2,11 @@ fastapi==0.111.0
 uvicorn==0.29.0
 python-multipart==0.0.9
 pydantic==2.7.1
-google-genai==0.3.0
+# Google AI SDK >= 1.0 required for Gemma 4, thinking_config, and system_instruction
+google-genai>=1.15.0
 google-auth==2.29.0
 PyJWT==2.8.0
+# Computer vision — local video analysis (CV phase of the hybrid pipeline)
 mediapipe==0.10.14
+opencv-python==4.10.0.84
 requests==2.31.0

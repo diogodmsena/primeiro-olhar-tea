@@ -42,11 +42,29 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
+
+    # Jobs table for persistent background-task state (survives restarts)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            job_id       TEXT PRIMARY KEY,
+            status       TEXT NOT NULL DEFAULT 'processing',
+            result_json  TEXT,
+            error        TEXT,
+            metadata_json TEXT,
+            created_at   TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at   TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     
-    try:
-        cursor.execute("ALTER TABLE reports ADD COLUMN child_name TEXT DEFAULT ''")
-    except sqlite3.OperationalError:
-        pass # Column already exists
+    # Incremental schema migrations (idempotent)
+    for migration in [
+        "ALTER TABLE reports ADD COLUMN child_name TEXT DEFAULT ''",
+        "ALTER TABLE reports ADD COLUMN clinical_reasoning TEXT DEFAULT ''",
+    ]:
+        try:
+            cursor.execute(migration)
+        except sqlite3.OperationalError:
+            pass  # column already exists
     
     conn.commit()
     conn.close()
@@ -125,6 +143,47 @@ def get_report_by_job_id(job_id: str) -> dict:
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM reports WHERE job_id = ?", (job_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+# ---------------------------------------------------------------------------
+# Job persistence helpers (used by utils/storage.py)
+# ---------------------------------------------------------------------------
+
+def upsert_job(
+    job_id: str,
+    status: str,
+    result_json: str | None = None,
+    error: str | None = None,
+    metadata_json: str | None = None,
+) -> None:
+    """Insert or update a row in the jobs table."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO jobs (job_id, status, result_json, error, metadata_json, updated_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(job_id) DO UPDATE SET
+            status        = excluded.status,
+            result_json   = excluded.result_json,
+            error         = excluded.error,
+            metadata_json = COALESCE(excluded.metadata_json, jobs.metadata_json),
+            updated_at    = CURRENT_TIMESTAMP
+        """,
+        (job_id, status, result_json, error, metadata_json),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_job_by_id(job_id: str) -> dict | None:
+    """Fetch a job row by job_id."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM jobs WHERE job_id = ?", (job_id,))
     row = cursor.fetchone()
     conn.close()
     return dict(row) if row else None

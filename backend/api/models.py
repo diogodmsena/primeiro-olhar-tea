@@ -40,4 +40,5 @@ class FinalReportResponse(BaseModel):
     text_features: Optional[TextFeatureOutput] = None
     risk_score: Optional[RiskScoreOutput] = None
     gemma_report: Optional[str] = None
+    clinical_reasoning: Optional[str] = None
     child_name: Optional[str] = None
