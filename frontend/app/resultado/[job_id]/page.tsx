@@ -196,9 +196,14 @@ export default function ResultadoPage() {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setSaved(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro ao salvar relatório:", err);
-      alert(t('history.errorTitle'));
+      if (err.response?.status === 401) {
+        signOut();
+        alert("Sua sessão expirou ou foi recriada. Faça o login novamente com o Google para salvar.");
+      } else {
+        alert(t('history.errorTitle'));
+      }
     } finally {
       setSaving(false);
     }
