@@ -10,6 +10,10 @@ export const dictionaries = {
       myHistory: "Meu Histórico",
       back: "Voltar",
     },
+    common: {
+      year: "ano",
+      years: "anos"
+    },
     history: {
       title: "Meu Histórico",
       emptyState: "Nenhuma avaliação salva encontrada.",
@@ -36,6 +40,7 @@ export const dictionaries = {
       q2Label: "Há atrasos na fala ou comunicação?",
       q2Placeholder: "Ex: Ainda não formula frases completas...",
       childNameLabel: "Qual é o nome da criança?",
+      childAgeLabel: "Qual a idade da criança?",
       q3Label: "A criança responde quando é chamada pelo nome?",
       q3OptYes: "Sim, responde",
       q3OptNo: "Não, raramente",
@@ -153,6 +158,10 @@ export const dictionaries = {
       myHistory: "My History",
       back: "Back",
     },
+    common: {
+      year: "year",
+      years: "years"
+    },
     history: {
       title: "My History",
       emptyState: "No saved assessments found.",
@@ -179,6 +188,7 @@ export const dictionaries = {
       q2Label: "Are there delays in speech or communication?",
       q2Placeholder: "Ex: Still doesn't form complete sentences...",
       childNameLabel: "What is the child's name?",
+      childAgeLabel: "What is the child's age?",
       q3Label: "Does the child respond when called by name?",
       q3OptYes: "Yes, responds",
       q3OptNo: "No, rarely",
@@ -296,6 +306,10 @@ export const dictionaries = {
       myHistory: "Mi Historial",
       back: "Volver",
     },
+    common: {
+      year: "año",
+      years: "años"
+    },
     history: {
       title: "Mi Historial",
       emptyState: "No se encontró ninguna evaluación guardada.",
@@ -322,6 +336,7 @@ export const dictionaries = {
       q2Label: "¿Hay retrasos en el habla o comunicación?",
       q2Placeholder: "Ej: Todavía no forma oraciones completas...",
       childNameLabel: "¿Cuál es el nombre del niño/a?",
+      childAgeLabel: "¿Cuál es la edad del niño/a?",
       q3Label: "¿El niño/a responde cuando se le llama por su nombre?",
       q3OptYes: "Sí, responde",
       q3OptNo: "No, raramente",
