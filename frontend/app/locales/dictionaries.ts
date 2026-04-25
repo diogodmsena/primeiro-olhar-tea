@@ -98,7 +98,9 @@ export const dictionaries = {
       loading: "Carregando...",
       copyLink: "Copiar Link",
       copied: "Copiado!",
-      locale_code: "pt"
+      locale_code: "pt",
+      year: "ano",
+      years: "anos"
     },
     history: {
       title: "Meus Relatórios",
@@ -266,7 +268,9 @@ export const dictionaries = {
       loading: "Loading...",
       copyLink: "Copy Link",
       copied: "Copied!",
-      locale_code: "en"
+      locale_code: "en",
+      year: "year",
+      years: "years"
     },
     history: {
       title: "My Reports",
@@ -434,7 +438,9 @@ export const dictionaries = {
       loading: "Cargando...",
       copyLink: "Copiar Enlace",
       copied: "¡Copiado!",
-      locale_code: "es"
+      locale_code: "es",
+      year: "año",
+      years: "años"
     },
     history: {
       title: "Mis Informes",

@@ -208,9 +208,9 @@ export default function Home() {
                     <label className="block font-bold text-slate-700 text-base">{t('form.childAgeLabel')}</label>
                     <div className="mt-4 bg-white border-2 border-slate-200 rounded-2xl p-4 flex flex-col justify-center h-[58px]">
                       <div className="flex justify-between items-center text-slate-500 font-bold text-xs mb-2">
-                         <span>1 ano</span>
-                         <span className="text-blue-500 text-lg">{childAge} anos</span>
-                         <span>6 anos</span>
+                         <span> </span>
+                         <span className="text-blue-500 text-lg">{childAge} {childAge === 1 ? t('common.year') : t('common.years')}</span>
+                         <span> </span>
                       </div>
                       <input 
                         type="range" 
