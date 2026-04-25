@@ -32,6 +32,8 @@ import json
 import os
 import re
 import time
+import subprocess
+import tempfile
 
 from google import genai
 from google.genai import types
@@ -280,10 +282,16 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     logger.info("Fase 1: Visão computacional em '%s'...", video_path)
     cv_metrics = _run_cv_analysis(video_path)
 
-    # ─ Phase 2: Upload video to Files API ─────────────────────────────────
+    # ─ Phase 2: Strip Audio and Upload video to Files API ────────────────
     client = _get_client()
-    logger.info("Fase 2: Upload do vídeo para a Files API do Google...")
-    video_ref = client.files.upload(file=video_path)
+    
+    # Gemma 4 models on Google SDK currently do not support audio modality.
+    # We strip the audio track locally via ffmpeg before uploading.
+    logger.info("Fase 2: Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
+    stripped_video_path = _strip_audio_from_video(video_path)
+    
+    logger.info("Upload do vídeo mudo para a Files API do Google...")
+    video_ref = client.files.upload(file=stripped_video_path)
 
     # Poll until the file finishes server-side processing
     _wait_for_file_active(client, video_ref)
@@ -293,9 +301,14 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     prompt = _build_prompt(cv_metrics, parent_answers)
     raw_text = _infer_with_gemma4(client, prompt, video_ref)
 
-    # Clean up the uploaded file (best-effort)
+    # Clean up the uploaded files (best-effort)
     try:
         client.files.delete(name=video_ref.name)
+    except Exception:
+        pass
+    try:
+        if os.path.exists(stripped_video_path):
+            os.remove(stripped_video_path)
     except Exception:
         pass
 
@@ -352,6 +365,31 @@ def _wait_for_file_active(client: genai.Client, video_file, max_retries: int = 3
         raise ValueError("O servidor do Google não conseguiu processar o vídeo enviado.")
 
     logger.info("Arquivo ativo na Files API. Estado: %s", state)
+
+
+def _strip_audio_from_video(video_path: str) -> str:
+    """
+    Remove the audio track from an MP4 file using ffmpeg.
+    Creates a temporary file without audio to appease the Gemma 4 API.
+    """
+    fd, temp_path = tempfile.mkstemp(suffix=".mp4")
+    os.close(fd)
+    
+    cmd = [
+        "ffmpeg", 
+        "-y",               # overwrite output
+        "-i", video_path,   # input file
+        "-an",              # remove audio
+        "-vcodec", "copy",  # copy video stream directly (fast)
+        temp_path
+    ]
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return temp_path
+    except subprocess.CalledProcessError as exc:
+        logger.error("FFmpeg falhou ao remover áudio. stderr: %s", exc.stderr.decode("utf-8", errors="ignore"))
+        # Fallback to the original video if ffmpeg fails and hope for the best
+        return video_path
 
 
 # ---------------------------------------------------------------------------
