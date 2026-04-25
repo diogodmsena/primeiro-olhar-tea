@@ -145,8 +145,9 @@ def _build_prompt(cv_metrics: dict, parent_answers: dict) -> str:
 Estes valores são objetivos e devem ancorar sua análise clínica.
 Interprete-os clinicamente — NÃO os copie literalmente no relatório."""
 
-    anamnesis_section = f"""═══ QUESTIONÁRIO PARENTAL / ANAMNESE ═══
-• Nome da criança: {child_name}
+    anamnesis_section = f"""═══ ANAMNESE (Relato dos Pais) ═══
+• Nome da criança: {parent_answers.get('child_name', 'Não informado')}
+• Idade da criança: {parent_answers.get('child_age', 'Não informado')} ano(s)
 • Preocupações principais: {parent_answers.get('concerns', 'Não relatado')}
 • Atraso na comunicação: {parent_answers.get('communication_delays', 'Não relatado')}
 • Responde ao próprio nome?: {parent_answers.get('responds_to_name', 'Não informado')}
@@ -158,7 +159,7 @@ Antes de gerar o JSON final, execute mentalmente os seguintes passos de raciocí
 
 PASSO 1 — Análise Motora e Ocular:
   Interprete os dados de visão computacional. O índice de contato visual está
-  abaixo do esperado para a faixa etária? O padrão de movimentação cefálica
+  abaixo do esperado para a faixa etária da criança ({parent_answers.get('child_age', 'Não informado')} anos)? O padrão de movimentação cefálica
   é consistente com atenção compartilhada ou com hiperatividade/foco restrito?
 
 PASSO 2 — Correlação com a Anamnese:
