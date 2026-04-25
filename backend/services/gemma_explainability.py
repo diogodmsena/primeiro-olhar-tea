@@ -236,12 +236,6 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
     config = types.GenerateContentConfig(
         system_instruction=_SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
-        # Thinking Mode: budget_tokens = 0 disables thinking (fast/cheap).
-        # Higher values up to 8192 allow deeper clinical reasoning.
-        # Use low budget for the MoE efficient model (26b-a4b), high for dense (31b).
-        thinking_config=types.ThinkingConfig(
-            thinking_budget=1024 if "a4b" in model.lower() else 4096
-        ),
         temperature=0.2,   # deterministic for clinical output
         max_output_tokens=4096,
     )
