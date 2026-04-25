@@ -188,7 +188,8 @@ export default function TriagemScreen() {
                    value={childName}
                    onChangeText={setChildName}
                  />
-
+              </View>
+              <View className="bg-slate-50 p-6 rounded-2xl border border-slate-100 gap-4">
                  <Text className="font-bold text-slate-700 mt-2">{t('form.childAgeLabel') || "Qual a idade da criança?"}</Text>
                  <View className="flex-row justify-between mt-1">
                    {[1, 2, 3, 4, 5, 6].map(age => (
