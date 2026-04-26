@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
@@ -8,10 +9,9 @@ import { AutismPuzzleSymbol } from '../components/AutismPuzzleSymbol';
 export default function Home() {
   const { t } = useI18n();
   const router = useRouter();
-  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
   
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: statusBarHeight }}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         <View className="items-start mt-4 mb-8">
@@ -60,6 +60,6 @@ export default function Home() {
             </TouchableOpacity>
           </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

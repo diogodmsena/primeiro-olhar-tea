@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert, Platform, StatusBar, Dimensions } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Share, Alert, Platform, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
@@ -20,8 +21,6 @@ export default function ResultadoScreen() {
   const [activeSlide, setActiveSlide] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const { width } = Dimensions.get('window');
-  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
-
   useEffect(() => {
     if (loading) {
       const waitTimer = setTimeout(() => setShowCarousel(true), 5000);
@@ -220,7 +219,7 @@ export default function ResultadoScreen() {
 
   if (loading || !data) {
     return (
-      <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
+      <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'left', 'right']}>
         <Header />
         {!showCarousel ? (
           <View className="flex-1 items-center justify-center p-6">
@@ -309,7 +308,7 @@ export default function ResultadoScreen() {
              </View>
           </View>
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -323,7 +322,7 @@ export default function ResultadoScreen() {
   const scoreValue = data.risk_score?.score ? Math.round(data.risk_score.score * 100) : 0;
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: statusBarHeight }}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         
@@ -424,6 +423,6 @@ export default function ResultadoScreen() {
         </View>
 
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

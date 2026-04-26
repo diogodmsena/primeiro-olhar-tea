@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Platform, StatusBar, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../contexts/I18nContext';
 import { Header } from '../components/Header';
@@ -8,7 +8,6 @@ import { Video, FileText, Sparkles, AlertCircle, ArrowLeft, ArrowRight } from '.
 export default function ComoFuncionaScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const statusBarHeight = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
   const steps = [
     {
@@ -57,7 +56,7 @@ export default function ComoFuncionaScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-slate-50" style={{ paddingTop: statusBarHeight }}>
+    <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'left', 'right']}>
       <Header />
       
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
