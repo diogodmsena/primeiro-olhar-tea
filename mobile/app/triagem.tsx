@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Keyboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
@@ -89,6 +89,7 @@ export default function TriagemScreen() {
   };
 
   const submitTriagem = async () => {
+    Keyboard.dismiss();
     if (!videoUri) {
       Alert.alert('Atenção', 'Por favor, grave ou anexe um vídeo da criança.');
       return;
