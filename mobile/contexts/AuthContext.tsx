@@ -56,35 +56,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (GoogleSignin) {
-      GoogleSignin.configure({
-        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-        androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-        offlineAccess: true,
-      });
-      
-      const checkUser = async () => {
-        try {
-          const hasSignIn = await GoogleSignin.hasPlayServices();
-          if (hasSignIn) {
-            const userInfo = await GoogleSignin.signInSilently();
-            if (userInfo && userInfo.data?.user) {
-               const u = userInfo.data.user;
-               setUser({
-                 email: u.email,
-                 name: u.name || 'Usuário',
-                 picture: u.photo || '',
-                 token: userInfo.data.idToken || '',
-                 googleId: u.id
-               });
+      try {
+        GoogleSignin.configure({
+          webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+          androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
+          offlineAccess: true,
+        });
+
+        const checkUser = async () => {
+          try {
+            const hasSignIn = await GoogleSignin.hasPlayServices();
+            if (hasSignIn) {
+              const userInfo = await GoogleSignin.signInSilently();
+              if (userInfo && userInfo.data?.user) {
+                 const u = userInfo.data.user;
+                 setUser({
+                   email: u.email,
+                   name: u.name || 'Usuário',
+                   picture: u.photo || '',
+                   token: userInfo.data.idToken || '',
+                   googleId: u.id
+                 });
+              }
             }
+          } catch (error) {
+             // Silently fail if not signed in
+          } finally {
+            setIsLoading(false);
           }
-        } catch (error) {
-           // Silently fail if not signed in
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      checkUser();
+        };
+        checkUser();
+      } catch (e) {
+        console.warn('[AuthContext] GoogleSignin.configure failed (google-services.json may be missing):', e);
+        setIsLoading(false);
+      }
     } else {
       setIsLoading(false);
     }
