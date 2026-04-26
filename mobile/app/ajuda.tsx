@@ -130,6 +130,6 @@ export default function ComoFuncionaScreen() {
         </View>
 
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
