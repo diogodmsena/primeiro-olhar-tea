@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Platform, StatusBar, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../contexts/I18nContext';
 import { Header } from '../components/Header';
