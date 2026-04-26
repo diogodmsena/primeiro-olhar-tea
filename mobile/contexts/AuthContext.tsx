@@ -86,8 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         };
         checkUser();
-      } catch (e) {
-        console.warn('[AuthContext] GoogleSignin.configure failed (google-services.json may be missing):', e);
+      } catch (e: any) {
+        console.warn('[AuthContext] GoogleSignin.configure failed:', e);
+        Alert.alert('Erro no Google Login', 'Google Sign-in não conseguiu inicializar. O app está sem o arquivo google-services e SHA-1 corretos na build nativa.');
         setIsLoading(false);
       }
     } else {

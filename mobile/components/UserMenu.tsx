@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -17,8 +17,12 @@ export function UserMenu() {
   const handleSignIn = async () => {
     try {
       await signIn();
-    } catch (e) {
+    } catch (e: any) {
       console.log('Error signing in', e);
+      Alert.alert(
+        'Erro ao fazer login', 
+        `Não foi possível entrar com o Google.\nDetalhe: ${e?.message || JSON.stringify(e)}\nCódigo: ${e?.code || 'N/A'}`
+      );
     }
   };
 
