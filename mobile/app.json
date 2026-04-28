@@ -22,13 +22,15 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "scheme": "primeiroolhar",
     "plugins": [
+      "@react-native-google-signin/google-signin",
       "expo-router",
       [
         "expo-camera",

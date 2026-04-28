@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "428894307275",
+    "project_id": "primeiro-olhar-eb5ef",
+    "storage_bucket": "primeiro-olhar-eb5ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428894307275:android:bf86849991b21617d26c4e",
+        "android_client_info": {
+          "package_name": "br.app.primeiroolhar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428894307275-1nonktkekr2446hr3udc12nhhav27nqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.app.primeiroolhar",
+            "certificate_hash": "57861468cb7a2688080b2c19fa2af1814363c7f0"
+          }
+        },
+        {
+          "client_id": "428894307275-9la1mn9857f856acvvmkg5l89t4sa1j6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-c3VP4HuJXOjdHXE7PiKY67EkoVWcvCM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428894307275-9la1mn9857f856acvvmkg5l89t4sa1j6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
