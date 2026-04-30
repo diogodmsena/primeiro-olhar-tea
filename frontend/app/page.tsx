@@ -58,7 +58,7 @@ export default function Home() {
   const [childAge, setChildAge] = useState<number>(3);
   const [concerns, setConcerns] = useState("");
   const [communication, setCommunication] = useState("");
-  const [responds, setResponds] = useState("yes");
+  const [responds, setResponds] = useState("");
   const [pretendPlay, setPretendPlay] = useState("");
   const [objectLining, setObjectLining] = useState("");
 

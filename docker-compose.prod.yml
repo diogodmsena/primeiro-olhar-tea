@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.prod
     restart: always
     ports:
-      - "127.0.0.1:8000:8000" 
+      - "8000:8000" 
     volumes:
       - backend_data:/app/data
     env_file:
@@ -16,12 +16,11 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile # Ou Dockerfile.prod se você tiver um específico
+      dockerfile: Dockerfile.prod
     restart: always
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     environment:
-      # O Nginx vai expor isso na porta 80, então a URL pública será a raiz do seu IP ou domínio
       - NEXT_PUBLIC_API_URL=/api 
     depends_on:
       - backend

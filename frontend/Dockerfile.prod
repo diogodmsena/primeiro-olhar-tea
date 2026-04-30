@@ -1,0 +1,15 @@
+# frontend/Dockerfile.prod
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instala as dependências de forma limpa
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copia o código e realiza o build de produção
+COPY . .
+RUN npm run build
+
+# Comando para produção
+CMD ["npm", "start"]
