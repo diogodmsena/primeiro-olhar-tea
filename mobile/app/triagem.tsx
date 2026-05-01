@@ -125,47 +125,59 @@ export default function TriagemScreen() {
       formData.append('parent_answers', JSON.stringify(parentData));
 
       const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-      console.log('[Triagem] Sending to:', `${apiUrl}/api/triagem`);
+      const endpoint = `${apiUrl}/api/triagem`;
+      console.log('[Triagem] Sending to:', endpoint);
 
-      const axiosResponse = await axios.post(`${apiUrl}/api/triagem`, formData, {
-        headers: Platform.OS === 'web' ? {} : { 'Content-Type': 'multipart/form-data' },
-        timeout: 120000,
+      // Usa fetch nativo — Axios envia "axios/x.x" como User-Agent,
+      // que o Cloudflare Bot Fight Mode bloqueia com 403.
+      const fetchResponse = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+          'Accept': 'application/json',
+        },
+        body: formData,
       });
 
-      if (axiosResponse.data?.job_id) {
-        router.push(`/resultado?job_id=${axiosResponse.data.job_id}`);
+      const responseData = await fetchResponse.json().catch(() => null);
+      console.log('[Triagem] Status:', fetchResponse.status);
+      console.log('[Triagem] Response:', JSON.stringify(responseData));
+
+      if (!fetchResponse.ok) {
+        const status = fetchResponse.status;
+        let msg: string;
+        if (status === 403) {
+          msg = 'Acesso bloqueado (403). Verifique WAF/Cloudflare para /api/*.';
+        } else if (status === 413) {
+          msg = 'Vídeo muito grande. Use um vídeo de até 100MB.';
+        } else if (status === 422) {
+          msg = `Dados inválidos (422): ${JSON.stringify(responseData?.detail || responseData)}`;
+        } else if (status === 500) {
+          msg = `Erro interno (500): ${responseData?.detail || 'Tente novamente.'}`;
+        } else {
+          msg = `Erro ${status}: ${responseData?.detail || JSON.stringify(responseData) || 'Erro desconhecido'}`;
+        }
+        Alert.alert('Erro ao iniciar análise', msg);
+        return;
       }
+
+      if (responseData?.job_id) {
+        router.push(`/resultado?job_id=${responseData.job_id}`);
+        return;
+      }
+
+      Alert.alert('Erro', 'Resposta inesperada do servidor. Tente novamente.');
     } catch (e: any) {
-      const url = e.config?.url || `${process.env.EXPO_PUBLIC_API_URL}/api/triagem`;
-      const status = e.response?.status;
-      const responseBody = e.response?.data;
-
-      console.error('[Triagem] Error:', e.message);
-      console.error('[Triagem] URL:', url);
-      console.error('[Triagem] Status:', status);
-      console.error('[Triagem] Response:', JSON.stringify(responseBody));
-
-      const isNetworkError = !e.response && (e.message === 'Network Error' || e.code === 'ECONNABORTED' || e.code === 'ERR_NETWORK');
-      
-      let msg: string;
-      if (isNetworkError) {
-        msg = `Sem conexão com o servidor.\nURL: ${url}\nVerifique sua internet.`;
-      } else if (status === 422) {
-        msg = `Dados inválidos (422).\n${JSON.stringify(responseBody?.detail || responseBody)}`;
-      } else if (status === 413) {
-        msg = 'Vídeo muito grande. Use um vídeo de até 50MB.';
-      } else if (status === 500) {
-        msg = `Erro interno do servidor (500).\n${responseBody?.detail || 'Tente novamente.'}`;
-      } else if (status) {
-        msg = `Erro ${status}: ${responseBody?.detail || JSON.stringify(responseBody) || e.message}`;
-      } else {
-        msg = `Erro inesperado: ${e.message}\nURL: ${url}`;
-      }
-      Alert.alert('Erro ao iniciar análise', msg);
+      console.error('[Triagem] Network error:', e.message);
+      Alert.alert(
+        'Erro de conexão',
+        `Sem conexão com o servidor.\nURL: ${process.env.EXPO_PUBLIC_API_URL || '(não definida)'}\nDetalhe: ${e.message}`
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   const RadioButton = ({
     label, value, selectedValue, onSelect, colorClass,
