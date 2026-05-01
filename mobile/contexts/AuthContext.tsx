@@ -59,7 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         GoogleSignin.configure({
           webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-          androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
           offlineAccess: true,
         });
 
