@@ -136,15 +136,32 @@ export default function TriagemScreen() {
         router.push(`/resultado?job_id=${axiosResponse.data.job_id}`);
       }
     } catch (e: any) {
-      console.error('[Triagem] Error:', e.message, e.config?.url);
-      if (e.response) {
-        console.error('[Triagem] Response data:', JSON.stringify(e.response.data));
+      const url = e.config?.url || `${process.env.EXPO_PUBLIC_API_URL}/api/triagem`;
+      const status = e.response?.status;
+      const responseBody = e.response?.data;
+
+      console.error('[Triagem] Error:', e.message);
+      console.error('[Triagem] URL:', url);
+      console.error('[Triagem] Status:', status);
+      console.error('[Triagem] Response:', JSON.stringify(responseBody));
+
+      const isNetworkError = !e.response && (e.message === 'Network Error' || e.code === 'ECONNABORTED' || e.code === 'ERR_NETWORK');
+      
+      let msg: string;
+      if (isNetworkError) {
+        msg = `Sem conexão com o servidor.\nURL: ${url}\nVerifique sua internet.`;
+      } else if (status === 422) {
+        msg = `Dados inválidos (422).\n${JSON.stringify(responseBody?.detail || responseBody)}`;
+      } else if (status === 413) {
+        msg = 'Vídeo muito grande. Use um vídeo de até 50MB.';
+      } else if (status === 500) {
+        msg = `Erro interno do servidor (500).\n${responseBody?.detail || 'Tente novamente.'}`;
+      } else if (status) {
+        msg = `Erro ${status}: ${responseBody?.detail || JSON.stringify(responseBody) || e.message}`;
+      } else {
+        msg = `Erro inesperado: ${e.message}\nURL: ${url}`;
       }
-      const isNetworkError = e.message === 'Network Error' || e.code === 'ECONNABORTED';
-      const msg = isNetworkError
-        ? 'Não foi possível conectar ao servidor. Verifique se o celular está na mesma rede Wi-Fi do computador.'
-        : (e.response?.data?.detail || 'Erro ao iniciar análise');
-      Alert.alert('Erro', msg);
+      Alert.alert('Erro ao iniciar análise', msg);
     } finally {
       setIsSubmitting(false);
     }
