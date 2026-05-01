@@ -6,11 +6,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { useRouter } from 'expo-router';
 import { Camera, Image as ImageIcon, Video, UploadCloud } from '../components/LucideIcons';
-import axios from 'axios';
+// axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 
 type Step = 1 | 2 | 3;
 
@@ -80,13 +81,16 @@ export default function TriagemScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['videos'],
       allowsEditing: true,
-      quality: 1,
+      quality: 0.7, // Comprime o vídeo para reduzir tamanho (iOS only)
+      videoMaxDuration: 180,
     });
     if (!result.canceled) {
       setVideoUri(result.assets[0].uri);
       setCameraOpen(false);
     }
   };
+
+  const MAX_VIDEO_SIZE_MB = 50;
 
   const submitTriagem = async () => {
     Keyboard.dismiss();
@@ -97,6 +101,23 @@ export default function TriagemScreen() {
     setIsSubmitting(true);
 
     try {
+      // Verifica o tamanho do arquivo antes de enviar
+      if (Platform.OS !== 'web') {
+        const fileInfo = await FileSystem.getInfoAsync(videoUri);
+        if (fileInfo.exists && fileInfo.size) {
+          const fileSizeMB = fileInfo.size / (1024 * 1024);
+          if (fileSizeMB > MAX_VIDEO_SIZE_MB) {
+            Alert.alert(
+              'Vídeo muito grande',
+              `O vídeo tem ${fileSizeMB.toFixed(0)}MB. Por favor, use um vídeo de até ${MAX_VIDEO_SIZE_MB}MB ou grave um vídeo mais curto (até 1 minuto).`
+            );
+            setIsSubmitting(false);
+            return;
+          }
+          console.log(`[Triagem] Video size: ${fileSizeMB.toFixed(1)}MB`);
+        }
+      }
+
       const formData = new FormData();
 
       if (Platform.OS === 'web') {
@@ -169,9 +190,15 @@ export default function TriagemScreen() {
       Alert.alert('Erro', 'Resposta inesperada do servidor. Tente novamente.');
     } catch (e: any) {
       console.error('[Triagem] Network error:', e.message);
+      const isTimeout = e.message?.includes('timeout') || e.message?.includes('Timeout');
+      const isCancelled = e.message?.includes('cancelled') || e.message?.includes('aborted');
       Alert.alert(
         'Erro de conexão',
-        `Sem conexão com o servidor.\nURL: ${process.env.EXPO_PUBLIC_API_URL || '(não definida)'}\nDetalhe: ${e.message}`
+        isTimeout
+          ? `O envio demorou muito. Tente com um vídeo menor (menos de 1 minuto) ou em uma rede Wi-Fi.\n\nURL: ${process.env.EXPO_PUBLIC_API_URL}`
+          : isCancelled
+          ? 'O envio foi cancelado. Tente novamente.'
+          : `Sem conexão com o servidor.\nURL: ${process.env.EXPO_PUBLIC_API_URL || '(não definida)'}\n\nSugestões:\n• Verifique sua conexão com a internet\n• Tente com um vídeo menor\n• Use Wi-Fi em vez de dados móveis\n\nDetalhe: ${e.message}`
       );
     } finally {
       setIsSubmitting(false);

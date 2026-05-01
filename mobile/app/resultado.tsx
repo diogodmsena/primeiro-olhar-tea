@@ -6,7 +6,7 @@ import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
-import axios from 'axios';
+// axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ResultadoScreen() {
@@ -58,18 +58,31 @@ export default function ResultadoScreen() {
     const fetchStatus = async () => {
       try {
         const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-        const response = await axios.get(`${apiUrl}/api/triagem/${job_id}`);
-        
-        if (response.data?.status === 'done') {
-          setData(response.data);
+        const response = await fetch(`${apiUrl}/api/triagem/${job_id}`, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+            'Accept': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('[Resultado] HTTP error:', response.status);
+          return;
+        }
+
+        const responseData = await response.json();
+
+        if (responseData?.status === 'done') {
+          setData(responseData);
           setLoading(false);
           clearInterval(intervalId);
-        } else if (response.data?.status === 'error') {
+        } else if (responseData?.status === 'error') {
           setLoading(false);
           clearInterval(intervalId);
         }
       } catch (e) {
-        console.error(e);
+        console.error('[Resultado] fetch error:', e);
       }
     };
 
@@ -132,12 +145,19 @@ export default function ResultadoScreen() {
       if (locale && locale !== 'pt') {
         setTranslating(true);
         try {
-          const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.2:8000';
-          const res = await axios.post(`${apiURL}/api/triagem/${job_id}/translate`, {
-            target_lang: locale
+          const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+          const translateRes = await fetch(`${apiURL}/api/triagem/${job_id}/translate`, {
+            method: 'POST',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({ target_lang: locale }),
           });
-          if (res.data?.translated_report) {
-            localizedReport = res.data.translated_report;
+          const translateData = translateRes.ok ? await translateRes.json() : null;
+          if (translateData?.translated_report) {
+            localizedReport = translateData.translated_report;
           }
         } catch (e) {
           console.warn("Translation failed", e);
