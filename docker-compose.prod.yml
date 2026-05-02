@@ -18,12 +18,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
       args:
-        - NEXT_PUBLIC_API_URL=https://api.primeiroolhar.app.br
+        - NEXT_PUBLIC_API_URL=https://primeiroolhar.app.br
     restart: always
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=https://api.primeiroolhar.app.br
+      - NEXT_PUBLIC_API_URL=https://primeiroolhar.app.br
     depends_on:
       - backend
 
