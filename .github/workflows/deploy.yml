@@ -1,0 +1,31 @@
+name: Deploy to SaveinCloud
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to SaveinCloud via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Entra na pasta do projeto (Ajuste se o caminho no servidor for diferente)
+            cd ~/triagem-autismo || cd /root/triagem-autismo || cd /var/www/webroot/ROOT
+            
+            # Puxa o código mais recente
+            git pull origin main
+            
+            # Reconstrói os containers em background
+            docker-compose -f docker-compose.prod.yml up -d --build frontend backend nginx
