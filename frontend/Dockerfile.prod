@@ -9,7 +9,9 @@ RUN npm ci
 
 # Copia o código e realiza o build de produção
 COPY . .
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # Comando para produção
-CMD ["npm", "start"]
+CMD ["npm", "start"]
