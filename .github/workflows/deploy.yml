@@ -28,4 +28,4 @@ jobs:
             git pull origin main
             
             # Reconstrói os containers em background
-            docker-compose -f docker-compose.prod.yml up -d --build frontend backend nginx
+            docker-compose -f docker-compose.prod.yml up -d --build
