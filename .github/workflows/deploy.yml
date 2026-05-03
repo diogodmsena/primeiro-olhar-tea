@@ -21,8 +21,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Entra na pasta do projeto (Ajuste se o caminho no servidor for diferente)
-            cd ~/triagem-autismo || cd /root/triagem-autismo || cd /var/www/webroot/ROOT
+            # Entra na pasta do projeto
+            cd /root/projects/primeiro-olhar/
             
             # Puxa o código mais recente
             git pull origin main
