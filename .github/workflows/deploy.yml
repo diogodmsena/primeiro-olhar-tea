@@ -24,8 +24,8 @@ jobs:
             # Entra na pasta do projeto
             cd /root/projects/primeiro-olhar/
             
-            # Puxa o código mais recente
-            git pull origin main
+            # Puxa o código mais recente usando o token do GitHub Actions
+            git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
             
             # Reconstrói os containers em background
             docker-compose -f docker-compose.prod.yml up -d --build
