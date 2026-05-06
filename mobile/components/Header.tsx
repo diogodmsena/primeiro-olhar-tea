@@ -26,11 +26,13 @@ export function Header() {
       <View className="flex-row items-center">
         <Image 
           source={require('../assets/images/logo_v4.png')} 
-          style={{ width: 32, height: 32, marginRight: 8 }}
+          style={{ width: 60, height:60, marginRight: 8 }}
           resizeMode="contain"
         />
-        <Text className="text-2xl font-black text-amber-500 mr-1">Primeiro</Text>
-        <Text className="text-2xl font-black text-blue-500">Olhar</Text>
+        <View>
+          <Text className="text-2xl font-black text-amber-500 -mb-2">Primeiro</Text>
+          <Text className="text-2xl font-black text-blue-500">Olhar</Text>
+        </View>
       </View>
       <View className="flex-row items-center gap-4">
         <TouchableOpacity onPress={toggleLanguage} className="p-2 bg-blue-100 rounded-full border border-slate-100 items-center justify-center min-w-[40px]">

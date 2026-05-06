@@ -24,7 +24,7 @@ export const dictionaries = {
       titleStart: "Apoio precoce,",
       titleHighlight: "futuro brilhante.",
       subtitle: "Nossa plataforma de triagem utiliza uma inteligência artificial acolhedora para avaliar sinais de neurodivergência de forma leve e acessível.",
-      cta: "Quero Iniciar Avaliação"
+      cta: "Quero Iniciar Triagem"
     },
     form: {
       headerBadge: "Primeiro Passo",
@@ -32,7 +32,7 @@ export const dictionaries = {
       step1Title: "Identificação",
       step2Title: "Vídeo da Criança",
       dropzoneDefaultTitle: "Arraste um vídeo aqui ou clique",
-      dropzoneDefaultSubtitle: "MP4 ou MOV (1 a 3 minutos)",
+      dropzoneDefaultSubtitle: "MP4 ou MOV (até 30 segundos)",
       dropzoneSuccessSubtitle: "Clique novamente para trocar",
       step3Title: "Observações do Cotidiano",
       q1Label: "Quais comportamentos te chamam mais atenção?",
@@ -49,8 +49,9 @@ export const dictionaries = {
       q5Label: "A criança gosta de brincar enfileirando objetos, girar rodas e focar em partes específicas dos objetos?",
       optYes: "Sim",
       optNo: "Não",
-      submitButton: "Iniciar Avaliação",
-      submitLoading: "Analisando com Carinho..."
+      submitButton: "Iniciar Triagem",
+      submitLoading: "Analisando com Carinho...",
+      privacyNote: "Segurança e Privacidade: Seu vídeo é processado temporariamente por nossa IA e descartado imediatamente após a análise. Não armazenamos gravações."
     },
     how: {
       back: "Voltar ao Início",
@@ -60,8 +61,8 @@ export const dictionaries = {
       titleEnd: " funciona?",
       subtitle: "Em 4 passos simples, nossa plataforma utiliza inteligência artificial multimodal para auxiliar na identificação precoce de sinais de neurodivergência.",
       step1Title: "Grave um vídeo curto",
-      step1Desc: "Registre 1 a 3 minutos de interação natural da criança. Pode ser brincando, olhando para a câmera ou interagindo com outra pessoa. O vídeo não precisa ser perfeito — o importante é capturar o cotidiano.",
-      step1Tip: "Ambientes calmos e iluminados ajudam na análise.",
+      step1Desc: "Registre até 30 segundos de interação natural da criança. Pode ser brincando, olhando para a câmera ou interagindo com outra pessoa. O vídeo não precisa ser perfeito — o importante é capturar o cotidiano.",
+      step1Tip: "Prefira ambientes calmos e iluminados.",
       step2Title: "Responda o questionário",
       step2Desc: "Preencha algumas perguntas simples sobre o dia a dia da criança: se ela responde ao nome, se brinca de faz de conta, se alinha objetos. São perguntas rápidas baseadas em instrumentos clínicos validados.",
       step2Tip: "Responda com calma e sinceridade. Não existem respostas erradas.",
@@ -92,7 +93,7 @@ export const dictionaries = {
       faq5A: "Sim! Recomendamos compartilhar o relatório com o pediatra ou neuropediatra da criança como material de apoio.",
       ctaTitle: "Pronto para começar?",
       ctaDesc: "A triagem leva apenas alguns minutos e pode fazer toda a diferença.",
-      ctaButton: "Iniciar Avaliação"
+      ctaButton: "Iniciar Triagem"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Criado para acolher e transformar."
@@ -104,7 +105,7 @@ export const dictionaries = {
       unnamed: "Não informado"
     },
     report: {
-      processing: "Processando Análise Multimodal",
+      processing: "Em breve seu relatório estará pronto, aguarde!",
       processingSubtitle: "A inteligência artificial está avaliando as reações visuais e sonoras com segurança...",
       share: "Compartilhar",
       save: "Salvar",
@@ -172,7 +173,7 @@ export const dictionaries = {
       titleStart: "Early support,",
       titleHighlight: "bright future.",
       subtitle: "Our screening platform uses welcoming AI to assess signs of neurodivergence in a light and accessible way.",
-      cta: "Start Assessment"
+      cta: "Start Screening"
     },
     form: {
       headerBadge: "First Step",
@@ -180,7 +181,7 @@ export const dictionaries = {
       step1Title: "Identification",
       step2Title: "Child's Video",
       dropzoneDefaultTitle: "Drag a video here or click",
-      dropzoneDefaultSubtitle: "MP4 or MOV (1 to 3 minutes)",
+      dropzoneDefaultSubtitle: "MP4 or MOV (up to 30 seconds)",
       dropzoneSuccessSubtitle: "Click again to change",
       step3Title: "Daily Observations",
       q1Label: "What behaviors caught your attention?",
@@ -197,8 +198,9 @@ export const dictionaries = {
       q5Label: "Does the child enjoy lining up objects, spinning wheels, or focusing on specific parts of objects?",
       optYes: "Yes",
       optNo: "No",
-      submitButton: "Start Assessment",
-      submitLoading: "Analyzing with Care..."
+      submitButton: "Start Screening",
+      submitLoading: "Analyzing with Care...",
+      privacyNote: "Security and Privacy: Your video is processed temporarily by our AI and discarded immediately after analysis. We do not store recordings."
     },
     how: {
       back: "Back to Home",
@@ -208,7 +210,7 @@ export const dictionaries = {
       titleEnd: " work?",
       subtitle: "In 4 simple steps, our platform uses multimodal AI to assist in the early identification of signs of neurodivergence.",
       step1Title: "Record a short video",
-      step1Desc: "Record 1 to 3 minutes of natural interaction with the child. It can be playing, looking at the camera, or interacting with someone else. The video does not need to be perfect — capturing everyday life is what matters.",
+      step1Desc: "Record up to 30 seconds of natural interaction with the child. It can be playing, looking at the camera, or interacting with someone else. The video does not need to be perfect — capturing everyday life is what matters.",
       step1Tip: "Calm and well-lit environments help with the analysis.",
       step2Title: "Answer the questionnaire",
       step2Desc: "Answer a few simple questions about the child's daily life: whether they respond to their name, pretend play, or line up objects. These are quick questions based on validated clinical instruments.",
@@ -240,7 +242,7 @@ export const dictionaries = {
       faq5A: "Yes! We encourage you to share the report with the child's pediatrician or neuropediatrician as supporting material.",
       ctaTitle: "Ready to start?",
       ctaDesc: "The screening takes only a few minutes and can make all the difference.",
-      ctaButton: "Start Assessment"
+      ctaButton: "Start Screening"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Created to welcome and transform."
@@ -252,7 +254,7 @@ export const dictionaries = {
       unnamed: "Not specified"
     },
     report: {
-      processing: "Processing Multimodal Analysis",
+      processing: "Your report will be ready soon, please wait!",
       processingSubtitle: "The artificial intelligence is safely evaluating visual and auditory reactions...",
       share: "Share",
       save: "Save",
@@ -319,8 +321,8 @@ export const dictionaries = {
       badge: "Hecho con cariño para las familias",
       titleStart: "Apoyo temprano,",
       titleHighlight: "futuro brillante.",
-      subtitle: "Nuestra plataforma de evaluación utiliza inteligencia artificial acogedora para evaluar signos de neurodivergencia de manera ligera y accesible.",
-      cta: "Quiero Iniciar Evaluación"
+      subtitle: "Nuestra plataforma de triaje utiliza inteligencia artificial acogedora para evaluar signos de neurodivergencia de manera ligera y accesible.",
+      cta: "Quiero Iniciar Triaje"
     },
     form: {
       headerBadge: "Primer Paso",
@@ -328,7 +330,7 @@ export const dictionaries = {
       step1Title: "Identificación",
       step2Title: "Video del Niño/a",
       dropzoneDefaultTitle: "Arrastra un video aquí o haz clic",
-      dropzoneDefaultSubtitle: "MP4 o MOV (1 a 3 minutos)",
+      dropzoneDefaultSubtitle: "MP4 o MOV (hasta 30 segundos)",
       dropzoneSuccessSubtitle: "Haz clic de nuevo para cambiar",
       step3Title: "Observaciones Diarias",
       q1Label: "¿Qué comportamientos te llamaron la atención?",
@@ -345,8 +347,9 @@ export const dictionaries = {
       q5Label: "¿Al niño/a le gusta jugar alineando objetos, girar ruedas y enfocarse en partes específicas de los objetos?",
       optYes: "Sí",
       optNo: "No",
-      submitButton: "Iniciar Evaluación",
-      submitLoading: "Analizando con Cariño..."
+      submitButton: "Iniciar Triaje",
+      submitLoading: "Analizando con Cariño...",
+      privacyNote: "Seguridad y Privacidad: Su video se procesa temporalmente por nuestra IA y se descarta inmediatamente después del análisis. No almacenamos grabaciones."
     },
     how: {
       back: "Volver al Inicio",
@@ -356,7 +359,7 @@ export const dictionaries = {
       titleEnd: "?",
       subtitle: "En 4 simples pasos, nuestra plataforma utiliza IA multimodal para ayudar en la identificación temprana de señales de neurodivergencia.",
       step1Title: "Graba un video corto",
-      step1Desc: "Graba de 1 a 3 minutos de interacción natural del niño/a. Puede ser jugando, mirando a la cámara o interactuando con otra persona. El video no necesita ser perfecto, lo importante es capturar su día a día.",
+      step1Desc: "Grabe hasta 30 segundos de interacción natural del niño/a. Puede ser jugando, mirando a la cámara o interactuando con otra persona. El video no necesita ser perfecto, lo importante es capturar su día a dia.",
       step1Tip: "Un entorno tranquilo y bien iluminado mejora el análisis.",
       step2Title: "Responde el cuestionario",
       step2Desc: "Responde preguntas sencillas sobre la rutina del niño/a: si responde al nombre, si juega a 'hacer de cuenta' o si alínea objetos. Estas preguntas rápidas se basan en instrumentos clínicos validados.",
@@ -388,7 +391,7 @@ export const dictionaries = {
       faq5A: "¡Claro! Fue diseñado precisamente para que se lo muestres al pediatra/neuropediatra y ayudarle a conocer mejor al niño/a.",
       ctaTitle: "¿Listo para comenzar?",
       ctaDesc: "Son solo unos minutos y puede marcar una gran diferencia.",
-      ctaButton: "Iniciar Evaluación"
+      ctaButton: "Iniciar Triaje"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Creado para acoger y transformar."
@@ -400,7 +403,7 @@ export const dictionaries = {
       unnamed: "No especificado"
     },
     report: {
-      processing: "Procesando Análisis Multimodal",
+      processing: "¡Pronto su reporte estará listo, espere!",
       processingSubtitle: "La inteligencia artificial está evaluando las reacciones visuales y auditivas de forma segura...",
       share: "Compartir",
       save: "Guardar",

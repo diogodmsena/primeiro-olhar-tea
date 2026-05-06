@@ -34,3 +34,7 @@ export const Info = (props: IconProps) => <Feather name="info" {...props} />;
 export const Heart = (props: IconProps) => <Feather name="heart" {...props} />;
 export const Activity = (props: IconProps) => <Feather name="activity" {...props} />;
 export const Puzzle = (props: IconProps) => <Ionicons name="extension-puzzle-outline" {...props} />;
+export const Trash = (props: IconProps) => <Feather name="trash-2" {...props} />;
+export const CheckCircle = (props: IconProps) => <Feather name="check-circle" {...props} />;
+export const XCircle = (props: IconProps) => <Feather name="x-circle" {...props} />;
+export const AlertTriangle = (props: IconProps) => <Feather name="alert-triangle" {...props} />;

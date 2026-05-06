@@ -8,6 +8,18 @@ import { useI18n } from '../contexts/I18nContext';
 import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
 // axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  withSequence, 
+  withDelay,
+  FadeInDown,
+  FadeOutDown
+} from 'react-native-reanimated';
+import { CheckCircle, XCircle, AlertTriangle } from '../components/LucideIcons';
 
 export default function ResultadoScreen() {
   const { t, locale } = useI18n();
@@ -17,10 +29,12 @@ export default function ResultadoScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const { user, signIn, isAuthenticated } = useAuth();
   const [showCarousel, setShowCarousel] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const { width } = Dimensions.get('window');
+  const { showToast } = useToast();
   useEffect(() => {
     if (loading) {
       const waitTimer = setTimeout(() => setShowCarousel(true), 5000);
@@ -94,6 +108,44 @@ export default function ResultadoScreen() {
 
   const saveReport = async () => {
     if (!data) return;
+
+    if (!isAuthenticated) {
+      Alert.alert(
+        t('auth.loginRequired') || 'Login com Google',
+        t('auth.loginToSave') || 'Deseja fazer login para salvar este relatório em sua conta? Você também pode salvar anonimamente apenas neste dispositivo.',
+        [
+          {
+            text: t('common.cancel') || 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: t('auth.saveAnonymously') || 'Salvar sem Login',
+            onPress: () => performSave(null)
+          },
+          {
+            text: t('auth.login') || 'Login com Google',
+            onPress: async () => {
+              try {
+                await signIn();
+                // After successful sign in, the user state will be updated.
+                // We'll call performSave in a separate effect or just check user here
+                // Since signIn is async and updates state, we might need to wait or use the returned value if AuthContext allowed it.
+                // AuthContext doesn't return the user, but we can wait for the state update or just perform save with null if it fails.
+                performSave('google-auth'); 
+              } catch (e) {
+                // If login fails, allow anonymous save
+                performSave(null);
+              }
+            }
+          }
+        ]
+      );
+    } else {
+      performSave(user?.googleId || 'google-auth');
+    }
+  };
+
+  const performSave = async (userId: string | null) => {
     setSaving(true);
     try {
       const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
@@ -107,12 +159,38 @@ export default function ResultadoScreen() {
           risk_score: data.risk_score?.score || 0,
           risk_level: data.risk_score?.level?.toUpperCase() || 'BAIXO',
           child_name: data.child_name || '',
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          user_id: userId
         });
         await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
-        Alert.alert('Sucesso', 'Relatório salvo no seu histórico!');
+
+        // Sync with backend if logged in
+        if (isAuthenticated && user?.token) {
+          try {
+            const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+            const response = await fetch(`${apiURL}/api/reports`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+              },
+              body: JSON.stringify({
+                job_id: typeof job_id === 'string' ? job_id : job_id[0],
+                report_data: data
+              })
+            });
+            
+            if (!response.ok) {
+              console.warn("Backend sync failed", await response.text());
+            }
+          } catch (err) {
+            console.warn("Cloud sync error", err);
+          }
+        }
+        
+        showToast(t('report.successSaved') || 'Relatório salvo no seu histórico!', 'success');
       } else {
-        Alert.alert('Aviso', 'Este relatório já foi salvo.');
+        showToast(t('report.alreadySaved') || 'Este relatório já foi salvo.', 'warning');
       }
     } catch (e) {
       Alert.alert('Erro', 'Falha ao salvar relatório.');
@@ -134,8 +212,12 @@ export default function ResultadoScreen() {
       try {
         const logoAsset = await Asset.fromModule(require('../assets/images/logo_v4.png')).downloadAsync();
         const uri = logoAsset.localUri || logoAsset.uri;
-        const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-        logoBase64 = `data:image/png;base64,${base64}`;
+        if (uri) {
+          // No Android/iOS real, as vezes o prefixo file:// é necessário ou causa problemas.
+          // FileSystem.readAsStringAsync costuma lidar bem com uris de assets.
+          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+          logoBase64 = `data:image/png;base64,${base64}`;
+        }
       } catch (e) {
         console.warn('Could not load logo for PDF', e);
       }
@@ -249,9 +331,11 @@ export default function ResultadoScreen() {
           </View>
         ) : (
           <View className="flex-1">
-             <View className="items-center mt-8 mb-4">
-               <ActivityIndicator size="small" color="#3b82f6" />
-               <Text className="text-slate-500 font-bold mt-2 text-sm">{t('report.processing') || 'Processando'}</Text>
+             <View className="items-center mt-20 mb-8">
+               <ActivityIndicator size="large" color="#3b82f6" style={{ transform: [{ scale: 1.5 }] }} />
+               <Text className="text-blue-600 font-black mt-8 text-xl text-center px-8">
+                 {t('report.processing') || 'Processando'}
+               </Text>
              </View>
              
              <ScrollView 
@@ -422,20 +506,20 @@ export default function ResultadoScreen() {
              <FileText color="#3b82f6" size={24} />
              <Text className="text-blue-800 font-bold ml-2 text-lg">{t('report.aiReportTitle')}</Text>
            </View>
-           <Markdown style={{ 
-               body: { color: '#334155', fontSize: 15, lineHeight: 24 },
-               heading2: { color: '#1e40af', fontSize: 18, marginBottom: 8, marginTop: 12 },
-               strong: { color: '#1e3a8a' },
-               list_item: { marginBottom: 6 }
-             }}>
-             {data.gemma_report || t('report.noReport')}
-           </Markdown>
+            <Markdown style={{ 
+                body: { color: '#334155', fontSize: 17, lineHeight: 26 },
+                heading2: { color: '#1e40af', fontSize: 20, marginBottom: 10, marginTop: 14 },
+                strong: { color: '#1e3a8a' },
+                list_item: { marginBottom: 8 }
+              }}>
+              {data.gemma_report || t('report.noReport')}
+            </Markdown>
         </View>
 
         {/* DISCLAIMER LEGAL */}
         <View className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-5">
           <Text className="text-amber-700 font-bold text-sm mb-2">{t('report.warningTitle')}</Text>
-          <Text style={{ fontSize: 15, lineHeight: 22 }} className="text-slate-500">
+          <Text style={{ fontSize: 18, lineHeight: 26 }} className="text-slate-500">
             {t('report.warningText1')}
             <Text className="font-bold text-slate-600">{t('report.warningTextBold')}</Text> 
             {t('report.warningText2')}

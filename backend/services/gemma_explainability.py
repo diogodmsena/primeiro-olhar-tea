@@ -124,6 +124,13 @@ def _build_prompt(cv_metrics: dict, parent_answers: dict) -> str:
     4. Mandates a single JSON output matching the pipeline schema.
     """
     child_name = parent_answers.get("child_name", "Criança")
+    
+    # Detection of age-specific urgency (Moved to top)
+    age_str = parent_answers.get('child_age', '0')
+    try:
+        age_num = int(float(age_str))
+    except (ValueError, TypeError):
+        age_num = 0
 
     avg_gaze   = cv_metrics.get("avg_gaze_score", 0.0)
     eye_ratio  = cv_metrics.get("eye_contact_ratio", 0.0)
@@ -147,19 +154,29 @@ Interprete-os clinicamente — NÃO os copie literalmente no relatório."""
 
     anamnesis_section = f"""═══ ANAMNESE (Relato dos Pais) ═══
 • Nome da criança: {parent_answers.get('child_name', 'Não informado')}
-• Idade da criança: {parent_answers.get('child_age', 'Não informado')} ano(s)
+• Idade da criança: {age_num} ano(s) (DADO CONFIRMADO PELA FAMÍLIA — USE COMO REFERÊNCIA ABSOLUTA)
 • Preocupações principais: {parent_answers.get('concerns', 'Não relatado')}
 • Atraso na comunicação: {parent_answers.get('communication_delays', 'Não relatado')}
 • Responde ao próprio nome?: {parent_answers.get('responds_to_name', 'Não informado')}
 • Engaja em jogo simbólico (ex: dar comida para boneca)?: {parent_answers.get('pretend_play', 'Não informado')}
 • Apresenta comportamentos repetitivos (enfileirar, girar, focar em partes)?: {parent_answers.get('object_lining', 'Não informado')}"""
 
-    chain_of_thought_instruction = """═══ MODO DE RACIOCÍNIO CLÍNICO (Chain-of-Thought — Thinking Mode) ═══
+    # Urgency logic
+    urgency_note = ""
+    if age_num >= 5:
+        urgency_note = """
+        IMPORTANTE (Urgência por Idade): A criança tem 5 anos ou mais. 
+        Se você identificar 'Indicadores Fortes' (ALTO Risco), você DEVE reforçar no relatório a importância de buscar um especialista imediatamente. 
+        Mantenha um tom extremamente ACOLHEDOR e EMPÁTICO; nunca seja brusco ou alarmista. 
+        Explique de forma suave que, nesta faixa etária, o suporte especializado é prioritário para aproveitar ao máximo o desenvolvimento atual, e que embora intervenções ideais comecem mais cedo, SEMPRE há tempo para agir e transformar o futuro da criança."""
+
+    chain_of_thought_instruction = f"""═══ MODO DE RACIOCÍNIO CLÍNICO (Chain-of-Thought — Thinking Mode) ═══
 Antes de gerar o JSON final, execute mentalmente os seguintes passos de raciocínio:
+{urgency_note}
 
 PASSO 1 — Análise Motora e Ocular:
   Interprete os dados de visão computacional. O índice de contato visual está
-  abaixo do esperado para a faixa etária da criança ({parent_answers.get('child_age', 'Não informado')} anos)? O padrão de movimentação cefálica
+  abaixo do esperado para a faixa etária da criança ({age_num} anos)? O padrão de movimentação cefálica
   é consistente com atenção compartilhada ou com hiperatividade/foco restrito?
 
 PASSO 2 — Correlação com a Anamnese:

@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, Modal, Image, Alert } from 'react-native'
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { LogOut, History, ChevronDown } from './LucideIcons';
+import { LogOut, History, ChevronDown, CheckCircle } from './LucideIcons';
+import { useToast } from '../contexts/ToastContext';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 export function UserMenu() {
@@ -11,6 +12,7 @@ export function UserMenu() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { t } = useI18n();
+  const { showToast } = useToast();
 
   if (isLoading) return <View className="w-10 h-10" />;
 
@@ -19,10 +21,7 @@ export function UserMenu() {
       await signIn();
     } catch (e: any) {
       console.log('Error signing in', e);
-      Alert.alert(
-        'Erro ao fazer login', 
-        `Não foi possível entrar com o Google.\nDetalhe: ${e?.message || JSON.stringify(e)}\nCódigo: ${e?.code || 'N/A'}`
-      );
+      showToast('Erro ao fazer login com Google', 'error');
     }
   };
 
@@ -32,6 +31,7 @@ export function UserMenu() {
       setOpen(false);
     } catch (e) {
       console.log('Error signing out', e);
+      showToast('Erro ao sair', 'error');
     }
   };
 

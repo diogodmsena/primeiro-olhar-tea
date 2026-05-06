@@ -4,14 +4,14 @@ import {
   ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Keyboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { useRouter } from 'expo-router';
-import { Camera, Image as ImageIcon, Video, UploadCloud } from '../components/LucideIcons';
-// axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
+import { Camera, Image as ImageIcon, Video, UploadCloud, AlertCircle, XCircle, CheckCircle, AlertTriangle } from '../components/LucideIcons';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
+import { useToast } from '../contexts/ToastContext';
 
 type Step = 1 | 2 | 3;
 
@@ -19,18 +19,14 @@ export default function TriagemScreen() {
   const { t } = useI18n();
   const router = useRouter();
 
-  // Permissions
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [micPermission, requestMicPermission] = useMicrophonePermissions();
-
+  // Estados
   const [step, setStep] = useState<Step>(1);
-  const [isRecording, setIsRecording] = useState(false);
   const [videoUri, setVideoUri] = useState<string | null>(null);
-  // FIX #2: camera is lazy — only shown when user explicitly opens it
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const cameraRef = useRef<any>(null);
+  
+  // Referências
   const q2Ref = useRef<TextInput>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const { showToast } = useToast();
 
   // Form State
   const [childName, setChildName] = useState('');
@@ -42,7 +38,7 @@ export default function TriagemScreen() {
   const [repetitiveBehaviors, setRepetitiveBehaviors] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // FIX #3: scroll to top on every step change
+  // Navegação entre passos
   const goToStep = (next: Step) => {
     setStep(next);
     setTimeout(() => scrollRef.current?.scrollTo({ y: 0, animated: false }), 50);
@@ -51,70 +47,78 @@ export default function TriagemScreen() {
   const handleNext = () => goToStep(Math.min(step + 1, 3) as Step);
   const handlePrev = () => goToStep(Math.max(step - 1, 1) as Step);
 
-  // FIX #2: open camera only when user taps the button
-  const handleOpenCamera = async () => {
-    if (!cameraPermission?.granted) await requestCameraPermission();
-    if (!micPermission?.granted) await requestMicPermission();
-    setCameraOpen(true);
-  };
+  // ── GRAVAÇÃO DE VÍDEO (APP NATIVO) ──
+  const recordVideo = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      showToast("Permissão de câmera necessária para gravar o vídeo.", "warning");
+      return;
+    }
 
-  const startRecording = async () => {
-    if (cameraRef.current) {
-      setIsRecording(true);
-      const video = await cameraRef.current.recordAsync({ maxDuration: 180 });
-      setIsRecording(false);
-      if (video?.uri) {
-        setVideoUri(video.uri);
-        setCameraOpen(false);
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true, 
+      quality: 0.7,
+      videoMaxDuration: 30, // O iOS respeita isso, alguns Androids não.
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const videoAsset = result.assets[0];
+      
+      // duration vem em milissegundos. Colocamos 32000 (32s) para dar uma pequena 
+      // margem de tolerância caso o usuário demore 1 segundo a mais para apertar o stop.
+      if (videoAsset.duration && videoAsset.duration > 32000) {
+        showToast("Vídeo muito longo. Grave no máximo 30 segundos.", "warning");
+        return; // Impede que o vídeo seja carregado no app
       }
+
+      setVideoUri(videoAsset.uri);
     }
   };
 
-  const stopRecording = () => {
-    if (cameraRef.current) {
-      cameraRef.current.stopRecording();
-      setIsRecording(false);
-    }
-  };
-
+  // ── ESCOLHER DA GALERIA ──
   const pickVideo = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['videos'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
-      quality: 0.7, // Comprime o vídeo para reduzir tamanho (iOS only)
-      videoMaxDuration: 180,
+      quality: 0.7,
     });
-    if (!result.canceled) {
-      setVideoUri(result.assets[0].uri);
-      setCameraOpen(false);
+    
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const videoAsset = result.assets[0];
+
+      // Aqui você limitava a 3 minutos (180 segundos) no código original
+      if (videoAsset.duration && videoAsset.duration > 185000) {
+        showToast("Por favor, escolha um vídeo de até 3 minutos.", "warning");
+        return;
+      }
+
+      setVideoUri(videoAsset.uri);
     }
   };
 
   const MAX_VIDEO_SIZE_MB = 50;
 
+  // ── ENVIO DOS DADOS ──
   const submitTriagem = async () => {
     Keyboard.dismiss();
     if (!videoUri) {
-      Alert.alert('Atenção', 'Por favor, grave ou anexe um vídeo da criança.');
+      showToast("Por favor, escolha um vídeo para a triagem.", "warning");
       return;
     }
     setIsSubmitting(true);
 
     try {
-      // Verifica o tamanho do arquivo antes de enviar
       if (Platform.OS !== 'web') {
         const fileInfo = await FileSystem.getInfoAsync(videoUri);
         if (fileInfo.exists && fileInfo.size) {
           const fileSizeMB = fileInfo.size / (1024 * 1024);
           if (fileSizeMB > MAX_VIDEO_SIZE_MB) {
-            Alert.alert(
-              'Vídeo muito grande',
-              `O vídeo tem ${fileSizeMB.toFixed(0)}MB. Por favor, use um vídeo de até ${MAX_VIDEO_SIZE_MB}MB ou grave um vídeo mais curto (até 1 minuto).`
-            );
+            showToast(`Vídeo muito grande. Use um vídeo de até ${MAX_VIDEO_SIZE_MB}MB.`, "warning");
             setIsSubmitting(false);
             return;
           }
-          console.log(`[Triagem] Video size: ${fileSizeMB.toFixed(1)}MB`);
         }
       }
 
@@ -147,10 +151,7 @@ export default function TriagemScreen() {
 
       const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
       const endpoint = `${apiUrl}/api/triagem`;
-      console.log('[Triagem] Sending to:', endpoint);
 
-      // Usa fetch nativo — Axios envia "axios/x.x" como User-Agent,
-      // que o Cloudflare Bot Fight Mode bloqueia com 403.
       const fetchResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -161,24 +162,14 @@ export default function TriagemScreen() {
       });
 
       const responseData = await fetchResponse.json().catch(() => null);
-      console.log('[Triagem] Status:', fetchResponse.status);
-      console.log('[Triagem] Response:', JSON.stringify(responseData));
 
       if (!fetchResponse.ok) {
         const status = fetchResponse.status;
-        let msg: string;
-        if (status === 403) {
-          msg = 'Acesso bloqueado (403). Verifique WAF/Cloudflare para /api/*.';
-        } else if (status === 413) {
-          msg = 'Vídeo muito grande. Use um vídeo de até 100MB.';
-        } else if (status === 422) {
-          msg = `Dados inválidos (422): ${JSON.stringify(responseData?.detail || responseData)}`;
-        } else if (status === 500) {
-          msg = `Erro interno (500): ${responseData?.detail || 'Tente novamente.'}`;
-        } else {
-          msg = `Erro ${status}: ${responseData?.detail || JSON.stringify(responseData) || 'Erro desconhecido'}`;
-        }
-        Alert.alert('Erro ao iniciar análise', msg);
+        let msg: string = `Erro ${status}: ${responseData?.detail || 'Erro desconhecido'}`;
+        if (status === 403) msg = 'Acesso bloqueado (403). Verifique WAF/Cloudflare.';
+        else if (status === 413) msg = 'Vídeo muito grande. Use um vídeo de até 100MB.';
+        
+        showToast(msg, 'error');
         return;
       }
 
@@ -187,24 +178,13 @@ export default function TriagemScreen() {
         return;
       }
 
-      Alert.alert('Erro', 'Resposta inesperada do servidor. Tente novamente.');
+      showToast('Resposta inesperada do servidor. Tente novamente.', 'error');
     } catch (e: any) {
-      console.error('[Triagem] Network error:', e.message);
-      const isTimeout = e.message?.includes('timeout') || e.message?.includes('Timeout');
-      const isCancelled = e.message?.includes('cancelled') || e.message?.includes('aborted');
-      Alert.alert(
-        'Erro de conexão',
-        isTimeout
-          ? `O envio demorou muito. Tente com um vídeo menor (menos de 1 minuto) ou em uma rede Wi-Fi.\n\nURL: ${process.env.EXPO_PUBLIC_API_URL}`
-          : isCancelled
-          ? 'O envio foi cancelado. Tente novamente.'
-          : `Sem conexão com o servidor.\nURL: ${process.env.EXPO_PUBLIC_API_URL || '(não definida)'}\n\nSugestões:\n• Verifique sua conexão com a internet\n• Tente com um vídeo menor\n• Use Wi-Fi em vez de dados móveis\n\nDetalhe: ${e.message}`
-      );
+      showToast(`Erro de conexão: ${e.message}`, 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   const RadioButton = ({
     label, value, selectedValue, onSelect, colorClass,
@@ -220,9 +200,7 @@ export default function TriagemScreen() {
         activeOpacity={0.7}
       >
         <View className={`w-8 h-8 rounded-full border-2 items-center justify-center mr-3 ${isSelected ? (colorClass === 'blue' ? 'border-blue-500' : 'border-rose-500') : 'border-slate-300'}`}>
-          {isSelected && (
-            <View className={`w-4 h-4 rounded-full ${colorClass === 'blue' ? 'bg-blue-500' : 'bg-rose-500'}`} />
-          )}
+          {isSelected && <View className={`w-4 h-4 rounded-full ${colorClass === 'blue' ? 'bg-blue-500' : 'bg-rose-500'}`} />}
         </View>
         <Text className={`font-bold text-lg ${isSelected ? (colorClass === 'blue' ? 'text-blue-500' : 'text-rose-500') : 'text-slate-600'}`}>{label}</Text>
       </TouchableOpacity>
@@ -230,15 +208,10 @@ export default function TriagemScreen() {
   };
 
   return (
-    // FIX #1: SafeAreaView with edges so content never overlaps the status bar
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <Header />
 
-        {/* Stepper Progress */}
         <View className="flex-row items-center justify-between px-8 py-6 bg-slate-50 border-b border-slate-100">
           {[1, 2, 3].map((num) => (
             <View key={num} className="items-center flex-1">
@@ -305,76 +278,44 @@ export default function TriagemScreen() {
 
               <View className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-4">
                 <Text className="text-blue-800 font-bold mb-1">{t('how.step1Desc')}</Text>
-                <Text className="text-blue-600 text-sm mt-1">💡 {t('how.step1Tip')}</Text>
+                <Text className="text-blue-600 text-lg mt-1">💡 {t('how.step1Tip')}</Text>
               </View>
 
-              {/* FIX #2: Camera is lazy — only render after user taps "Abrir câmera" */}
               {videoUri ? (
-                /* Video recorded successfully */
                 <View className="bg-emerald-50 items-center justify-center rounded-2xl border-2 border-emerald-500 border-dashed py-12 gap-4">
                   <Video color="#10b981" size={48} />
-                  <Text className="text-emerald-700 font-bold text-lg">Vídeo Gravado com Sucesso</Text>
+                  <Text className="text-emerald-700 font-bold text-lg">Vídeo Pronto para Envio</Text>
                   <TouchableOpacity
-                    onPress={() => { setVideoUri(null); setCameraOpen(false); }}
+                    onPress={() => setVideoUri(null)}
                     className="px-6 py-2 bg-emerald-100 rounded-full"
                   >
-                    <Text className="text-emerald-700 font-bold">Gravar Outro</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : cameraOpen ? (
-                /* Camera is open */
-                <View className="overflow-hidden rounded-2xl bg-black h-[400] relative">
-                  <CameraView
-                    ref={cameraRef}
-                    style={{ flex: 1 }}
-                    mode="video"
-                    facing="back"
-                  />
-                  <View className="absolute bottom-8 left-0 right-0 items-center">
-                    {!isRecording ? (
-                      <TouchableOpacity
-                        onPress={startRecording}
-                        className="w-16 h-16 bg-red-500 rounded-full border-4 border-white"
-                      />
-                    ) : (
-                      <TouchableOpacity
-                        onPress={stopRecording}
-                        className="w-16 h-16 bg-white rounded-full items-center justify-center border-4 border-red-500"
-                      >
-                        <View className="w-6 h-6 bg-red-500 rounded-sm" />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  {/* Close camera */}
-                  <TouchableOpacity
-                    onPress={() => setCameraOpen(false)}
-                    className="absolute top-4 right-4 bg-black/50 px-3 py-1 rounded-full"
-                  >
-                    <Text className="text-white font-bold text-sm">✕ Fechar</Text>
+                    <Text className="text-emerald-700 font-bold">Remover e Escolher Outro</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
-                /* Default state: action buttons only */
                 <View className="bg-slate-50 rounded-2xl border border-slate-200 p-6 gap-4 items-center">
-                  <Camera color="#3b82f6" size={48} />
-                  <Text className="text-slate-600 text-center font-medium">
-                    Grave um vídeo curto da criança ou escolha um da galeria.
-                  </Text>
                   <TouchableOpacity
-                    onPress={handleOpenCamera}
+                    onPress={recordVideo}
                     className="w-full bg-blue-500 p-4 rounded-xl flex-row items-center justify-center gap-2"
                   >
                     <Camera color="#fff" size={20} />
-                    <Text className="text-white font-bold ml-2">Abrir Câmera</Text>
+                    <Text className="text-white font-bold ml-2">Gravar Vídeo Agora</Text>
+                  </TouchableOpacity>
+                  
+                  <Text className="text-slate-600 text-center font-medium">OU</Text>
+                  
+                  <TouchableOpacity onPress={pickVideo} className="w-full bg-slate-200 p-4 rounded-xl items-center flex-row justify-center border border-slate-200">
+                    <ImageIcon color="#64748b" size={20} />
+                    <Text className="font-bold text-slate-600 ml-2">Escolher da Galeria</Text>
                   </TouchableOpacity>
                 </View>
               )}
 
-              <View className="flex-row gap-4 mt-2">
-                <TouchableOpacity onPress={pickVideo} className="flex-1 bg-slate-100 p-4 rounded-xl items-center flex-row justify-center border border-slate-200">
-                  <ImageIcon color="#64748b" size={20} />
-                  <Text className="font-bold text-slate-600 ml-2">Usar Galeria</Text>
-                </TouchableOpacity>
+              <View className="bg-slate-100 p-4 rounded-xl mt-4 flex-row items-start gap-3 border border-slate-200">
+                <AlertCircle color="#64748b" size={22} />
+                <Text className="text-slate-600 text-sm flex-1 leading-5 font-medium">
+                  {t('form.privacyNote')}
+                </Text>
               </View>
 
               <View className="flex-row gap-4 mt-4">
