@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
-import { FileText, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
+import { BrainCircuit, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
 // axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +29,7 @@ export default function ResultadoScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const { user, signIn, isAuthenticated } = useAuth();
   const [showCarousel, setShowCarousel] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -102,6 +103,21 @@ export default function ResultadoScreen() {
 
     fetchStatus();
     intervalId = setInterval(fetchStatus, 3000);
+
+    // Verificar se já está salvo no histórico local ao carregar
+    const checkIsSaved = async () => {
+      try {
+        const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
+        if (savedHistory) {
+          const historyArray = JSON.parse(savedHistory);
+          const exists = historyArray.find((item: any) => item.job_id === job_id);
+          if (exists) setIsSaved(true);
+        }
+      } catch (e) {
+        console.warn('Failed to check history', e);
+      }
+    };
+    checkIsSaved();
 
     return () => clearInterval(intervalId);
   }, [job_id]);
@@ -189,8 +205,10 @@ export default function ResultadoScreen() {
         }
         
         showToast(t('report.successSaved') || 'Relatório salvo no seu histórico!', 'success');
+        setIsSaved(true);
       } else {
         showToast(t('report.alreadySaved') || 'Este relatório já foi salvo.', 'warning');
+        setIsSaved(true);
       }
     } catch (e) {
       Alert.alert('Erro', 'Falha ao salvar relatório.');
@@ -289,9 +307,9 @@ export default function ResultadoScreen() {
             <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
               <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensions')}</h4>
               <ul style="margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong> ${Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</li>
-                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong> ${data.video_features?.facial_expressivity === 'low' ? '30' : data.video_features?.facial_expressivity === 'high' ? '90' : '70'}/100</li>
-                <li><strong>${t('report.auditory')}:</strong> ${Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</li>
+                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong> ${Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</li>
+                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong> ${data.video_features?.facial_expressivity === 'low' ? '30' : data.video_features?.facial_expressivity === 'high' ? '90' : '70'}%</li>
+                <li><strong>${t('report.auditory')}:</strong> ${Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</li>
               </ul>
               <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
                 <p style="margin: 0 0 5px 0;">${t('report.dimHelpEye')}</p>
@@ -436,10 +454,12 @@ export default function ResultadoScreen() {
             <Text className="text-slate-500 font-bold ml-2">{t('nav.home') || 'Início'}</Text>
           </TouchableOpacity>
           <View className="flex-row items-center gap-3">
-            <TouchableOpacity onPress={saveReport} disabled={saving} className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full flex-row items-center">
-              <Save color="#3b82f6" size={16} />
-              <Text className="text-blue-600 font-bold ml-2 text-sm">{saving ? t('report.saving') : t('report.save')}</Text>
-            </TouchableOpacity>
+            {!isSaved && (
+              <TouchableOpacity onPress={saveReport} disabled={saving} className="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full flex-row items-center">
+                <Save color="#3b82f6" size={16} />
+                <Text className="text-blue-600 font-bold ml-2 text-sm">{saving ? t('report.saving') : t('report.save')}</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity onPress={shareReport} disabled={translating} className="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full flex-row items-center">
               {translating ? <ActivityIndicator size="small" color="#64748b" /> : <ShareIcon color="#64748b" size={16} />}
               <Text className="text-slate-600 font-bold ml-2 text-sm">{translating ? '...' : (t('report.share') || 'Compartilhar')}</Text>
@@ -455,7 +475,7 @@ export default function ResultadoScreen() {
            {data.child_name && (
              <Text className="text-lg font-bold text-blue-500 mt-1">{data.child_name}</Text>
            )}
-           <Text className="text-slate-500 text-center mt-2 text-sm max-w-[250px]">{t('report.resultDisclaimer')}</Text>
+           <Text className="text-slate-500 text-center mt-2 text-lg max-w-[350px]">{t('report.resultDisclaimer')}</Text>
         </View>
 
         {/* Nível de Risco Geral */}
@@ -476,34 +496,34 @@ export default function ResultadoScreen() {
            <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.dimensions')}</Text>
 
            <View className="mb-4">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text><Text className="text-blue-500 font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text><Text className="text-blue-500 font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} /></View>
            </View>
            <View className="mb-4">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.facialExp')}</Text>
-               <Text className="text-emerald-500 font-bold">{data.video_features?.facial_expressivity === 'low' ? '30/100' : data.video_features?.facial_expressivity === 'high' ? '90/100' : '70/100'}</Text>
+               <Text className="text-emerald-500 font-bold">{data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%'}</Text>
              </View>
              <View className="h-3 bg-slate-100 rounded-full w-full">
                <View className="h-full bg-emerald-500 rounded-full" style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
              </View>
            </View>
            <View className="mb-2">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text><Text className="text-amber-500 font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text><Text className="text-amber-500 font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} /></View>
            </View>
 
            <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100">
-             <Text className="text-sm text-slate-500 mb-2 leading-tight">{t('report.dimHelpEye')}</Text>
-             <Text className="text-sm text-slate-500 mb-2 leading-tight">{t('report.dimHelpExp')}</Text>
-             <Text className="text-sm text-slate-500 leading-tight">{t('report.dimHelpAud')}</Text>
+             <Text className="text-base text-slate-500 mb-2 leading-tight">{t('report.dimHelpEye')}</Text>
+             <Text className="text-base text-slate-500 mb-2 leading-tight">{t('report.dimHelpExp')}</Text>
+             <Text className="text-base text-slate-500 leading-tight">{t('report.dimHelpAud')}</Text>
            </View>
         </View>
 
         {/* Parecer do Gemma em Markdown */}
         <View className="bg-blue-50 border border-blue-100 p-6 rounded-3xl">
            <View className="flex-row items-center mb-4 border-b border-blue-100 pb-4">
-             <FileText color="#3b82f6" size={24} />
+             <BrainCircuit color="#3b82f6" size={24} />
              <Text className="text-blue-800 font-bold ml-2 text-lg">{t('report.aiReportTitle')}</Text>
            </View>
             <Markdown style={{ 

@@ -241,7 +241,7 @@ export default function Home() {
                   <li>Grave a criança em um ambiente tranquilo e bem iluminado</li>
                   <li>Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</li>
                   <li>Chame a criança pelo nome durante a gravação e observe a reação</li>
-                  <li>Ideal: 1 a 3 minutos em uma interação natural (brincar, conversar)</li>
+                  <li>Ideal: até 30 segundos em uma interação natural (brincar, conversar)</li>
                   <li>Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</li>
                 </ul>
               </div>

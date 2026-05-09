@@ -276,9 +276,31 @@ export default function TriagemScreen() {
             <View className="gap-4">
               <Text className="text-xl font-bold text-slate-800 mb-2">{t('form.step2Title')}</Text>
 
-              <View className="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-4">
-                <Text className="text-blue-800 font-bold mb-1">{t('how.step1Desc')}</Text>
-                <Text className="text-blue-600 text-lg mt-1">💡 {t('how.step1Tip')}</Text>
+              {/* ORIENTAÇÃO DE GRAVAÇÃO - IGUAL AO FRONTEND */}
+              <View className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5 mb-4">
+                <Text className="font-bold text-blue-700 text-sm mb-2">💡 Dicas para um vídeo eficaz:</Text>
+                <View className="gap-y-1.5">
+                  <View className="flex-row items-start">
+                    <Text className="text-sm text-slate-600 mr-2">•</Text>
+                    <Text className="text-sm text-slate-600 flex-1">Grave a criança em um ambiente tranquilo e bem iluminado</Text>
+                  </View>
+                  <View className="flex-row items-start">
+                    <Text className="text-sm text-slate-600 mr-2">•</Text>
+                    <Text className="text-sm text-slate-600 flex-1">Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</Text>
+                  </View>
+                  <View className="flex-row items-start">
+                    <Text className="text-sm text-slate-600 mr-2">•</Text>
+                    <Text className="text-sm text-slate-600 flex-1">Chame a criança pelo nome durante a gravação e observe a reação</Text>
+                  </View>
+                  <View className="flex-row items-start">
+                    <Text className="text-sm text-slate-600 mr-2">•</Text>
+                    <Text className="text-sm text-slate-600 flex-1">Ideal: até 30 segundos em uma interação natural (brincar, conversar)</Text>
+                  </View>
+                  <View className="flex-row items-start">
+                    <Text className="text-sm text-slate-600 mr-2">•</Text>
+                    <Text className="text-sm text-slate-600 flex-1">Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</Text>
+                  </View>
+                </View>
               </View>
 
               {videoUri ? (

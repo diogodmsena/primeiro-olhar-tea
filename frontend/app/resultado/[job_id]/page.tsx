@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { CheckCircle2, AlertCircle, FileText, Settings, ArrowLeft, BrainCircuit, Printer, Mail, MessageCircle, Copy, Check, Save, LogIn, Eye, Smile, Ear, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, AlertCircle, Settings, ArrowLeft, BrainCircuit, Printer, Mail, MessageCircle, Copy, Check, Save, LogIn, Eye, Smile, Ear, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import Markdown from 'react-markdown';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -157,7 +157,7 @@ export default function ResultadoPage() {
         data.risk_score.level;
 
     const text = t('results.shareWhatsAppTemplate')
-      .replace('{score}', data.risk_score.score.toFixed(2))
+      .replace('{score}', `${Math.round(data.risk_score.score * 100)}%`)
       .replace('{level}', localizedLevel)
       .replace('{jobId}', params.job_id as string)
       .replace('{url}', window.location.href);
@@ -178,7 +178,7 @@ export default function ResultadoPage() {
 
     const subject = t('results.shareEmailSubject').replace('{level}', localizedLevel);
     const body = t('results.shareEmailBody')
-      .replace('{score}', data.risk_score.score.toFixed(2))
+      .replace('{score}', `${Math.round(data.risk_score.score * 100)}%`)
       .replace('{level}', localizedLevel)
       .replace('{jobId}', params.job_id as string)
       .replace('{url}', window.location.href);
@@ -376,7 +376,6 @@ export default function ResultadoPage() {
                 <h1 className="text-2xl font-semibold text-slate-800 ">
                   {t('results.radarTitle')} {data?.child_name ? `- ${data.child_name}` : ''}
                 </h1>
-                <p className="text-slate-500 mt-1 flex items-center"><FileText className="w-4 h-4 mr-1" /> ID: {params.job_id} | Modelo: Gemma 4</p>
              </div>
              
              <div className="flex items-center gap-6 md:gap-8 justify-between md:justify-end w-full md:w-auto border-t border-slate-100 pt-4 md:border-t-0 md:pt-0">
@@ -384,7 +383,7 @@ export default function ResultadoPage() {
                 <div className="text-right border-l border-slate-200 pl-6 md:pl-8">
                    <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-1">{t('results.indicatorsLevel')}</p>
                    <div className="flex items-center justify-end">
-                       <span className="text-3xl font-light text-slate-700 mr-3">{risk_score.score.toFixed(2)}</span>
+                       <span className="text-3xl font-light text-slate-700 mr-3">{Math.round(risk_score.score * 100)}%</span>
                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                            isHighRisk ? "bg-red-100 text-red-700" : "bg-sky-100 text-sky-700"
                        }`}>
@@ -430,7 +429,6 @@ export default function ResultadoPage() {
                    </div>
                    <div>
                       <h2 className="text-lg font-semibold text-slate-800">{t('results.explicativeTitle')}</h2>
-                      <p className="text-xs text-sky-600 font-medium">Powered by Gemma 4 Agentic Analytics</p>
                    </div>
                </div>
                

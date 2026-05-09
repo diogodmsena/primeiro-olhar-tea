@@ -15,8 +15,8 @@ export default function Home() {
       <Header />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         <View className="items-start mt-4 mb-8">
-          <View className="flex-row items-center bg-blue-50 px-4 py-2 rounded-full mb-6 border border-blue-100">
-            <Text className="text-blue-700 font-medium text-base">{t('hero.badge')}</Text>
+          <View className="flex-row items-center bg-emerald-500/10 px-4 py-2 rounded-full mb-6 border border-emerald-100">
+            <Text className="text-emerald-600 font-medium text-base">{t('hero.badge')}</Text>
           </View>
           
           <Text className="text-4xl font-extrabold text-slate-800 leading-tight">

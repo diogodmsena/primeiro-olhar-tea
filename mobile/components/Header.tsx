@@ -30,7 +30,7 @@ export function Header() {
           resizeMode="contain"
         />
         <View>
-          <Text className="text-2xl font-black text-amber-500 -mb-2">Primeiro</Text>
+          <Text className="text-2xl font-black text-slate-800 -mb-2">Primeiro</Text>
           <Text className="text-2xl font-black text-blue-500">Olhar</Text>
         </View>
       </View>
