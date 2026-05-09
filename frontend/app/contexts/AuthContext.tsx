@@ -146,23 +146,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
 
+    let isInitialized = false;
+
     const initGoogle = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const google = (window as any).google;
-      if (google?.accounts?.id && !isGoogleReady) {
+      if (google?.accounts?.id && !isInitialized) {
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
         });
+        isInitialized = true;
         setIsGoogleReady(true);
       }
     };
 
     const check = setInterval(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((window as any).google?.accounts?.id && !isGoogleReady) {
+      const google = (window as any).google;
+      if (google?.accounts?.id && !isInitialized) {
         clearInterval(check);
         initGoogle();
       }

@@ -52,7 +52,7 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div style="display: flex; align-items: center;">
             <img src="/logo_v4.png" style="width: 32px; height: 32px; margin-right: 8px;" />
-            <span style="font-size: 24px; font-weight: 900; color: #3b82f6;">Primeiro</span>
+            <span style="font-size: 24px; font-weight: 900; color: #1e293b;">Primeiro</span>
             <span style="font-size: 24px; font-weight: 900; color: #3b82f6;">Olhar</span>
           </div>
           <span style="font-size: 13px; color: #64748b; font-weight: 500;">${formattedDate}</span>

@@ -52,7 +52,7 @@ export function UserMenu() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="hidden md:flex items-center h-10 overflow-hidden rounded-full shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center h-10 overflow-hidden rounded-full shadow-sm hover:shadow-md transition-shadow">
           <div ref={googleButtonRef}></div>
       </div>
     );
@@ -62,7 +62,7 @@ export function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="hidden md:flex items-center gap-2 bg-white border-2 border-slate-200 pl-1.5 pr-3 py-1.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+        className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-1.5 pr-3 py-1.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
       >
         {user.picture ? (
           <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />

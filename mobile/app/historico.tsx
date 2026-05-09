@@ -138,7 +138,7 @@ export default function HistoricoScreen() {
               reports.map((report) => (
                 <TouchableOpacity 
                    key={report.id} 
-                   onPress={() => router.push(`/resultado?job_id=${report.job_id}`)}
+                   onPress={() => router.push(`/resultado?job_id=${report.job_id}&history=true`)}
                    className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm shadow-slate-100 flex-row justify-between items-center"
                 >
                   <View className="flex-row items-center flex-1">

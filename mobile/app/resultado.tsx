@@ -6,6 +6,7 @@ import Markdown from 'react-native-markdown-display';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { BrainCircuit, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
+import { LOGO_BASE64 } from '../components/LogoBase64';
 // axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,9 +25,10 @@ import { CheckCircle, XCircle, AlertTriangle } from '../components/LucideIcons';
 export default function ResultadoScreen() {
   const { t, locale } = useI18n();
   const router = useRouter();
-  const { job_id } = useLocalSearchParams();
+  const { job_id, history } = useLocalSearchParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -94,10 +96,18 @@ export default function ResultadoScreen() {
           clearInterval(intervalId);
         } else if (responseData?.status === 'error') {
           setLoading(false);
+          setErrorMsg(responseData.error_message || 'Erro durante o processamento da triagem.');
+          clearInterval(intervalId);
+        } else if (responseData?.status === 'not_found') {
+          setLoading(false);
+          setErrorMsg('Este relatório não está mais disponível na nuvem ou expirou.');
           clearInterval(intervalId);
         }
       } catch (e) {
         console.error('[Resultado] fetch error:', e);
+        setLoading(false);
+        setErrorMsg('Erro de conexão ao buscar relatório.');
+        clearInterval(intervalId);
       }
     };
 
@@ -223,22 +233,8 @@ export default function ResultadoScreen() {
     try {
       const { printToFileAsync } = require('expo-print');
       const { shareAsync } = require('expo-sharing');
-      const { Asset } = require('expo-asset');
-      const FileSystem = require('expo-file-system');
       
-      let logoBase64 = '';
-      try {
-        const logoAsset = await Asset.fromModule(require('../assets/images/logo_v4.png')).downloadAsync();
-        const uri = logoAsset.localUri || logoAsset.uri;
-        if (uri) {
-          // No Android/iOS real, as vezes o prefixo file:// é necessário ou causa problemas.
-          // FileSystem.readAsStringAsync costuma lidar bem com uris de assets.
-          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-          logoBase64 = `data:image/png;base64,${base64}`;
-        }
-      } catch (e) {
-        console.warn('Could not load logo for PDF', e);
-      }
+      let logoBase64 = LOGO_BASE64;
       
       let localizedReport = data.gemma_report || '';
       
@@ -337,15 +333,36 @@ export default function ResultadoScreen() {
     }
   };
 
-  if (loading || !data) {
+  if (errorMsg) {
     return (
       <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'left', 'right']}>
         <Header />
-        {!showCarousel ? (
+        <View className="flex-1 items-center justify-center p-6">
+           <AlertTriangle size={48} color="#ef4444" style={{ marginBottom: 16 }} />
+           <Text className="text-xl font-bold text-slate-700 text-center">Ops! Algo deu errado.</Text>
+           <Text className="text-slate-500 text-center mt-2 max-w-xs">{errorMsg}</Text>
+           <TouchableOpacity onPress={() => router.replace('/historico')} className="mt-8 bg-slate-200 px-6 py-3 rounded-full">
+             <Text className="font-bold text-slate-700">Voltar ao Histórico</Text>
+           </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (loading || !data) {
+    const isFromHistory = history === 'true';
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'left', 'right']}>
+        <Header />
+        {!showCarousel || isFromHistory ? (
           <View className="flex-1 items-center justify-center p-6">
              <ActivityIndicator size="large" color="#3b82f6" />
-             <Text className="text-xl font-bold text-slate-700 mt-6 text-center">{t('report.processing') || 'Processando'}</Text>
-             <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">{t('report.processingSubtitle') || 'Avaliando IA...'}</Text>
+             <Text className="text-xl font-bold text-slate-700 mt-6 text-center">
+               {isFromHistory ? 'Carregando relatório' : (t('report.processing') || 'Processando')}
+             </Text>
+             <Text className="text-slate-500 text-center mt-2 max-w-xs cursor-pulse">
+               {isFromHistory ? 'Conectando à nuvem...' : (t('report.processingSubtitle') || 'Avaliando IA...')}
+             </Text>
           </View>
         ) : (
           <View className="flex-1">
