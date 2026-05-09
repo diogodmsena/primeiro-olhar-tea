@@ -113,8 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const google = (window as any).google;
+    const google = window.google;
     if (google?.accounts?.id) {
       google.accounts.id.prompt();
     }
@@ -123,8 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(() => {
     setUser(null);
     localStorage.removeItem("auth_user");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const google = (window as any).google;
+    const google = window.google;
     if (google?.accounts?.id) {
       google.accounts.id.disableAutoSelect();
     }
@@ -149,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isInitialized = false;
 
     const initGoogle = () => {
-      const google = (window as any).google;
+      const google = window.google;
       if (google?.accounts?.id && !isInitialized) {
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -163,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const check = setInterval(() => {
-      const google = (window as any).google;
+      const google = window.google;
       if (google?.accounts?.id && !isInitialized) {
         clearInterval(check);
         initGoogle();

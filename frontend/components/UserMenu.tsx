@@ -5,6 +5,7 @@ import { useAuth } from "../app/contexts/AuthContext";
 import { useI18n } from "../app/contexts/I18nContext";
 import { LogOut, History, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function UserMenu() {
   const { user, isAuthenticated, isLoading, signOut, isGoogleReady } = useAuth();
@@ -27,8 +28,7 @@ export function UserMenu() {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     const renderGoogleBtn = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const google = (window as any).google;
+      const google = window.google;
       if (google?.accounts?.id && googleButtonRef.current && isGoogleReady) {
         google.accounts.id.renderButton(googleButtonRef.current, {
            theme: "outline",
@@ -65,7 +65,7 @@ export function UserMenu() {
         className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-1.5 pr-3 py-1.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
       >
         {user.picture ? (
-          <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+          <Image src={user.picture} alt={user.name} width={28} height={28} className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
             {user.name.charAt(0)}

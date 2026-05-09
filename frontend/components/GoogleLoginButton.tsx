@@ -22,8 +22,7 @@ export function GoogleLoginButton({
   useEffect(() => {
     let interval: NodeJS.Timeout;
     const renderGoogleBtn = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const google = (window as any).google;
+      const google = window.google;
       if (google?.accounts?.id && googleButtonRef.current && isGoogleReady) {
         if (onBeforeLogin) {
           onBeforeLogin();

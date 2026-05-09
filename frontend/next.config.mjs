@@ -8,7 +8,15 @@ const nextConfig = {
         destination: 'http://backend:8000/api/:path*' 
       }
     ]
-  }
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
