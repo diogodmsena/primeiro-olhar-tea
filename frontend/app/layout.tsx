@@ -30,6 +30,7 @@ export default function RootLayout({
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
+          data-client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
         />
       </head>
       <body className={`${nunito.variable} font-sans antialiased bg-soft-bg text-slate-800`}>

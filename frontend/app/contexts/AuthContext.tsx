@@ -30,7 +30,14 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_ID = (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim();
+
+if (typeof window !== 'undefined') {
+  // Runs only in the browser — helps diagnose env var issues
+  if (!GOOGLE_CLIENT_ID) {
+    console.error('[AuthContext] NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set. Google Login will not work.');
+  }
+}
 
 function decodeJwtPayload(token: string) {
   try {
@@ -149,14 +156,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initGoogle = () => {
       const google = window.google;
       if (google?.accounts?.id && !isInitialized) {
-        google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-        isInitialized = true;
-        setIsGoogleReady(true);
+        try {
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+          isInitialized = true;
+          setIsGoogleReady(true);
+        } catch (err) {
+          console.error('[AuthContext] google.accounts.id.initialize() failed:', err);
+        }
       }
     };
 
