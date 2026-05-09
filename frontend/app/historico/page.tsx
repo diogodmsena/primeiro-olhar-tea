@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext";
+import { LanguageSelector } from "../../components/LanguageSelector";
+import { UserMenu } from "../../components/UserMenu";
 import {
   History,
-  ArrowLeft,
   AlertCircle,
   FileText,
   TrendingUp,
@@ -17,10 +18,28 @@ import {
   HardDrive,
   Settings,
   LogIn,
+  ArrowLeft,
 } from "lucide-react";
 import axios from "axios";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { GoogleLoginButton } from "../../components/GoogleLoginButton";
+import Image from "next/image";
+
+const Logo = ({ onClick }: { onClick: () => void }) => (
+  <div className="flex items-center gap-2 cursor-pointer" onClick={onClick}>
+    <Image
+      src="/logo_v4.png"
+      alt="Ícone Primeiro Olhar"
+      width={40}
+      height={40}
+      className="w-8 h-8 md:w-10 md:h-10 object-contain"
+      priority
+    />
+    <span className="font-extrabold text-2xl tracking-tight text-slate-800">
+      Primeiro<span className="text-blue-500">Olhar</span>
+    </span>
+  </div>
+);
 
 interface ReportEntry {
   id: number;
@@ -228,15 +247,29 @@ export default function HistoricoPage() {
   return (
     <>
       <main className="min-h-screen bg-slate-50 font-sans">
-        <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Header */}
+        <header className="w-full px-6 py-5 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
+          <Logo onClick={() => router.push('/')} />
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/')}
+              className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" /> {t('history.backHome')}
+            </button>
+            <LanguageSelector />
+            <UserMenu />
+          </div>
+        </header>
 
+        <div className="max-w-4xl mx-auto px-6 pb-16">
+          {/* Mobile back button */}
           <button
-            onClick={() => router.push("/")}
-            className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors"
+            onClick={() => router.push('/')}
+            className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-6 transition-colors md:hidden"
           >
-            <ArrowLeft className="w-4 h-4 mr-1" /> {t("history.backHome")}
+            <ArrowLeft className="w-4 h-4 mr-1" /> {t('history.backHome')}
           </button>
-
           <div className="flex items-center gap-4 mb-6">
             <div className="bg-blue-100 p-3 rounded-2xl">
               <History className="w-7 h-7 text-blue-600" />
