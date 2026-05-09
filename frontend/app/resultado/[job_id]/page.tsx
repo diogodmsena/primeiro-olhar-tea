@@ -29,6 +29,22 @@ export default function ResultadoPage() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
+    const checkSaved = () => {
+      try {
+        const localHistory = localStorage.getItem('primeiro_olhar_historico');
+        if (localHistory) {
+          const historyArray = JSON.parse(localHistory);
+          const exists = historyArray.find((item: { job_id: string }) => item.job_id === params.job_id);
+          if (exists) setSaved(true);
+        }
+      } catch (e) {
+        console.warn("Local storage access failed", e);
+      }
+    };
+    checkSaved();
+  }, [params.job_id]);
+
+  useEffect(() => {
     if (loading) {
       const waitTimer = setTimeout(() => setShowCarousel(true), 5000);
       return () => clearTimeout(waitTimer);
@@ -187,26 +203,49 @@ export default function ResultadoPage() {
   };
 
   const handleSaveReport = async () => {
-    if (!isAuthenticated || !user) return;
     setSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      await axios.post(`${apiUrl}/api/reports`, {
-        job_id: params.job_id,
-        report_data: data
-      }, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
+      // 1. Salvar localmente (Sempre)
+      const localHistory = localStorage.getItem('primeiro_olhar_historico');
+      const historyArray = localHistory ? JSON.parse(localHistory) : [];
+      
+      const existsLocally = historyArray.find((item: { job_id: string }) => item.job_id === params.job_id);
+      if (!existsLocally) {
+        historyArray.push({
+          id: Date.now(),
+          job_id: params.job_id,
+          risk_score: data.risk_score?.score || 0,
+          risk_level: data.risk_score?.level?.toUpperCase() || 'BAIXO',
+          child_name: data.child_name || '',
+          created_at: new Date().toISOString()
+        });
+        localStorage.setItem('primeiro_olhar_historico', JSON.stringify(historyArray));
+      }
+
+      // 2. Salvar na nuvem se autenticado
+      if (isAuthenticated && user?.token) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        await axios.post(`${apiUrl}/api/reports`, {
+          job_id: params.job_id,
+          report_data: data
+        }, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+      }
+      
       setSaved(true);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3500);
     } catch (err) {
       console.error("Erro ao salvar relatório:", err);
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
+      if (isAuthenticated && axios.isAxiosError(err) && err.response?.status === 401) {
         signOut();
-        alert("Sua sessão expirou ou foi recriada. Faça o login novamente com o Google para salvar.");
+        alert("Sua sessão expirou. O relatório foi salvo apenas neste dispositivo.");
       } else {
-        alert(t('history.errorTitle'));
+        // Se falhou na API, pelo menos salvou local.
+        setSaved(true); 
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3500);
       }
     } finally {
       setSaving(false);
@@ -343,7 +382,7 @@ export default function ResultadoPage() {
              </div>
              <div>
                <p className="font-bold text-lg mb-1">{t('results.savedSuccess')}</p>
-               <p className="text-sm text-slate-300">Você pode acessá-lo depois em Meus Relatórios.</p>
+               <p className="text-sm text-slate-300">Você pode acessá-lo depois em Meu Histórico.</p>
              </div>
           </div>
         </div>
@@ -373,9 +412,14 @@ export default function ResultadoPage() {
              </div>
 
              <div className="flex-1 border-l border-slate-200 pl-6 md:pl-8">
-                <h1 className="text-2xl font-semibold text-slate-800 ">
-                  {t('results.radarTitle')} {data?.child_name ? `- ${data.child_name}` : ''}
+                <h1 className="text-2xl font-semibold text-slate-800 leading-tight">
+                  {t('results.radarTitle')}
                 </h1>
+                {data?.child_name && (
+                  <p className="text-xl font-bold text-blue-500 mt-1 capitalize">
+                    {data.child_name}
+                  </p>
+                )}
              </div>
              
              <div className="flex items-center gap-6 md:gap-8 justify-between md:justify-end w-full md:w-auto border-t border-slate-100 pt-4 md:border-t-0 md:pt-0">

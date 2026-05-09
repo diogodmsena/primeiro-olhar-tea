@@ -126,7 +126,8 @@ export default function Home() {
       <header className="relative z-20 w-full px-6 py-6 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
         <CSSLogo />
         <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
-          <a href="#" className="hover:text-blue-500 transition-colors">{t('nav.home')}</a>
+          <Link href="/" className="hover:text-blue-500 transition-colors">{t('nav.home')}</Link>
+          <Link href="/historico" className="hover:text-blue-500 transition-colors">{t('nav.myHistory')}</Link>
           <Link href="/como-funciona" className="hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</Link>
         </nav>
         <div className="flex items-center gap-4">

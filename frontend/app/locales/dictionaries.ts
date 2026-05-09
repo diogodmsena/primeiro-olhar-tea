@@ -5,6 +5,7 @@ export const dictionaries = {
     nav: {
       home: "Início",
       howItWorks: "Como Funciona",
+      myHistory: "Meu Histórico",
       community: "Comunidade",
       professionalArea: "Área do Profissional"
     },
@@ -13,7 +14,7 @@ export const dictionaries = {
       titleStart: "Apoio precoce,",
       titleHighlight: "futuro brilhante.",
       subtitle: "Nossa plataforma de triagem utiliza uma inteligência artificial acolhedora para avaliar sinais de neurodivergência de forma leve e acessível.",
-      cta: "Quero Iniciar Avaliação"
+      cta: "Quero Iniciar Triagem"
     },
     form: {
       headerBadge: "Primeiro Passo",
@@ -87,7 +88,7 @@ export const dictionaries = {
       text: "Primeiro Olhar © {year}. Criado para acolher e transformar."
     },
     common: {
-      myReports: "Meus Relatórios",
+      myReports: "Meu Histórico",
       logout: "Sair",
       back: "Voltar",
       save: "Salvar Relatório",
@@ -103,7 +104,7 @@ export const dictionaries = {
       years: "anos"
     },
     history: {
-      title: "Meus Relatórios",
+      title: "Meu Histórico",
       subtitle: "Histórico de triagens realizadas",
       emptyTitle: "Nenhum relatório salvo",
       emptyDesc: "Realize uma triagem e salve o resultado para que ele apareça aqui no seu histórico.",
@@ -175,6 +176,7 @@ export const dictionaries = {
     nav: {
       home: "Home",
       howItWorks: "How It Works",
+      myHistory: "My History",
       community: "Community",
       professionalArea: "Professional Area"
     },
@@ -345,6 +347,7 @@ export const dictionaries = {
     nav: {
       home: "Inicio",
       howItWorks: "Cómo Funciona",
+      myHistory: "Mi Historial",
       community: "Comunidad",
       professionalArea: "Área Profesional"
     },

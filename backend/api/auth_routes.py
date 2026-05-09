@@ -4,7 +4,7 @@ from typing import Optional
 import json
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from utils.database import upsert_user, save_report, get_user_reports, get_user_by_google_id
+from utils.database import upsert_user, save_report, get_user_reports, get_user_by_google_id, delete_user_report
 from utils.logger import get_logger
 import os
 import jwt
@@ -150,3 +150,11 @@ async def create_report(req: SaveReportRequest, authorization: str = Header(defa
     )
     
     return {"id": report_id, "message": "Relatório salvo com sucesso"}
+
+@auth_router.delete("/reports/{job_id}")
+async def delete_report(job_id: str, authorization: str = Header(default="")):
+    user = get_user_from_token(authorization)
+    success = delete_user_report(user["id"], job_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Relatório não encontrado")
+    return {"message": "Relatório excluído com sucesso"}

@@ -101,7 +101,7 @@ export const dictionaries = {
     auth: {
       signIn: "Entrar",
       signOut: "Sair",
-      myReports: "Meus Relatórios",
+      myReports: "Meu Histórico",
       unnamed: "Não informado"
     },
     report: {

@@ -139,6 +139,18 @@ def get_user_by_google_id(google_id: str):
     conn.close()
     return dict(row) if row else None
 
+def delete_user_report(user_id: int, job_id: str) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM reports WHERE user_id = ? AND job_id = ?",
+        (user_id, job_id)
+    )
+    affected = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return affected
+
 def get_report_by_job_id(job_id: str) -> dict:
     conn = get_connection()
     cursor = conn.cursor()

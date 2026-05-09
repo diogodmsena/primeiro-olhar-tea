@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext";
-import { History, ArrowLeft, AlertCircle, FileText, TrendingUp, Calendar, ExternalLink } from "lucide-react";
+import { History, ArrowLeft, AlertCircle, FileText, TrendingUp, Calendar, ExternalLink, Trash2, Cloud, HardDrive, Settings } from "lucide-react";
 import axios from "axios";
 
 interface ReportEntry {
@@ -22,23 +22,53 @@ export default function HistoricoPage() {
   const { t, locale } = useI18n();
   const [reports, setReports] = useState<ReportEntry[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
-    if (!isAuthenticated || !user) {
-      router.push("/");
-      return;
-    }
 
     const fetchReports = async () => {
+      setLoadingReports(true);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await axios.get(`${apiUrl}/api/reports`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setReports(res.data.reports || []);
-      } catch {
+        const localHistory = localStorage.getItem('primeiro_olhar_historico');
+        let combinedReports: (ReportEntry & { isSynced?: boolean })[] = localHistory ? JSON.parse(localHistory) : [];
+        // 2. Carregar da Nuvem se autenticado
+        if (isAuthenticated && user?.token) {
+          try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const res = await axios.get(`${apiUrl}/api/reports`, {
+              headers: { Authorization: `Bearer ${user.token}` },
+            });
+            const cloudReports = res.data.reports || [];
+            const cloudJobIds = new Set(cloudReports.map((r: ReportEntry) => r.job_id));
+
+            // Marcar locais como sincronizados se estiverem na nuvem
+            combinedReports = combinedReports.map(r => ({
+              ...r,
+              isSynced: cloudJobIds.has(r.job_id)
+            }));
+
+            // Adicionar relatórios que estão apenas na nuvem
+            const localJobIds = new Set(combinedReports.map(r => r.job_id));
+            cloudReports.forEach((cr: ReportEntry) => {
+              if (!localJobIds.has(cr.job_id)) {
+                combinedReports.push({ ...cr, isSynced: true });
+              }
+            });
+          } catch (err) {
+            console.error("Erro ao carregar relatórios da nuvem:", err);
+          }
+        } else {
+          // Se não estiver logado, todos são considerados "não sincronizados" (locais)
+          combinedReports = combinedReports.map(r => ({ ...r, isSynced: false }));
+        }
+
+        // Ordenar por data decrescente
+        combinedReports.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setReports(combinedReports as (ReportEntry & { isSynced: boolean })[]);
+      } catch (e) {
+        console.error("Erro ao carregar histórico:", e);
         setError(true);
       } finally {
         setLoadingReports(false);
@@ -46,7 +76,92 @@ export default function HistoricoPage() {
     };
 
     fetchReports();
-  }, [isAuthenticated, isLoading, user, router]);
+  }, [isAuthenticated, isLoading, user]);
+
+  const handleSyncReports = async () => {
+    if (!isAuthenticated || !user?.token) return;
+    setSyncing(true);
+    
+    const unsynced = (reports as (ReportEntry & { isSynced: boolean })[]).filter(r => !r.isSynced);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    
+    let successCount = 0;
+    for (const report of unsynced) {
+      try {
+        // Buscar dados completos do relatório para sincronizar
+        const res = await axios.get(`${apiUrl}/api/triagem/${report.job_id}`);
+        if (res.data.status === "done") {
+          await axios.post(`${apiUrl}/api/reports`, {
+            job_id: report.job_id,
+            report_data: res.data
+          }, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+          successCount++;
+        }
+      } catch (e) {
+        console.error(`Falha ao sincronizar job ${report.job_id}:`, e);
+      }
+    }
+
+    if (successCount > 0) {
+      // Recarregar relatórios para atualizar status
+      const localHistory = localStorage.getItem('primeiro_olhar_historico');
+      const combinedReports: ReportEntry[] = localHistory ? JSON.parse(localHistory) : [];
+      
+      const res = await axios.get(`${apiUrl}/api/reports`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      const cloudReports = res.data.reports || [];
+      const cloudJobIds = new Set(cloudReports.map((r: ReportEntry) => r.job_id));
+
+      const updated = combinedReports.map(r => ({ ...r, isSynced: cloudJobIds.has(r.job_id) }));
+      const localJobIds = new Set(updated.map(r => r.job_id));
+      cloudReports.forEach((cr: ReportEntry) => {
+        if (!localJobIds.has(cr.job_id)) {
+          updated.push({ ...cr, isSynced: true });
+        }
+      });
+      
+      updated.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setReports(updated as (ReportEntry & { isSynced: boolean })[]);
+      alert(`${successCount} relatórios sincronizados com sucesso!`);
+    } else {
+      alert("Nenhum relatório novo para sincronizar ou erro na conexão.");
+    }
+    
+    setSyncing(false);
+  };
+
+  const handleDeleteReport = async (e: React.MouseEvent, jobId: string) => {
+    e.stopPropagation();
+    if (!confirm(t('history.deleteConfirm') || "Deseja excluir este relatório?")) return;
+
+    try {
+      // 1. Remover do Local Storage
+      const localHistory = localStorage.getItem('primeiro_olhar_historico');
+      if (localHistory) {
+        const historyArray = JSON.parse(localHistory);
+        const updated = historyArray.filter((r: ReportEntry) => r.job_id !== jobId);
+        localStorage.setItem('primeiro_olhar_historico', JSON.stringify(updated));
+      }
+
+      // 2. Remover da Nuvem se autenticado
+      if (isAuthenticated && user?.token) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        await axios.delete(`${apiUrl}/api/reports/${jobId}`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+      }
+
+      // 3. Atualizar Estado
+      setReports(prev => prev.filter(r => r.job_id !== jobId));
+    } catch (err) {
+      console.error("Erro ao excluir relatório:", err);
+      alert("Erro ao excluir. O relatório pode ter sido removido apenas localmente.");
+      setReports(prev => prev.filter(r => r.job_id !== jobId));
+    }
+  };
 
   if (isLoading || (!isAuthenticated && !isLoading)) {
     return (
@@ -109,6 +224,17 @@ export default function HistoricoPage() {
             <h1 className="text-2xl font-bold text-slate-800">{t('history.title')}</h1>
             <p className="text-slate-500 text-sm font-medium">{t('history.subtitle')}</p>
           </div>
+          
+          {isAuthenticated && (reports as (ReportEntry & { isSynced?: boolean })[]).some(r => !r.isSynced) && (
+             <button
+               onClick={handleSyncReports}
+               disabled={syncing}
+               className="ml-auto flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+             >
+               {syncing ? <Settings className="w-4 h-4 animate-spin" /> : <Cloud className="w-4 h-4" />}
+               {syncing ? "Sincronizar" : "Sincronizar"}
+             </button>
+          )}
         </div>
 
         {loadingReports ? (
@@ -155,25 +281,39 @@ export default function HistoricoPage() {
                         <p className="font-bold text-slate-800 text-sm">
                           {report.child_name || `#${report.job_id.slice(0, 8)}...`}
                         </p>
-                        <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-2 mt-1">
                           <span className="flex items-center gap-1 text-xs text-slate-500">
                             <Calendar className="w-3 h-3" />
                             {formatDate(report.created_at)}
+                          </span>
+                          <span className="text-slate-200">•</span>
+                          <span className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider ${(report as ReportEntry & { isSynced?: boolean }).isSynced ? 'text-emerald-500' : 'text-amber-500'}`}>
+                            {(report as ReportEntry & { isSynced?: boolean }).isSynced ? <Cloud className="w-3 h-3" /> : <HardDrive className="w-3 h-3" />}
+                            {(report as ReportEntry & { isSynced?: boolean }).isSynced ? "Sincronizado" : "Local"}
                           </span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="flex items-center gap-2">
+                      <div className="text-right mr-2">
+                        <div className="flex items-center gap-2 justify-end">
                           <TrendingUp className="w-4 h-4 text-slate-400" />
-                          <span className="font-bold text-slate-700">{report.risk_score.toFixed(2)}</span>
+                          <span className="font-bold text-slate-700">{(report.risk_score * 100).toFixed(0)}%</span>
                         </div>
                         <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${risk.classes}`}>
                           {risk.label}
                         </span>
                       </div>
+                      
+                      <button
+                        onClick={(e) => handleDeleteReport(e, report.job_id)}
+                        className="p-2 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        title={t('common.delete')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
                       <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
                     </div>
                   </div>
