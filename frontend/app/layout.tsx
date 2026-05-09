@@ -27,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <head>
+      <meta name="google-client-id" content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID} />
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"

@@ -30,14 +30,17 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-const GOOGLE_CLIENT_ID = (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim();
-
-if (typeof window !== 'undefined') {
-  // Runs only in the browser — helps diagnose env var issues
-  if (!GOOGLE_CLIENT_ID) {
-    console.error('[AuthContext] NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set. Google Login will not work.');
+// Primary: env var (baked at compile time)
+// Fallback: meta tag injected by layout.tsx (readable at runtime)
+const getGoogleClientId = (): string => {
+  const fromEnv = (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim();
+  if (fromEnv) return fromEnv;
+  if (typeof document !== "undefined") {
+    const meta = document.querySelector('meta[name="google-client-id"]');
+    return (meta?.getAttribute("content") || "").trim();
   }
-}
+  return "";
+};
 
 function decodeJwtPayload(token: string) {
   try {
@@ -149,7 +152,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
+    // Read client_id at runtime (env var or meta tag fallback)
+    const clientId = getGoogleClientId();
+    if (!clientId) {
+      console.error('[AuthContext] Google client_id not found. Check NEXT_PUBLIC_GOOGLE_CLIENT_ID env var.');
+      return;
+    }
 
     let isInitialized = false;
 
@@ -158,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (google?.accounts?.id && !isInitialized) {
         try {
           google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
+            client_id: clientId,
             callback: handleCredentialResponse,
             auto_select: false,
             cancel_on_tap_outside: true,

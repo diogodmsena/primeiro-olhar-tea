@@ -21,11 +21,11 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - /app/.next
     env_file:
       - .env
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_GOOGLE_CLIENT_ID=59789656454-lpr0b9vr7o1j8bteicvdlaohpblbf0ks.apps.googleusercontent.com
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
     depends_on:
