@@ -12,12 +12,16 @@ export const dictionaries = {
     },
     common: {
       year: "ano",
-      years: "anos"
+      years: "anos",
+      confirm: "Confirmar",
+      cancel: "Cancelar",
+      delete: "Excluir",
     },
     history: {
       title: "Meu Histórico",
       emptyState: "Nenhuma avaliação salva encontrada.",
       triagemPrefix: "Triagem ",
+      deleteConfirm: "Deseja excluir este relatório do histórico?",
     },
     hero: {
       badge: "Feito com carinho para famílias",
@@ -161,12 +165,16 @@ export const dictionaries = {
     },
     common: {
       year: "year",
-      years: "years"
+      years: "years",
+      confirm: "Confirm",
+      cancel: "Cancel",
+      delete: "Delete",
     },
     history: {
       title: "My History",
       emptyState: "No saved assessments found.",
       triagemPrefix: "Screening ",
+      deleteConfirm: "Do you want to delete this report from history?",
     },
     hero: {
       badge: "Made with care for families",
@@ -310,12 +318,16 @@ export const dictionaries = {
     },
     common: {
       year: "año",
-      years: "años"
+      years: "años",
+      confirm: "Confirmar",
+      cancel: "Cancelar",
+      delete: "Eliminar",
     },
     history: {
       title: "Mi Historial",
       emptyState: "No se encontró ninguna evaluación guardada.",
       triagemPrefix: "Triaje ",
+      deleteConfirm: "¿Desea eliminar este informe del historial?",
     },
     hero: {
       badge: "Hecho con cariño para las familias",

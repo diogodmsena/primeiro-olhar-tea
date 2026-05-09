@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useI18n } from "../contexts/I18nContext";
 import { History, ArrowLeft, AlertCircle, FileText, TrendingUp, Calendar, ExternalLink, Trash2, Cloud, HardDrive, Settings } from "lucide-react";
 import axios from "axios";
+import { ConfirmModal } from "../../components/ConfirmModal";
 
 interface ReportEntry {
   id: number;
@@ -24,6 +25,8 @@ export default function HistoricoPage() {
   const [loadingReports, setLoadingReports] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (isLoading) return;
@@ -51,11 +54,22 @@ export default function HistoricoPage() {
 
             // Adicionar relatórios que estão apenas na nuvem
             const localJobIds = new Set(combinedReports.map(r => r.job_id));
+            let addedNew = false;
             cloudReports.forEach((cr: ReportEntry) => {
               if (!localJobIds.has(cr.job_id)) {
                 combinedReports.push({ ...cr, isSynced: true });
+                addedNew = true;
               }
             });
+
+            if (addedNew) {
+              const toSave = combinedReports.map(r => {
+                const copy = { ...r };
+                delete copy.isSynced;
+                return copy;
+              });
+              localStorage.setItem('primeiro_olhar_historico', JSON.stringify(toSave));
+            }
           } catch (err) {
             console.error("Erro ao carregar relatórios da nuvem:", err);
           }
@@ -133,33 +147,41 @@ export default function HistoricoPage() {
     setSyncing(false);
   };
 
-  const handleDeleteReport = async (e: React.MouseEvent, jobId: string) => {
+  const promptDeleteReport = (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
-    if (!confirm(t('history.deleteConfirm') || "Deseja excluir este relatório?")) return;
+    setReportToDelete(jobId);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteReport = async () => {
+    if (!reportToDelete) return;
 
     try {
       // 1. Remover do Local Storage
       const localHistory = localStorage.getItem('primeiro_olhar_historico');
       if (localHistory) {
         const historyArray = JSON.parse(localHistory);
-        const updated = historyArray.filter((r: ReportEntry) => r.job_id !== jobId);
+        const updated = historyArray.filter((r: ReportEntry) => r.job_id !== reportToDelete);
         localStorage.setItem('primeiro_olhar_historico', JSON.stringify(updated));
       }
 
       // 2. Remover da Nuvem se autenticado
       if (isAuthenticated && user?.token) {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        await axios.delete(`${apiUrl}/api/reports/${jobId}`, {
+        await axios.delete(`${apiUrl}/api/reports/${reportToDelete}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
       }
 
       // 3. Atualizar Estado
-      setReports(prev => prev.filter(r => r.job_id !== jobId));
+      setReports(prev => prev.filter(r => r.job_id !== reportToDelete));
     } catch (err) {
       console.error("Erro ao excluir relatório:", err);
       alert("Erro ao excluir. O relatório pode ter sido removido apenas localmente.");
-      setReports(prev => prev.filter(r => r.job_id !== jobId));
+      setReports(prev => prev.filter(r => r.job_id !== reportToDelete));
+    } finally {
+      setDeleteModalVisible(false);
+      setReportToDelete(null);
     }
   };
 
@@ -206,6 +228,7 @@ export default function HistoricoPage() {
   };
 
   return (
+    <>
     <main className="min-h-screen bg-slate-50 font-sans">
       <div className="max-w-4xl mx-auto px-6 py-12">
         
@@ -307,7 +330,7 @@ export default function HistoricoPage() {
                       </div>
                       
                       <button
-                        onClick={(e) => handleDeleteReport(e, report.job_id)}
+                        onClick={(e) => promptDeleteReport(e, report.job_id)}
                         className="p-2 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         title={t('common.delete')}
                       >
@@ -325,5 +348,20 @@ export default function HistoricoPage() {
 
       </div>
     </main>
+
+    <ConfirmModal
+      isOpen={deleteModalVisible}
+      onClose={() => {
+        setDeleteModalVisible(false);
+        setReportToDelete(null);
+      }}
+      onConfirm={confirmDeleteReport}
+      title={t('common.confirm') || "Confirmar"}
+      message={t('history.deleteConfirm') || "Deseja excluir este relatório do histórico?"}
+      confirmText={t('common.delete') || "Excluir"}
+      cancelText={t('common.cancel') || "Cancelar"}
+      type="danger"
+    />
+    </>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { AutismPuzzleSymbol } from '../components/AutismPuzzleSymbol';
+import { Heart } from '../components/LucideIcons';
 
 export default function Home() {
   const { t } = useI18n();
@@ -16,6 +17,7 @@ export default function Home() {
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
         <View className="items-start mt-4 mb-8">
           <View className="flex-row items-center bg-emerald-500/10 px-4 py-2 rounded-full mb-6 border border-emerald-100">
+            <Heart color="#10b981" size={16} style={{ marginRight: 6 }} />
             <Text className="text-emerald-600 font-medium text-base">{t('hero.badge')}</Text>
           </View>
           

@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useI18n } from '../contexts/I18nContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 interface ReportEntry {
   id: number;
@@ -25,6 +26,8 @@ export default function HistoricoScreen() {
   const [loading, setLoading] = useState(true);
   const { user, isAuthenticated } = useAuth();
   const { showToast } = useToast();
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -45,12 +48,18 @@ export default function HistoricoScreen() {
               const cloudReports = cloudData.reports || [];
               
               const combined = [...localReports];
+              let addedNew = false;
               cloudReports.forEach((cr: any) => {
                 if (!combined.find(lr => lr.job_id === cr.job_id)) {
                   combined.push(cr);
+                  addedNew = true;
                 }
               });
               localReports = combined;
+              
+              if (addedNew) {
+                await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(localReports));
+              }
             }
           } catch (err) {
             console.warn("Cloud fetch failed", err);
@@ -68,29 +77,42 @@ export default function HistoricoScreen() {
     fetchReports();
   }, [isAuthenticated, user?.token]);
 
-  const deleteReport = async (id: number) => {
-    Alert.alert(
-      t('common.confirm') || 'Confirmar',
-      t('history.deleteConfirm') || 'Deseja excluir este relatório do histórico?',
-      [
-        { text: t('common.cancel') || 'Cancelar', style: 'cancel' },
-        { 
-          text: t('common.delete') || 'Excluir', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-               const updatedReports = reports.filter(r => r.id !== id);
-               setReports(updatedReports);
-               await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(updatedReports));
-               showToast('Relatório excluído com sucesso!', 'success');
-            } catch (e) {
-              console.error("Error deleting report", e);
-              Alert.alert('Erro', 'Falha ao excluir.');
+  const deleteReport = (jobId: string) => {
+    setReportToDelete(jobId);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!reportToDelete) return;
+    
+    setDeleteModalVisible(false);
+    try {
+      // 1. Remover da Nuvem se autenticado
+      if (isAuthenticated && user?.token) {
+        const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+        try {
+          await fetch(`${apiURL}/api/reports/${reportToDelete}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${user.token}`
             }
-          }
+          });
+        } catch (err) {
+          console.warn("Failed to delete from cloud", err);
         }
-      ]
-    );
+      }
+
+      // 2. Remover do Local Storage
+      const updatedReports = reports.filter(r => r.job_id !== reportToDelete);
+      setReports(updatedReports);
+      await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(updatedReports));
+      showToast('Relatório excluído com sucesso!', 'success');
+    } catch (e) {
+      console.error("Error deleting report", e);
+      Alert.alert('Erro', 'Falha ao excluir.');
+    } finally {
+      setReportToDelete(null);
+    }
   };
 
   return (
@@ -146,7 +168,7 @@ export default function HistoricoScreen() {
                     <TouchableOpacity 
                       onPress={(e) => {
                         e.stopPropagation();
-                        deleteReport(report.id);
+                        deleteReport(report.job_id);
                       }}
                       className="p-2 bg-slate-100 rounded-full"
                     >
@@ -159,6 +181,20 @@ export default function HistoricoScreen() {
           </View>
         )}
       </ScrollView>
+
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title={t('common.confirm') || 'Confirmar'}
+        message={t('history.deleteConfirm') || 'Deseja excluir este relatório do histórico?'}
+        confirmText={t('common.delete') || 'Excluir'}
+        cancelText={t('common.cancel') || 'Cancelar'}
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleteModalVisible(false);
+          setReportToDelete(null);
+        }}
+        type="danger"
+      />
     </SafeAreaView>
   );
 }

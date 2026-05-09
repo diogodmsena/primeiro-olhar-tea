@@ -224,7 +224,7 @@ export default function ResultadoScreen() {
       const { printToFileAsync } = require('expo-print');
       const { shareAsync } = require('expo-sharing');
       const { Asset } = require('expo-asset');
-      const FileSystem = require('expo-file-system/legacy');
+      const FileSystem = require('expo-file-system');
       
       let logoBase64 = '';
       try {
@@ -292,7 +292,7 @@ export default function ResultadoScreen() {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
               <div style="display: flex; align-items: center;">
                 ${logoBase64 ? `<img src="${logoBase64}" style="width: 32px; height: 32px; margin-right: 8px;" />` : ''}
-                <span style="font-size: 24px; font-weight: 900; color: #f59e0b; margin-right: 4px;">Primeiro</span>
+                <span style="font-size: 24px; font-weight: 900; color: #1e293b; margin-right: 4px;">Primeiro</span>
                 <span style="font-size: 24px; font-weight: 900; color: #3b82f6;">Olhar</span>
               </div>
               <span style="font-size: 13px; color: #64748b; font-weight: 500;">${formattedDate}</span>
