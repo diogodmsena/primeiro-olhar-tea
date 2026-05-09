@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { CheckCircle2, AlertCircle, Settings, ArrowLeft, BrainCircuit, Printer, Mail, MessageCircle, Copy, Check, Save, LogIn, Eye, Smile, Ear, Info, ChevronLeft, ChevronRight } from "lucide-react";
@@ -27,6 +27,8 @@ export default function ResultadoPage() {
   const [showCarousel, setShowCarousel] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
   const [showToast, setShowToast] = useState(false);
+  // Tracks whether we've already auto-saved this report to avoid duplicate saves
+  const autoSavedRef = useRef(false);
 
   useEffect(() => {
     const checkSaved = () => {
@@ -100,6 +102,22 @@ export default function ResultadoPage() {
     return { bg: 'bg-blue-50', textTitle: 'text-blue-900', textIcon: 'text-blue-500', alertBg: 'bg-blue-100', alertText: 'text-blue-800' };
   };
 
+  const autoSaveToBackend = async (reportData: unknown) => {
+    if (!isAuthenticated || !user?.token || autoSavedRef.current) return;
+    autoSavedRef.current = true;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      await axios.post(
+        `${apiUrl}/api/reports`,
+        { job_id: params.job_id, report_data: reportData },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+    } catch (err) {
+      console.warn("Auto-save to backend failed (silent):", err);
+      autoSavedRef.current = false;
+    }
+  };
+
   const fetchStatus = async () => {
     if (!params.job_id) return;
     try {
@@ -109,6 +127,27 @@ export default function ResultadoPage() {
       if (res.data.status === "done") {
         setData(res.data);
         setLoading(false);
+        // Auto-save to local storage
+        try {
+          const localHistory = localStorage.getItem('primeiro_olhar_historico');
+          const historyArray = localHistory ? JSON.parse(localHistory) : [];
+          const existsLocally = historyArray.find((item: { job_id: string }) => item.job_id === params.job_id);
+          if (!existsLocally) {
+            historyArray.push({
+              id: Date.now(),
+              job_id: params.job_id,
+              risk_score: res.data.risk_score?.score || 0,
+              risk_level: res.data.risk_score?.level?.toUpperCase() || 'BAIXO',
+              child_name: res.data.child_name || '',
+              created_at: new Date().toISOString(),
+            });
+            localStorage.setItem('primeiro_olhar_historico', JSON.stringify(historyArray));
+          }
+        } catch (e) {
+          console.warn("Local storage write failed", e);
+        }
+        // Auto-save to cloud if authenticated
+        autoSaveToBackend(res.data);
       } else if (res.data.status === "error" || res.data.status === "not_found") {
         setData(res.data);
         setError(true);
@@ -126,6 +165,15 @@ export default function ResultadoPage() {
     fetchStatus();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.job_id]);
+
+  // Separate effect: auto-save to cloud when data is ready AND user is (or becomes) authenticated.
+  // Handles the race condition where auth was still loading when fetchStatus ran.
+  useEffect(() => {
+    if (data && isAuthenticated && user?.token && !autoSavedRef.current) {
+      autoSaveToBackend(data);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isAuthenticated, user?.token]);
 
   const handleRetry = async () => {
     try {

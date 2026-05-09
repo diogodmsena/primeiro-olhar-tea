@@ -24,12 +24,15 @@ export default function HistoricoScreen() {
   const { t } = useI18n();
   const [reports, setReports] = useState<ReportEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for auth session to be restored before fetching cloud data
+    if (authLoading) return;
+
     const fetchReports = async () => {
       try {
         const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
@@ -75,7 +78,7 @@ export default function HistoricoScreen() {
       }
     };
     fetchReports();
-  }, [isAuthenticated, user?.token]);
+  }, [isAuthenticated, user?.token, authLoading]);
 
   const deleteReport = (jobId: string) => {
     setReportToDelete(jobId);

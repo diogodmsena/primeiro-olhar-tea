@@ -3,15 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../app/contexts/AuthContext";
 import { useI18n } from "../app/contexts/I18nContext";
-import { LogOut, History, ChevronDown } from "lucide-react";
+import { LogOut, History, ChevronDown, LogIn } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export function UserMenu() {
-  const { user, isAuthenticated, isLoading, signOut, isGoogleReady } = useAuth();
+  const { user, isAuthenticated, isLoading, signOut, signIn, isGoogleReady } = useAuth();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const [googleBtnRendered, setGoogleBtnRendered] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -23,37 +25,53 @@ export function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const googleButtonRef = useRef<HTMLDivElement>(null);
-
+  // Render the Google Sign-In button once the SDK is ready and the DOM ref is available
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    const renderGoogleBtn = () => {
+    if (!isGoogleReady || isLoading || isAuthenticated) return;
+
+    let attempts = 0;
+    const tryRender = () => {
       const google = window.google;
-      if (google?.accounts?.id && googleButtonRef.current && isGoogleReady) {
+      if (google?.accounts?.id && googleButtonRef.current) {
         google.accounts.id.renderButton(googleButtonRef.current, {
-           theme: "outline",
-           size: "large",
-           shape: "pill",
-           text: "signin_with"
+          theme: "outline",
+          size: "large",
+          shape: "pill",
+          text: "signin_with",
         });
-        clearInterval(interval);
+        setGoogleBtnRendered(true);
+        return;
+      }
+      attempts++;
+      if (attempts < 20) {
+        setTimeout(tryRender, 300);
       }
     };
 
-    if (isGoogleReady && !isLoading) {
-      renderGoogleBtn();
-      interval = setInterval(renderGoogleBtn, 500);
-    }
-    
-    return () => clearInterval(interval);
-  }, [isLoading, isGoogleReady]);
+    tryRender();
+  }, [isGoogleReady, isLoading, isAuthenticated]);
 
   if (isLoading) return null;
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="flex items-center h-10 overflow-hidden rounded-full shadow-sm hover:shadow-md transition-shadow">
-          <div ref={googleButtonRef}></div>
+      <div className="flex items-center">
+        {/* Container for Google's rendered button */}
+        <div
+          ref={googleButtonRef}
+          className="overflow-hidden rounded-full"
+          style={{ minWidth: googleBtnRendered ? undefined : 0 }}
+        />
+        {/* Fallback button shown while Google SDK is loading */}
+        {!googleBtnRendered && (
+          <button
+            onClick={() => signIn()}
+            className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-3 pr-4 py-2 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-blue-300 transition-all shadow-sm text-slate-600"
+          >
+            <LogIn className="w-4 h-4 text-blue-500" />
+            {t('common.loginGoogle') || 'Entrar com Google'}
+          </button>
+        )}
       </div>
     );
   }
@@ -65,14 +83,23 @@ export function UserMenu() {
         className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-1.5 pr-3 py-1.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
       >
         {user.picture ? (
-          <Image src={user.picture} alt={user.name} width={28} height={28} className="w-7 h-7 rounded-full" referrerPolicy="no-referrer" />
+          <Image
+            src={user.picture}
+            alt={user.name}
+            width={28}
+            height={28}
+            className="w-7 h-7 rounded-full"
+            referrerPolicy="no-referrer"
+          />
         ) : (
           <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
             {user.name.charAt(0)}
           </div>
         )}
-        <span className="text-slate-700 max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <span className="text-slate-700 max-w-[100px] truncate">{user.name.split(" ")[0]}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (
@@ -81,15 +108,15 @@ export function UserMenu() {
             <p className="font-bold text-sm text-slate-800 truncate">{user.name}</p>
             <p className="text-xs text-slate-500 truncate">{user.email}</p>
           </div>
-          <Link 
-            href="/historico" 
+          <Link
+            href="/historico"
             onClick={() => setOpen(false)}
             className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
           >
             <History className="w-4 h-4 text-blue-500" />
             {t('common.myReports')}
           </Link>
-          <button 
+          <button
             onClick={() => { signOut(); setOpen(false); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
           >

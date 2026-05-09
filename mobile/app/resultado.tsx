@@ -72,6 +72,23 @@ export default function ResultadoScreen() {
 
     let intervalId: NodeJS.Timeout;
 
+    const autoSyncToBackend = async (reportData: any, jobIdStr: string) => {
+      if (!isAuthenticated || !user?.token) return;
+      try {
+        const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
+        await fetch(`${apiURL}/api/reports`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({ job_id: jobIdStr, report_data: reportData }),
+        });
+      } catch (err) {
+        console.warn('[Resultado] Auto cloud sync failed (silent):', err);
+      }
+    };
+
     const fetchStatus = async () => {
       try {
         const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
@@ -94,6 +111,31 @@ export default function ResultadoScreen() {
           setData(responseData);
           setLoading(false);
           clearInterval(intervalId);
+
+          // Auto-save to local AsyncStorage
+          const jobIdStr = typeof job_id === 'string' ? job_id : job_id[0];
+          try {
+            const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
+            const historyArray = savedHistory ? JSON.parse(savedHistory) : [];
+            const exists = historyArray.find((item: any) => item.job_id === jobIdStr);
+            if (!exists) {
+              historyArray.push({
+                id: Date.now(),
+                job_id: jobIdStr,
+                risk_score: responseData.risk_score?.score || 0,
+                risk_level: responseData.risk_score?.level?.toUpperCase() || 'BAIXO',
+                child_name: responseData.child_name || '',
+                created_at: new Date().toISOString(),
+              });
+              await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
+              // Auto-sync to cloud if logged in
+              autoSyncToBackend(responseData, jobIdStr);
+            } else {
+              setIsSaved(true);
+            }
+          } catch (e) {
+            console.warn('Failed to auto-save history', e);
+          }
         } else if (responseData?.status === 'error') {
           setLoading(false);
           setErrorMsg(responseData.error_message || 'Erro durante o processamento da triagem.');
@@ -114,7 +156,7 @@ export default function ResultadoScreen() {
     fetchStatus();
     intervalId = setInterval(fetchStatus, 3000);
 
-    // Verificar se já está salvo no histórico local ao carregar
+    // Check if already saved
     const checkIsSaved = async () => {
       try {
         const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
@@ -130,7 +172,7 @@ export default function ResultadoScreen() {
     checkIsSaved();
 
     return () => clearInterval(intervalId);
-  }, [job_id]);
+  }, [job_id, isAuthenticated, user?.token]);
 
   const saveReport = async () => {
     if (!data) return;
