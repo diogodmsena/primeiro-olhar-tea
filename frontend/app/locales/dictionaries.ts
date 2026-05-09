@@ -105,6 +105,7 @@ export const dictionaries = {
       confirm: "Confirmar",
       cancel: "Cancelar",
       delete: "Excluir",
+      loginGoogle: "Entrar com Google",
     },
     history: {
       title: "Meu Histórico",
@@ -115,7 +116,10 @@ export const dictionaries = {
       errorTitle: "Erro ao carregar relatórios",
       errorDesc: "Tente novamente mais tarde",
       loadingReports: "Carregando relatórios...",
-      backHome: "Voltar ao Início"
+      backHome: "Voltar ao Início",
+      sync: "Sincronizar",
+      loginBannerTitle: "Acesse seus relatórios de qualquer dispositivo",
+      loginBannerSubtitle: "Faça login com Google para sincronizar seu histórico entre web e mobile.",
     },
     results: {
       processingTitle: "Processamento Multimodal em Andamento",
@@ -280,6 +284,7 @@ export const dictionaries = {
       confirm: "Confirm",
       cancel: "Cancel",
       delete: "Delete",
+      loginGoogle: "Sign in with Google",
     },
     history: {
       title: "My Reports",
@@ -290,7 +295,10 @@ export const dictionaries = {
       errorTitle: "Error loading reports",
       errorDesc: "Try again later",
       loadingReports: "Loading reports...",
-      backHome: "Back to Home"
+      backHome: "Back to Home",
+      sync: "Sync",
+      loginBannerTitle: "Access your reports from any device",
+      loginBannerSubtitle: "Sign in with Google to sync your history between web and mobile.",
     },
     results: {
       processingTitle: "Multimodal Processing in Progress",
@@ -455,6 +463,7 @@ export const dictionaries = {
       confirm: "Confirmar",
       cancel: "Cancelar",
       delete: "Eliminar",
+      loginGoogle: "Iniciar sesión con Google",
     },
     history: {
       title: "Mis Informes",
@@ -465,7 +474,10 @@ export const dictionaries = {
       errorTitle: "Error al cargar informes",
       errorDesc: "Intente de nuevo más tarde",
       loadingReports: "Cargando informes...",
-      backHome: "Volver al Inicio"
+      backHome: "Volver al Inicio",
+      sync: "Sincronizar",
+      loginBannerTitle: "Accede a tus informes desde cualquier dispositivo",
+      loginBannerSubtitle: "Inicia sesión con Google para sincronizar tu historial entre la web y el móvil.",
     },
     results: {
       processingTitle: "Procesamiento Multimodal en Curso",

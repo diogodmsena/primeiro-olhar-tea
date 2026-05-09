@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export function UserMenu() {
-  const { user, isAuthenticated, isLoading, signOut, signIn, isGoogleReady } = useAuth();
+  const { user, isAuthenticated, isLoading, signOut, isGoogleReady } = useAuth();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export function UserMenu() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Render the Google Sign-In button once the SDK is ready and the DOM ref is available
+  // Render Google's own button once SDK is ready and user is not authenticated
   useEffect(() => {
     if (!isGoogleReady || isLoading || isAuthenticated) return;
 
@@ -33,17 +33,22 @@ export function UserMenu() {
     const tryRender = () => {
       const google = window.google;
       if (google?.accounts?.id && googleButtonRef.current) {
+        // Clear any previous render attempt
+        googleButtonRef.current.innerHTML = "";
         google.accounts.id.renderButton(googleButtonRef.current, {
           theme: "outline",
           size: "large",
           shape: "pill",
           text: "signin_with",
         });
-        setGoogleBtnRendered(true);
-        return;
+        // Check if it actually rendered something
+        if (googleButtonRef.current.children.length > 0) {
+          setGoogleBtnRendered(true);
+          return;
+        }
       }
       attempts++;
-      if (attempts < 20) {
+      if (attempts < 25) {
         setTimeout(tryRender, 300);
       }
     };
@@ -51,25 +56,38 @@ export function UserMenu() {
     tryRender();
   }, [isGoogleReady, isLoading, isAuthenticated]);
 
+  // Reset rendered state when user logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setGoogleBtnRendered(false);
+    }
+  }, [isAuthenticated]);
+
   if (isLoading) return null;
 
   if (!isAuthenticated || !user) {
     return (
       <div className="flex items-center">
-        {/* Container for Google's rendered button */}
-        <div
-          ref={googleButtonRef}
-          className="overflow-hidden rounded-full"
-          style={{ minWidth: googleBtnRendered ? undefined : 0 }}
-        />
-        {/* Fallback button shown while Google SDK is loading */}
+        {/* Container where Google renders its own button */}
+        <div ref={googleButtonRef} className="overflow-hidden rounded-full" />
+
+        {/* Fallback: shown while SDK loads OR if renderButton fails */}
         {!googleBtnRendered && (
           <button
-            onClick={() => signIn()}
+            onClick={() => {
+              // If SDK is ready, trigger the prompt; otherwise dispatch the event
+              const google = window.google;
+              if (google?.accounts?.id) {
+                google.accounts.id.prompt();
+              } else {
+                // SDK not ready yet — show native OAuth as last resort
+                window.dispatchEvent(new Event("openGoogleLogin"));
+              }
+            }}
             className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-3 pr-4 py-2 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-blue-300 transition-all shadow-sm text-slate-600"
           >
             <LogIn className="w-4 h-4 text-blue-500" />
-            {t('common.loginGoogle') || 'Entrar com Google'}
+            {t("common.loginGoogle")}
           </button>
         )}
       </div>
@@ -114,14 +132,17 @@ export function UserMenu() {
             className="flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
           >
             <History className="w-4 h-4 text-blue-500" />
-            {t('common.myReports')}
+            {t("common.myReports")}
           </Link>
           <button
-            onClick={() => { signOut(); setOpen(false); }}
+            onClick={() => {
+              signOut();
+              setOpen(false);
+            }}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
           >
             <LogOut className="w-4 h-4" />
-            {t('common.logout')}
+            {t("common.logout")}
           </button>
         </div>
       )}
