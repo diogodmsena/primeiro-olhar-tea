@@ -49,15 +49,28 @@ def verify_session_token(token: str) -> Optional[dict]:
 def verify_google_id_token(token: str) -> Optional[dict]:
     """Try to verify a Google ID token against all accepted client IDs."""
     last_err = None
-    for client_id in ACCEPTED_CLIENT_IDS:
+    
+    # Fetch dynamically to avoid module-level caching issues in Uvicorn
+    web_client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    android_client_id = os.getenv("ANDROID_CLIENT_ID", "")
+    accepted_clients = [cid for cid in [web_client_id, android_client_id] if cid]
+    
+    if not accepted_clients:
+        raise ValueError("No accepted Google client IDs configured")
+
+    logger.info(f"Attempting to verify token against client IDs: {accepted_clients}")
+
+    for client_id in accepted_clients:
         try:
             idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), client_id)
+            logger.info(f"Token successfully verified for audience: {client_id}")
             return idinfo
         except Exception as e:
             last_err = e
+            
     if last_err:
+        logger.error(f"Token verification failed for all clients. Last error: {last_err}")
         raise last_err
-    raise ValueError("No accepted Google client IDs configured")
 
 
 def get_user_from_token(authorization: str) -> dict:
@@ -95,7 +108,11 @@ def get_user_from_token(authorization: str) -> dict:
 @auth_router.post("/auth/google")
 async def google_auth(req: GoogleAuthRequest):
     try:
-        if ACCEPTED_CLIENT_IDS:
+        web_client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+        android_client_id = os.getenv("ANDROID_CLIENT_ID", "")
+        accepted_clients = [cid for cid in [web_client_id, android_client_id] if cid]
+
+        if accepted_clients:
             idinfo = verify_google_id_token(req.token)
         else:
             # Development mode: decode without verification
