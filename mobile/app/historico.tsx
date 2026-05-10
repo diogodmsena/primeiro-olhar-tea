@@ -69,7 +69,12 @@ export default function HistoricoScreen() {
           }
         }
 
-        localReports.sort((a: ReportEntry, b: ReportEntry) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        const parseDate = (dateStr: string) => {
+          if (!dateStr) return new Date(0).getTime();
+          return new Date(dateStr.replace(' ', 'T')).getTime();
+        };
+
+        localReports.sort((a: ReportEntry, b: ReportEntry) => parseDate(b.created_at) - parseDate(a.created_at));
         setReports(localReports);
       } catch (e) {
         console.error("Unable to load history", e);
@@ -155,7 +160,7 @@ export default function HistoricoScreen() {
                       <View className="flex-row items-center mt-1">
                         <Clock color="#cbd5e1" size={14} style={{ marginRight: 4 }} />
                         <Text className="text-slate-400 text-xs">
-                          {new Date(report.created_at).toLocaleDateString()}
+                          {new Date((report.created_at || '').replace(' ', 'T')).toLocaleDateString()}
                         </Text>
                       </View>
                     </View>
