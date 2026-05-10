@@ -35,6 +35,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    return response
+
+
 app.include_router(api_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 
