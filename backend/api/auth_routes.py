@@ -15,7 +15,11 @@ logger = get_logger(__name__)
 auth_router = APIRouter()
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+ANDROID_CLIENT_ID = os.getenv("ANDROID_CLIENT_ID", "")
 JWT_SECRET = os.getenv("JWT_SECRET", "primeiro-olhar-secret-key-2026")
+
+# All accepted Google OAuth client IDs (web, android, ios)
+ACCEPTED_CLIENT_IDS: list[str] = [cid for cid in [GOOGLE_CLIENT_ID, ANDROID_CLIENT_ID] if cid]
 
 class GoogleAuthRequest(BaseModel):
     token: str
@@ -42,6 +46,20 @@ def verify_session_token(token: str) -> Optional[dict]:
     except jwt.InvalidTokenError:
         return None
 
+def verify_google_id_token(token: str) -> Optional[dict]:
+    """Try to verify a Google ID token against all accepted client IDs."""
+    last_err = None
+    for client_id in ACCEPTED_CLIENT_IDS:
+        try:
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), client_id)
+            return idinfo
+        except Exception as e:
+            last_err = e
+    if last_err:
+        raise last_err
+    raise ValueError("No accepted Google client IDs configured")
+
+
 def get_user_from_token(authorization: str) -> dict:
     if not authorization or not authorization.startswith("Bearer "):
         logger.warning("No valid Bearer token found in Authorization header")
@@ -60,9 +78,9 @@ def get_user_from_token(authorization: str) -> dict:
     except Exception as e:
         logger.warning(f"Session token validation failed: {str(e)}")
 
-    # Try as Google ID token (fallback)
+    # Try as Google ID token (multi-audience fallback)
     try:
-        idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+        idinfo = verify_google_id_token(token)
         user = get_user_by_google_id(idinfo["sub"])
         if user:
             return user
@@ -77,10 +95,8 @@ def get_user_from_token(authorization: str) -> dict:
 @auth_router.post("/auth/google")
 async def google_auth(req: GoogleAuthRequest):
     try:
-        if GOOGLE_CLIENT_ID:
-            idinfo = id_token.verify_oauth2_token(
-                req.token, google_requests.Request(), GOOGLE_CLIENT_ID
-            )
+        if ACCEPTED_CLIENT_IDS:
+            idinfo = verify_google_id_token(req.token)
         else:
             # Development mode: decode without verification
             import base64
@@ -89,7 +105,7 @@ async def google_auth(req: GoogleAuthRequest):
             if padding != 4:
                 payload_b64 += '=' * padding
             idinfo = json.loads(base64.urlsafe_b64decode(payload_b64))
-            logger.warning("GOOGLE_CLIENT_ID not set - using unverified token (dev mode)")
+            logger.warning("No Google client IDs configured - using unverified token (dev mode)")
 
         google_id = idinfo.get("sub", "")
         email = idinfo.get("email", "")
