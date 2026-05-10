@@ -43,7 +43,9 @@ export default function HistoricoScreen() {
             const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
             const response = await fetch(`${apiURL}/api/reports`, {
               headers: {
-                'Authorization': `Bearer ${user.token}`
+                'Authorization': `Bearer ${user.token}`,
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+                'Accept': 'application/json',
               }
             });
             if (response.ok) {
@@ -102,7 +104,9 @@ export default function HistoricoScreen() {
           await fetch(`${apiURL}/api/reports/${reportToDelete}`, {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${user.token}`
+              'Authorization': `Bearer ${user.token}`,
+              'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+              'Accept': 'application/json',
             }
           });
         } catch (err) {

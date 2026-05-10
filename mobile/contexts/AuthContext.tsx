@@ -50,7 +50,11 @@ const AuthContext = createContext<AuthContextType>({
 async function exchangeGoogleToken(idToken: string): Promise<string> {
   const res = await fetch(`${API_URL}/api/auth/google`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
+      'Accept': 'application/json',
+    },
     body: JSON.stringify({ token: idToken }),
   });
   if (!res.ok) {

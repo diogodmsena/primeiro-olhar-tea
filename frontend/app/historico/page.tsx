@@ -53,7 +53,7 @@ interface ReportEntry {
 
 export default function HistoricoPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const { t, locale } = useI18n();
   const [reports, setReports] = useState<ReportEntry[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -104,6 +104,9 @@ export default function HistoricoPage() {
             }
           } catch (err) {
             console.error("Erro ao carregar relatórios da nuvem:", err);
+            if (axios.isAxiosError(err) && err.response?.status === 401) {
+              signOut();
+            }
             // Mark all local as unsynced when cloud fails
             combinedReports = combinedReports.map((r) => ({ ...r, isSynced: false }));
           }
