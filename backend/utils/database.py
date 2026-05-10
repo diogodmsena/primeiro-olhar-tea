@@ -105,8 +105,20 @@ def save_report(user_id: int, job_id: str, report_data: dict, risk_score: float,
     )
     existing = cursor.fetchone()
     if existing:
+        # Update with new data (handles cases where a retried job replaces an error payload)
+        report_id = existing["id"]
+        cursor.execute(
+            """
+            UPDATE reports 
+            SET report_data = ?, risk_score = ?, risk_level = ?, child_name = ?
+            WHERE id = ?
+            """,
+            (json.dumps(report_data), risk_score, risk_level, child_name, report_id)
+        )
+        conn.commit()
         conn.close()
-        return existing["id"]
+        logger.info(f"Report updated: user_id={user_id}, job_id={job_id}")
+        return report_id
     
     cursor.execute(
         "INSERT INTO reports (user_id, job_id, report_data, risk_score, risk_level, child_name) VALUES (?, ?, ?, ?, ?, ?)",

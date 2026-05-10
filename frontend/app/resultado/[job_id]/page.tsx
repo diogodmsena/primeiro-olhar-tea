@@ -169,7 +169,7 @@ export default function ResultadoPage() {
   // Separate effect: auto-save to cloud when data is ready AND user is (or becomes) authenticated.
   // Handles the race condition where auth was still loading when fetchStatus ran.
   useEffect(() => {
-    if (data && isAuthenticated && user?.token && !autoSavedRef.current) {
+    if (data && data.status === "done" && isAuthenticated && user?.token && !autoSavedRef.current) {
       autoSaveToBackend(data);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
