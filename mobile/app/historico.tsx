@@ -41,7 +41,7 @@ export default function HistoricoScreen() {
         if (isAuthenticated && user?.token) {
           try {
             const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-            const response = await fetch(`${apiURL}/api/reports`, {
+            const response = await fetch(`${apiURL}/auth/reports`, {
               headers: {
                 'Authorization': `Bearer ${user.token}`,
                 'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
@@ -101,7 +101,7 @@ export default function HistoricoScreen() {
       if (isAuthenticated && user?.token) {
         const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
         try {
-          await fetch(`${apiURL}/api/reports/${reportToDelete}`, {
+          await fetch(`${apiURL}/auth/reports/${reportToDelete}`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${user.token}`,

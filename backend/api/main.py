@@ -16,15 +16,15 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled Exception: {exc}\n{traceback.format_exc()}")
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal Server Error", "error": str(exc)},
-        headers={"Access-Control-Allow-Origin": "*"}
+        content={"detail": "Internal Server Error", "error": str(exc)}
     )
 
 
 origins = [
     "http://localhost:3000",
     "https://primeiroolhar.app.br",
-    "https://api.primeiroolhar.app.br"
+    "https://api.primeiroolhar.app.br",
+    "https://app.primeiroolhar.app.br"
 ]
 
 app.add_middleware(
@@ -38,12 +38,12 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     return response
 
 
 app.include_router(api_router, prefix="/api")
-app.include_router(auth_router, prefix="/api")
+app.include_router(auth_router, prefix="/auth")
 
 @app.on_event("startup")
 def startup():

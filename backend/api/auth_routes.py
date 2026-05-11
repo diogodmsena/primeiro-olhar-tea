@@ -105,7 +105,7 @@ def get_user_from_token(authorization: str) -> dict:
     logger.error("Token exhausted strategies and failed validation.")
     raise HTTPException(status_code=401, detail="Token inválido ou expirado")
 
-@auth_router.post("/auth/google")
+@auth_router.post("/google")
 async def google_auth(req: GoogleAuthRequest):
     try:
         web_client_id = os.getenv("GOOGLE_CLIENT_ID", "")

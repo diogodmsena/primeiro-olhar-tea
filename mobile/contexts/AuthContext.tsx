@@ -48,7 +48,7 @@ const AuthContext = createContext<AuthContextType>({
 
 /** Exchange a Google ID token for a backend session token */
 async function exchangeGoogleToken(idToken: string): Promise<string> {
-  const res = await fetch(`${API_URL}/api/auth/google`, {
+  const res = await fetch(`${API_URL}/auth/google`, {
     method: 'POST',
     headers: { 
       'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (userInfo?.data?.user) {
         const u = userInfo.data.user;
         const idToken = userInfo.data.idToken || '';
-        // Exchange for backend session token so our /api/reports calls work
+        // Exchange for backend session token so our /auth/reports calls work
         const sessionToken = await exchangeGoogleToken(idToken);
         const googleUser: GoogleUser = {
           email: u.email,

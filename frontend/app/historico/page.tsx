@@ -75,7 +75,7 @@ export default function HistoricoPage() {
         if (isAuthenticated && user?.token) {
           try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-            const res = await axios.get(`${apiUrl}/api/reports`, {
+            const res = await axios.get(`${apiUrl}/auth/reports`, {
               headers: { Authorization: `Bearer ${user.token}` },
             });
             const cloudReports: ReportEntry[] = res.data.reports || [];
@@ -144,7 +144,7 @@ export default function HistoricoPage() {
         const res = await axios.get(`${apiUrl}/api/triagem/${report.job_id}`);
         if (res.data.status === "done") {
           await axios.post(
-            `${apiUrl}/api/reports`,
+            `${apiUrl}/auth/reports`,
             { job_id: report.job_id, report_data: res.data },
             { headers: { Authorization: `Bearer ${user.token}` } }
           );
@@ -159,7 +159,7 @@ export default function HistoricoPage() {
       const localHistory = localStorage.getItem("primeiro_olhar_historico");
       const combinedReports: ReportEntry[] = localHistory ? JSON.parse(localHistory) : [];
 
-      const res = await axios.get(`${apiUrl}/api/reports`, {
+      const res = await axios.get(`${apiUrl}/auth/reports`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       const cloudReports: ReportEntry[] = res.data.reports || [];
@@ -200,7 +200,7 @@ export default function HistoricoPage() {
 
       if (isAuthenticated && user?.token) {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        await axios.delete(`${apiUrl}/api/reports/${reportToDelete}`, {
+        await axios.delete(`${apiUrl}/auth/reports/${reportToDelete}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
       }

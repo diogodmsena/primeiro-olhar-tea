@@ -108,7 +108,7 @@ export default function ResultadoPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       await axios.post(
-        `${apiUrl}/api/reports`,
+        `${apiUrl}/auth/reports`,
         { job_id: params.job_id, report_data: reportData },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
@@ -273,7 +273,7 @@ export default function ResultadoPage() {
       // 2. Salvar na nuvem se autenticado
       if (isAuthenticated && user?.token) {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        await axios.post(`${apiUrl}/api/reports`, {
+        await axios.post(`${apiUrl}/auth/reports`, {
           job_id: params.job_id,
           report_data: data
         }, {

@@ -76,7 +76,7 @@ export default function ResultadoScreen() {
       if (!isAuthenticated || !user?.token) return;
       try {
         const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-        await fetch(`${apiURL}/api/reports`, {
+        await fetch(`${apiURL}/auth/reports`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ export default function ResultadoScreen() {
         if (isAuthenticated && user?.token) {
           try {
             const apiURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-            const response = await fetch(`${apiURL}/api/reports`, {
+            const response = await fetch(`${apiURL}/auth/reports`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

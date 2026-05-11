@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const res = await fetch(`${apiUrl}/api/auth/google`, {
+      const res = await fetch(`${apiUrl}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: idToken }),
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const pendingData = localStorage.getItem("pendingReportData");
       if (pendingJobId && pendingData) {
         try {
-          await fetch(`${apiUrl}/api/reports`, {
+          await fetch(`${apiUrl}/auth/reports`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
