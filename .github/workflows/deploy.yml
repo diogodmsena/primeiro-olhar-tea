@@ -43,6 +43,10 @@ jobs:
             # (conforme seu docker-compose.prod.yml que busca em ./backend/.env)
             cp .env ./backend/.env
             
+            # Tenta baixar as imagens base antes para evitar timeout no build
+            docker pull python:3.11-slim || true
+            docker pull jc21/nginx-proxy-manager:latest || true
+
             # Reconstrói os containers
             # O Docker Compose usará o .env local para preencher os 'args' do frontend
             docker-compose -f docker-compose.prod.yml up -d --build
