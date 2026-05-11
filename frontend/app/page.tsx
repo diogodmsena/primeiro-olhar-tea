@@ -98,7 +98,7 @@ export default function Home() {
       
       formData.append("parent_answers", JSON.stringify(parentAnswers));
       formData.append("lang", locale); // Fallback como campo direto
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       
       const response = await axios.post(`${apiUrl}/api/triagem`, formData, {
         headers: { "Content-Type": "multipart/form-data" }

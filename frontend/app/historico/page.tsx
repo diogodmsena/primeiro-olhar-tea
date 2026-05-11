@@ -74,7 +74,7 @@ export default function HistoricoPage() {
 
         if (isAuthenticated && user?.token) {
           try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
             const res = await axios.get(`${apiUrl}/auth/reports`, {
               headers: { Authorization: `Bearer ${user.token}` },
             });
@@ -136,7 +136,7 @@ export default function HistoricoPage() {
     setSyncing(true);
 
     const unsynced = reports.filter((r) => !r.isSynced);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
     let successCount = 0;
     for (const report of unsynced) {
@@ -199,7 +199,7 @@ export default function HistoricoPage() {
       }
 
       if (isAuthenticated && user?.token) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
         await axios.delete(`${apiUrl}/auth/reports/${reportToDelete}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });

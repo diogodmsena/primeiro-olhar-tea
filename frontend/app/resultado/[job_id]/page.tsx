@@ -106,7 +106,7 @@ export default function ResultadoPage() {
     if (!isAuthenticated || !user?.token || autoSavedRef.current) return;
     autoSavedRef.current = true;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       await axios.post(
         `${apiUrl}/auth/reports`,
         { job_id: params.job_id, report_data: reportData },
@@ -121,7 +121,7 @@ export default function ResultadoPage() {
   const fetchStatus = async () => {
     if (!params.job_id) return;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       const res = await axios.get(`${apiUrl}/api/triagem/${params.job_id}?lang=${t('common.locale_code') || 'pt'}`);
       
       if (res.data.status === "done") {
@@ -180,7 +180,7 @@ export default function ResultadoPage() {
       setLoading(true);
       setError(false);
       setData(null);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       await axios.post(`${apiUrl}/api/triagem/${params.job_id}/retry`);
       fetchStatus();
     } catch {
@@ -272,7 +272,7 @@ export default function ResultadoPage() {
 
       // 2. Salvar na nuvem se autenticado
       if (isAuthenticated && user?.token) {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
         await axios.post(`${apiUrl}/auth/reports`, {
           job_id: params.job_id,
           report_data: data

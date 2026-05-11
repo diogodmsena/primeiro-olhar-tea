@@ -6,22 +6,14 @@ const nextConfig = {
         source: '/api/:path*',
         // Proxy para o container do backend rodando no docker-compose
         destination: 'http://backend:8000/api/:path*' 
+      },
+      {
+        source: '/auth/:path*',
+        destination: 'http://backend:8000/auth/:path*'
       }
     ]
   },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups',
-          },
-        ],
-      },
-    ];
-  },
+  // Headers removidos para evitar bloqueio de postMessage do Google Sign-In
   images: {
     remotePatterns: [
       {
