@@ -9,9 +9,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
+    # Vincula o job ao ambiente criado no GitHub
+    environment: production 
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -22,12 +22,25 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Passamos os segredos para o contexto do script SSH
+          envs: GOOGLE_CLIENT_ID,JWT_SECRET,NEXT_PUBLIC_API_URL
           script: |
             # Entra na pasta do projeto
             cd /root/projects/primeiro-olhar/
             
-            # Puxa o código mais recente usando o token do GitHub Actions
+            # Puxa o código mais recente
             git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
             
-            # Reconstrói os containers em background
+            # CRIA O .ENV DIRETAMENTE NO SERVIDOR
+            # Isso garante que o docker-compose leia as variáveis durante o build
+            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
+            
+            # Também criamos o .env específico do backend se necessário
+            # (conforme seu docker-compose.prod.yml que busca em ./backend/.env)
+            cp .env ./backend/.env
+            
+            # Reconstrói os containers
+            # O Docker Compose usará o .env local para preencher os 'args' do frontend
             docker-compose -f docker-compose.prod.yml up -d --build
