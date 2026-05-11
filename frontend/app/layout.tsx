@@ -27,11 +27,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <head>
-      <meta name="google-client-id" content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID} />
+      <meta name="google-client-id" content={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "59789656454-lpr0b9vr7o1j8bteicvdlaohpblbf0ks.apps.googleusercontent.com"} />
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="afterInteractive"
-          data-client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+          data-client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "59789656454-lpr0b9vr7o1j8bteicvdlaohpblbf0ks.apps.googleusercontent.com"}
         />
       </head>
       <body className={`${nunito.variable} font-sans antialiased bg-soft-bg text-slate-800`}>

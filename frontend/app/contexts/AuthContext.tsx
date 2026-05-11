@@ -37,9 +37,10 @@ const getGoogleClientId = (): string => {
   if (fromEnv) return fromEnv;
   if (typeof document !== "undefined") {
     const meta = document.querySelector('meta[name="google-client-id"]');
-    return (meta?.getAttribute("content") || "").trim();
+    const fromMeta = (meta?.getAttribute("content") || "").trim();
+    if (fromMeta) return fromMeta;
   }
-  return "";
+  return "59789656454-lpr0b9vr7o1j8bteicvdlaohpblbf0ks.apps.googleusercontent.com";
 };
 
 function decodeJwtPayload(token: string) {
