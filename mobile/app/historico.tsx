@@ -153,6 +153,10 @@ export default function HistoricoScreen() {
                    onPress={() => router.push(`/resultado?job_id=${report.job_id}&history=true`)}
                    className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm shadow-slate-100 flex-row justify-between items-center"
                 >
+                  <View className="flex-row items-center flex-1">
+                    <View className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mr-4">
+                       <FileText color="#3b82f6" size={20} />
+                    </View>
                     <View className="flex-1">
                       <Text className="font-bold text-slate-800 text-base">
                         {t('history.triagemPrefix')}{report.child_name || `#${report.job_id.slice(0, 8)}...`}
