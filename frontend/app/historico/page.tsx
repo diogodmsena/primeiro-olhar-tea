@@ -362,7 +362,7 @@ export default function HistoricoPage() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-800 text-sm">
-                            {report.child_name || `#${report.job_id.slice(0, 8)}...`}
+                            {t('history.triagemPrefix')}{report.child_name || `#${report.job_id.slice(0, 8)}...`}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="flex items-center gap-1 text-xs text-slate-500">
@@ -388,14 +388,8 @@ export default function HistoricoPage() {
 
                       <div className="flex items-center gap-4">
                         <div className="text-right mr-2">
-                          <div className="flex items-center gap-2 justify-end">
-                            <TrendingUp className="w-4 h-4 text-slate-400" />
-                            <span className="font-bold text-slate-700">
-                              {(report.risk_score * 100).toFixed(0)}%
-                            </span>
-                          </div>
                           <span
-                            className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${risk.classes}`}
+                            className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider border ${risk.classes}`}
                           >
                             {risk.label}
                           </span>

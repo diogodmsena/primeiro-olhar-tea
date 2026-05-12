@@ -340,14 +340,14 @@ export default function ResultadoScreen() {
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;" />
             
             <h2 style="margin-top: 0;">${t('report.childName') || 'Criança'}: ${data.child_name || t('auth.unnamed')}</h2>
-            <h3>${t('report.riskScore')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')} (${Math.round((data.risk_score?.score || 0) * 100)}%)</span></h3>
+            <h3>${t('report.riskScore')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')}</span></h3>
             
             <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
               <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensions')}</h4>
               <ul style="margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong> ${Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</li>
-                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong> ${data.video_features?.facial_expressivity === 'low' ? '30' : data.video_features?.facial_expressivity === 'high' ? '90' : '70'}%</li>
-                <li><strong>${t('report.auditory')}:</strong> ${Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</li>
+                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong></li>
+                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong></li>
+                <li><strong>${t('report.auditory')}:</strong></li>
               </ul>
               <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
                 <p style="margin: 0 0 5px 0;">${t('report.dimHelpEye')}</p>
@@ -541,8 +541,7 @@ export default function ResultadoScreen() {
         <View className="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-6 shadow-sm shadow-slate-200">
            <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.riskScore')}</Text>
            <View className="flex-row items-end mb-4">
-              <Text className={`text-5xl font-black ${displayScore.color}`}>{scoreValue}%</Text>
-              <Text className="text-slate-400 font-bold mb-2 ml-2 tracking-wide">{displayScore.label}</Text>
+              <Text className={`text-3xl font-black ${displayScore.color}`}>{displayScore.label}</Text>
            </View>
            
            <View className="h-4 bg-slate-100 rounded-full w-full overflow-hidden flex-row">
@@ -555,20 +554,19 @@ export default function ResultadoScreen() {
            <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.dimensions')}</Text>
 
            <View className="mb-4">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text><Text className="text-blue-500 font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} /></View>
            </View>
            <View className="mb-4">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.facialExp')}</Text>
-               <Text className="text-emerald-500 font-bold">{data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%'}</Text>
              </View>
              <View className="h-3 bg-slate-100 rounded-full w-full">
                <View className="h-full bg-emerald-500 rounded-full" style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
              </View>
            </View>
            <View className="mb-2">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text><Text className="text-amber-500 font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</Text></View>
+             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text></View>
              <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} /></View>
            </View>
 

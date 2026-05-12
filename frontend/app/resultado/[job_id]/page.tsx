@@ -221,7 +221,6 @@ export default function ResultadoPage() {
         data.risk_score.level;
 
     const text = t('results.shareWhatsAppTemplate')
-      .replace('{score}', `${Math.round(data.risk_score.score * 100)}%`)
       .replace('{level}', localizedLevel)
       .replace('{jobId}', params.job_id as string)
       .replace('{url}', window.location.href);
@@ -242,7 +241,6 @@ export default function ResultadoPage() {
 
     const subject = t('results.shareEmailSubject').replace('{level}', localizedLevel);
     const body = t('results.shareEmailBody')
-      .replace('{score}', `${Math.round(data.risk_score.score * 100)}%`)
       .replace('{level}', localizedLevel)
       .replace('{jobId}', params.job_id as string)
       .replace('{url}', window.location.href);
@@ -475,7 +473,6 @@ export default function ResultadoPage() {
                 <div className="text-right border-l border-slate-200 pl-6 md:pl-8">
                    <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-1">{t('results.indicatorsLevel')}</p>
                    <div className="flex items-center justify-end">
-                       <span className="text-3xl font-light text-slate-700 mr-3">{Math.round(risk_score.score * 100)}%</span>
                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                            isHighRisk ? "bg-red-100 text-red-700" : "bg-sky-100 text-sky-700"
                        }`}>
