@@ -153,11 +153,7 @@ export default function HistoricoScreen() {
                    onPress={() => router.push(`/resultado?job_id=${report.job_id}&history=true`)}
                    className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm shadow-slate-100 flex-row justify-between items-center"
                 >
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mr-4">
-                       <FileText color="#3b82f6" size={20} />
-                    </View>
-                    <View>
+                    <View className="flex-1">
                       <Text className="font-bold text-slate-800 text-base">
                         {t('history.triagemPrefix')}{report.child_name || `#${report.job_id.slice(0, 8)}...`}
                       </Text>
@@ -167,16 +163,26 @@ export default function HistoricoScreen() {
                           {new Date((report.created_at || '').replace(' ', 'T')).toLocaleDateString()}
                         </Text>
                       </View>
+                      
+                      {/* Badge abaixo da data */}
+                      <View className="flex-row mt-2">
+                        {(() => {
+                          const level = report.risk_level === 'MÉDIO' ? 'MODERADO' : report.risk_level;
+                          const isHigh = level === 'ALTO';
+                          const isMod = level === 'MODERADO';
+                          return (
+                            <View className={`px-3 py-0.5 rounded-full ${isHigh ? 'bg-rose-100' : isMod ? 'bg-amber-100' : 'bg-emerald-100'}`}>
+                              <Text className={`text-[10px] font-bold ${isHigh ? 'text-rose-700' : isMod ? 'text-amber-700' : 'text-emerald-700'}`}>
+                                {isHigh ? t('report.riskHigh') : isMod ? t('report.riskModerate') : t('report.riskLow')}
+                              </Text>
+                            </View>
+                          );
+                        })()}
+                      </View>
                     </View>
                   </View>
                   
-                  <View className="flex-row items-center gap-3">
-                    <View className={`px-3 py-1 rounded-full ${report.risk_level === 'ALTO' ? 'bg-rose-100' : report.risk_level === 'MODERADO' ? 'bg-amber-100' : 'bg-emerald-100'}`}>
-                      <Text className={`text-xs font-bold ${report.risk_level === 'ALTO' ? 'text-rose-700' : report.risk_level === 'MODERADO' ? 'text-amber-700' : 'text-emerald-700'}`}>
-                        {report.risk_level === 'ALTO' ? t('report.riskHigh') : report.risk_level === 'MODERADO' ? t('report.riskModerate') : t('report.riskLow')}
-                      </Text>
-                    </View>
-                    
+                  <View className="flex-row items-center">
                     <TouchableOpacity 
                       onPress={(e) => {
                         e.stopPropagation();

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { UploadCloud, Activity, Heart, PlusCircle, CheckCircle2, Puzzle, ArrowRight } from "lucide-react";
+import { UploadCloud, Activity, Heart, PlusCircle, CheckCircle2, Puzzle, ArrowRight, ShieldCheck } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -267,6 +267,19 @@ export default function Home() {
                     <p className="font-medium text-slate-400 text-sm">{t('form.dropzoneDefaultSubtitle')}</p>
                   </div>
                 )}
+              </div>
+              
+              {/* NOTA DE PRIVACIDADE WEB */}
+              <div className="bg-orange-50 border-2 border-orange-100 rounded-2xl p-4 mt-4 flex items-start gap-4 shadow-sm shadow-orange-100/50 animate-fade-in">
+                <div className="bg-orange-500/10 p-2 rounded-full">
+                  <ShieldCheck className="w-6 h-6 text-orange-600" />
+                </div>
+                <div className="space-y-1">
+                   <p className="font-extrabold text-orange-900 text-sm">Privacidade e Segurança Garantida</p>
+                   <p className="text-orange-800/80 text-sm font-medium leading-relaxed">
+                      {t('form.privacyNote')}
+                   </p>
+                </div>
               </div>
             </div>
 

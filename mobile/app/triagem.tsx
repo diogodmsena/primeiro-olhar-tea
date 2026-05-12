@@ -278,27 +278,27 @@ export default function TriagemScreen() {
 
               {/* ORIENTAÇÃO DE GRAVAÇÃO - IGUAL AO FRONTEND */}
               <View className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5 mb-4">
-                <Text className="font-bold text-blue-700 text-sm mb-2">💡 Dicas para um vídeo eficaz:</Text>
+                <Text className="font-bold text-blue-700 text-base mb-2">💡 Dicas para um vídeo eficaz:</Text>
                 <View className="gap-y-1.5">
                   <View className="flex-row items-start">
-                    <Text className="text-sm text-slate-600 mr-2">•</Text>
-                    <Text className="text-sm text-slate-600 flex-1">Grave a criança em um ambiente tranquilo e bem iluminado</Text>
+                    <Text className="text-base text-slate-600 mr-2">•</Text>
+                    <Text className="text-base text-slate-600 flex-1">Grave a criança em um ambiente tranquilo e bem iluminado</Text>
                   </View>
                   <View className="flex-row items-start">
-                    <Text className="text-sm text-slate-600 mr-2">•</Text>
-                    <Text className="text-sm text-slate-600 flex-1">Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</Text>
+                    <Text className="text-base text-slate-600 mr-2">•</Text>
+                    <Text className="text-base text-slate-600 flex-1">Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</Text>
                   </View>
                   <View className="flex-row items-start">
-                    <Text className="text-sm text-slate-600 mr-2">•</Text>
-                    <Text className="text-sm text-slate-600 flex-1">Chame a criança pelo nome durante a gravação e observe a reação</Text>
+                    <Text className="text-base text-slate-600 mr-2">•</Text>
+                    <Text className="text-base text-slate-600 flex-1">Chame a criança pelo nome durante a gravação e observe a reação</Text>
                   </View>
                   <View className="flex-row items-start">
-                    <Text className="text-sm text-slate-600 mr-2">•</Text>
-                    <Text className="text-sm text-slate-600 flex-1">Ideal: até 30 segundos em uma interação natural (brincar, conversar)</Text>
+                    <Text className="text-base text-slate-600 mr-2">•</Text>
+                    <Text className="text-base text-slate-600 flex-1">Ideal: até 30 segundos em uma interação natural (brincar, conversar)</Text>
                   </View>
                   <View className="flex-row items-start">
-                    <Text className="text-sm text-slate-600 mr-2">•</Text>
-                    <Text className="text-sm text-slate-600 flex-1">Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</Text>
+                    <Text className="text-base text-slate-600 mr-2">•</Text>
+                    <Text className="text-base text-slate-600 flex-1">Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</Text>
                   </View>
                 </View>
               </View>
@@ -333,9 +333,9 @@ export default function TriagemScreen() {
                 </View>
               )}
 
-              <View className="bg-slate-100 p-4 rounded-xl mt-4 flex-row items-start gap-3 border border-slate-200">
-                <AlertCircle color="#64748b" size={22} />
-                <Text className="text-slate-600 text-sm flex-1 leading-5 font-medium">
+              <View className="bg-orange-50 p-4 rounded-xl mt-4 flex-row items-start gap-3 border border-orange-100 shadow-sm shadow-orange-100/50">
+                <AlertTriangle color="#f97316" size={22} />
+                <Text className="text-orange-800 text-sm flex-1 leading-5 font-bold">
                   {t('form.privacyNote')}
                 </Text>
               </View>
