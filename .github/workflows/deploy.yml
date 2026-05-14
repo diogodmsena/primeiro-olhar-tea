@@ -33,11 +33,13 @@ jobs:
             
             # CRIA O .ENV DIRETAMENTE NO SERVIDOR
             # Isso garante que o docker-compose leia as variáveis durante o build
-            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" > .env
+            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
             echo "GEMMA_API_KEY=${{ secrets.GEMMA_API_KEY }}" >> .env
             echo "GEMMA_MODEL=${{ secrets.GEMMA_MODEL }}" >> .env
+            echo "ANDROID_CLIENT_ID=${{ secrets.ANDROID_CLIENT_ID }}" >> .env
             
             # Também criamos o .env específico do backend se necessário
             # (conforme seu docker-compose.prod.yml que busca em ./backend/.env)
