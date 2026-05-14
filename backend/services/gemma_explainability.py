@@ -38,6 +38,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from google import genai
 from google.genai import types
+import google.generativeai as legacy_genai
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
 
@@ -129,13 +130,6 @@ def _run_cv_analysis(video_path: str) -> dict:
         )
         return metrics
     except Exception as exc:
-        # Debugging: try to find out why mediapipe is failing
-        try:
-            import mediapipe as mp
-            has_solutions = hasattr(mp, 'solutions')
-            logger.warning("Mediapipe debug: version=%s, has_solutions=%s", getattr(mp, '__version__', 'unknown'), has_solutions)
-        except Exception:
-            pass
         logger.warning("CV analysis failed (%s) — using safe defaults.", exc)
         return {
             "avg_gaze_score": 0.0,
@@ -356,15 +350,21 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     logger.info("Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
     stripped_video_path = _strip_audio_from_video(video_path)
     
-    logger.info("Upload do vídeo mudo para a Files API do Google (isso pode demorar)...")
+    logger.info("Upload do vídeo mudo para a Files API do Google (estratégia estável)...")
     try:
         file_size = os.path.getsize(stripped_video_path)
-        logger.info("Tamanho do arquivo para upload: %d bytes", file_size)
-        if file_size == 0:
-            raise ValueError("O arquivo de vídeo mudo está vazio (erro no FFmpeg?).")
-            
-        video_ref = client.files.upload(file=stripped_video_path)
-        logger.info("Upload concluído com sucesso. Ref: %s", video_ref.name)
+        logger.info("Tamanho do arquivo: %d bytes", file_size)
+        
+        # Using legacy SDK for upload due to timeout bug in the new google-genai SDK
+        api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
+        legacy_genai.configure(api_key=api_key)
+        
+        video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
+        logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
+        
+        # Convert legacy reference to a format the new SDK understands
+        video_ref = types.File(name=video_ref_legacy.name)
+        
     except Exception as e:
         logger.error("Falha no upload para Google Files API: %s", str(e))
         raise
