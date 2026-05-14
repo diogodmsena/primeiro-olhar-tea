@@ -126,9 +126,9 @@ export default function Home() {
       <header className="relative z-20 w-full px-6 py-6 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
         <CSSLogo />
         <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
-          <Link href="/" className="hover:text-blue-500 transition-colors">{t('nav.home')}</Link>
-          <Link href="/historico" className="hover:text-blue-500 transition-colors">{t('nav.myHistory')}</Link>
-          <Link href="/como-funciona" className="hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</Link>
+          <Link href="/" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.home')}</Link>
+          <Link href="/historico" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.myHistory')}</Link>
+          <Link href="/como-funciona" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</Link>
         </nav>
         <div className="flex items-center gap-4">
           <LanguageSelector />
@@ -148,7 +148,7 @@ export default function Home() {
               {t('hero.titleStart')}<br />
               <span className="text-blue-500">{t('hero.titleHighlight')}</span>
             </h1>
-            <p className="text-xl text-slate-600 max-w-lg leading-relaxed font-medium">
+            <p className="text-xl text-slate-600 max-w-prose leading-relaxed font-medium">
               {t('hero.subtitle')}
             </p>
             {/* CTA VISÍVEL NO HERO SECTION */}

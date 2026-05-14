@@ -436,7 +436,7 @@ export default function ResultadoPage() {
 
       <div className="max-w-5xl mx-auto space-y-6 print:space-y-4">
         
-        <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors print:hidden">
+        <button onClick={() => router.push('/')} className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-8 transition-colors print:hidden px-4 py-3">
           <ArrowLeft className="w-4 h-4 mr-1" /> {t('common.newScreening')}
         </button>
 
@@ -508,6 +508,48 @@ export default function ResultadoPage() {
                       </ResponsiveContainer>
                    </div>
                </div>
+
+               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col print:shadow-none print:border-none print:p-0">
+                   <h3 className="text-sm font-bold text-slate-500 uppercase mb-6 border-b pb-2">{t('results.dimensionsTitle') || 'Detalhamento Técnico'}</h3>
+                   
+                   <div className="space-y-6">
+                       <div>
+                           <div className="flex justify-between mb-2">
+                               <span className="text-sm font-bold text-slate-700">{t('results.eyeContact') || 'Contato Visual'}</span>
+                               <span className="text-sm font-bold text-blue-600">{Math.round((video_features?.eye_contact_ratio || 0) * 100)}%</span>
+                           </div>
+                           <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+                               <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${(video_features?.eye_contact_ratio || 0) * 100}%` }} />
+                           </div>
+                       </div>
+
+                       <div>
+                           <div className="flex justify-between mb-2">
+                               <span className="text-sm font-bold text-slate-700">{t('results.facialExp') || 'Expressividade Facial'}</span>
+                               <span className="text-sm font-bold text-emerald-600">{video_features?.facial_expressivity === 'low' ? '30%' : '90%'}</span>
+                           </div>
+                           <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+                               <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: video_features?.facial_expressivity === 'low' ? '30%' : video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
+                           </div>
+                       </div>
+
+                       <div>
+                           <div className="flex justify-between mb-2">
+                               <span className="text-sm font-bold text-slate-700">{t('results.prosody') || 'Variação de Prosódia'}</span>
+                               <span className="text-sm font-bold text-amber-600">{Math.round((audio_features?.prosody_variation || 0) * 100)}%</span>
+                           </div>
+                           <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+                               <div className="h-full bg-amber-500 rounded-full transition-all duration-1000" style={{ width: `${(audio_features?.prosody_variation || 0) * 100}%` }} />
+                           </div>
+                       </div>
+                   </div>
+
+                   <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 leading-relaxed">
+                       <p className="mb-2 italic">• {t('results.dimHelpEye')}</p>
+                       <p className="mb-2 italic">• {t('results.dimHelpExp')}</p>
+                       <p className="italic">• {t('results.dimHelpAud')}</p>
+                   </div>
+               </div>
            </div>
 
            {/* Explainability Engine (Gemma) */}
@@ -531,25 +573,25 @@ export default function ResultadoPage() {
                   <div className="flex flex-wrap gap-3">
                     <button 
                       onClick={() => generateAndDownloadPDF(data, params.job_id as string, t)} 
-                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-2.5 px-5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm"
+                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-3.5 px-6 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm"
                     >
                       <Printer className="w-4 h-4" /> {t('results.downloadPDF')}
                     </button>
                     <button 
                       onClick={handleShareEmail} 
-                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-2.5 px-5 rounded-xl hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all text-sm"
+                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-3.5 px-6 rounded-xl hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-all text-sm"
                     >
                       <Mail className="w-4 h-4" /> {t('results.shareEmail')}
                     </button>
                     <button 
                       onClick={handleShareWhatsApp} 
-                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-2.5 px-5 rounded-xl hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 transition-all text-sm"
+                      className="flex items-center gap-2 bg-white border-2 border-slate-200 text-slate-600 font-semibold py-3.5 px-6 rounded-xl hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 transition-all text-sm"
                     >
                       <MessageCircle className="w-4 h-4" /> {t('results.shareWhatsApp')}
                     </button>
                     <button 
                       onClick={handleCopyLink} 
-                      className={`flex items-center gap-2 border-2 font-semibold py-2.5 px-5 rounded-xl transition-all text-sm ${
+                      className={`flex items-center gap-2 border-2 font-semibold py-3.5 px-6 rounded-xl transition-all text-sm ${
                         copied 
                           ? 'bg-emerald-50 border-emerald-300 text-emerald-600' 
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
@@ -584,7 +626,7 @@ export default function ResultadoPage() {
                 <button
                   onClick={handleSaveReport}
                   disabled={saving}
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all text-sm disabled:opacity-50"
+                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3.5 px-8 rounded-xl transition-all text-sm disabled:opacity-50"
                 >
                   {saving ? (
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

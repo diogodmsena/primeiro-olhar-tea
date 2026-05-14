@@ -10,7 +10,6 @@ import {
   History,
   AlertCircle,
   FileText,
-  TrendingUp,
   Calendar,
   ExternalLink,
   Trash2,
@@ -256,7 +255,7 @@ export default function HistoricoPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
-              className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors"
+              className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors px-4 py-3"
             >
               <ArrowLeft className="w-4 h-4 mr-1" /> {t('history.backHome')}
             </button>
@@ -269,7 +268,7 @@ export default function HistoricoPage() {
           {/* Mobile back button */}
           <button
             onClick={() => router.push('/')}
-            className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-6 transition-colors md:hidden"
+            className="text-sky-600 hover:text-sky-800 flex items-center text-sm font-medium mb-6 transition-colors md:hidden px-4 py-3"
           >
             <ArrowLeft className="w-4 h-4 mr-1" /> {t('history.backHome')}
           </button>
@@ -286,7 +285,7 @@ export default function HistoricoPage() {
               <button
                 onClick={handleSyncReports}
                 disabled={syncing}
-                className="ml-auto flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                className="ml-auto flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
               >
                 {syncing ? (
                   <Settings className="w-4 h-4 animate-spin" />
@@ -397,7 +396,7 @@ export default function HistoricoPage() {
 
                         <button
                           onClick={(e) => promptDeleteReport(e, report.job_id)}
-                          className="p-2 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          className="p-3 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                           title={t("common.delete")}
                         >
                           <Trash2 className="w-4 h-4" />

@@ -32,7 +32,7 @@ export function LanguageSelector() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-full transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+        className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-4 py-3 rounded-full transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

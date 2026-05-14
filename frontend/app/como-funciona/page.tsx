@@ -96,7 +96,7 @@ export default function ComoFuncionaPage() {
         <div className="flex items-center gap-6">
           <button 
             onClick={() => router.push('/')} 
-            className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors"
+            className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors px-4 py-3"
           >
             <ArrowLeft className="w-4 h-4 mr-1" /> {t('how.back')}
           </button>
@@ -111,7 +111,7 @@ export default function ComoFuncionaPage() {
         <div className="md:hidden flex justify-start mb-6">
           <button 
             onClick={() => router.push('/')} 
-            className="text-slate-500 hover:text-blue-500 flex items-center text-sm font-semibold transition-colors"
+            className="text-slate-500 hover:text-blue-500 flex items-center text-sm font-semibold transition-colors px-4 py-3"
           >
             <ArrowLeft className="w-4 h-4 mr-1" /> {t('how.back')}
           </button>
@@ -119,13 +119,13 @@ export default function ComoFuncionaPage() {
 
         {/* Hero */}
         <section className="text-center py-12">
-          <div className="inline-block bg-blue-100 text-blue-600 font-bold text-sm px-5 py-2 rounded-full mb-6">
+          <div className="inline-block bg-blue-100 text-blue-600 font-bold text-sm px-6 py-3 rounded-full mb-6">
             {t('how.badge')}
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-800 mb-5 leading-tight">
             {t('how.titleStart')}<span className="text-blue-500">{t('how.titleHighlight')}</span>{t('how.titleEnd')}
           </h1>
-          <p className="text-lg text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-slate-500 font-medium max-w-prose mx-auto leading-relaxed">
             {t('how.subtitle')}
           </p>
         </section>

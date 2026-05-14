@@ -27,21 +27,31 @@ except:
 
 
 def find_schema_files(project_path: Path) -> list:
-    """Find database schema files."""
+    """Find database schema files while efficiently skipping excluded directories."""
     schemas = []
+    skip_dirs = {'node_modules', 'dist', 'build', '.git', '.next', 'venv', '.venv'}
     
-    # Prisma schema
-    prisma_files = list(project_path.glob('**/prisma/schema.prisma'))
-    schemas.extend([('prisma', f) for f in prisma_files])
-    
-    # Drizzle schema files
-    drizzle_files = list(project_path.glob('**/drizzle/*.ts'))
-    drizzle_files.extend(project_path.glob('**/schema/*.ts'))
-    for f in drizzle_files:
-        if 'schema' in f.name.lower() or 'table' in f.name.lower():
-            schemas.append(('drizzle', f))
-    
-    return schemas[:10]  # Limit
+    def walk_safe(current_path: Path):
+        try:
+            for item in current_path.iterdir():
+                if item.is_dir():
+                    if item.name in skip_dirs:
+                        continue
+                    walk_safe(item)
+                elif item.is_file():
+                    if item.name == 'schema.prisma':
+                        schemas.append(('prisma', item))
+                    elif item.suffix == '.ts' and ('drizzle' in item.parts or 'schema' in item.parts):
+                        if 'schema' in item.name.lower() or 'table' in item.name.lower():
+                            schemas.append(('drizzle', item))
+                
+                if len(schemas) >= 10:
+                    return
+        except (PermissionError, FileNotFoundError):
+            pass
+
+    walk_safe(project_path)
+    return schemas
 
 
 def validate_prisma_schema(file_path: Path) -> list:

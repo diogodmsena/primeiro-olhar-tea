@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Keyboard
+  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Keyboard, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,7 +9,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { useRouter } from 'expo-router';
-import { Camera, Image as ImageIcon, Video, UploadCloud, AlertCircle, XCircle, CheckCircle, AlertTriangle } from '../components/LucideIcons';
+import { Camera, Image as ImageIcon, Video, UploadCloud, AlertCircle, XCircle, CheckCircle, AlertTriangle, Info, Smile, Ear, Eye } from '../components/LucideIcons';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useToast } from '../contexts/ToastContext';
 
@@ -37,6 +37,7 @@ export default function TriagemScreen() {
   const [pretendPlay, setPretendPlay] = useState('');
   const [repetitiveBehaviors, setRepetitiveBehaviors] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Navegação entre passos
   const goToStep = (next: Step) => {
@@ -274,7 +275,82 @@ export default function TriagemScreen() {
           {/* ── STEP 2 ── */}
           {step === 2 && (
             <View className="gap-4">
-              <Text className="text-xl font-bold text-slate-800 mb-2">{t('form.step2Title')}</Text>
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className="text-xl font-bold text-slate-800">{t('form.step2Title')}</Text>
+                <TouchableOpacity 
+                  onPress={() => setShowGuide(true)}
+                  className="bg-blue-50 px-3 py-1.5 rounded-full flex-row items-center border border-blue-100"
+                >
+                  <Info color="#3b82f6" size={16} />
+                  <Text className="text-blue-600 font-bold ml-2 text-xs">Ver Guia</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* MODAL DE GUIA */}
+              <Modal
+                visible={showGuide}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowGuide(false)}
+              >
+                <View className="flex-1 bg-black/50 justify-center p-6">
+                  <Animated.View entering={FadeInDown} className="bg-white rounded-3xl overflow-hidden">
+                    <View className="bg-blue-500 p-6 flex-row justify-between items-center">
+                      <Text className="text-white font-black text-xl">Guia de Gravação</Text>
+                      <TouchableOpacity onPress={() => setShowGuide(false)}>
+                        <XCircle color="#fff" size={24} />
+                      </TouchableOpacity>
+                    </View>
+                    
+                    <ScrollView className="p-6 max-h-[500px]">
+                      <View className="gap-6">
+                        <View className="flex-row items-start gap-4">
+                          <View className="w-10 h-10 rounded-full bg-blue-50 items-center justify-center">
+                            <Eye color="#3b82f6" size={20} />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="font-bold text-slate-800 text-lg">Enquadramento</Text>
+                            <Text className="text-slate-500">Mantenha a câmera na altura dos olhos da criança, a cerca de 1 metro.</Text>
+                          </View>
+                        </View>
+
+                        <View className="flex-row items-start gap-4">
+                          <View className="w-10 h-10 rounded-full bg-emerald-50 items-center justify-center">
+                            <Smile color="#10b981" size={20} />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="font-bold text-slate-800 text-lg">Interação</Text>
+                            <Text className="text-slate-500">Chame pelo nome e observe se ela olha para você ou para a câmera.</Text>
+                          </View>
+                        </View>
+
+                        <View className="flex-row items-start gap-4">
+                          <View className="w-10 h-10 rounded-full bg-amber-50 items-center justify-center">
+                            <Ear color="#f59e0b" size={20} />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="font-bold text-slate-800 text-lg">Ambiente</Text>
+                            <Text className="text-slate-500">Evite barulhos externos, TV ou muitas pessoas falando ao mesmo tempo.</Text>
+                          </View>
+                        </View>
+
+                        <View className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                           <Text className="text-slate-600 font-medium leading-relaxed">
+                             O sistema analisa o contato visual e a melodia da voz da criança para fornecer os indicadores.
+                           </Text>
+                        </View>
+                      </View>
+                    </ScrollView>
+
+                    <TouchableOpacity 
+                      onPress={() => setShowGuide(false)}
+                      className="m-6 bg-blue-500 p-4 rounded-2xl items-center"
+                    >
+                      <Text className="text-white font-bold text-lg">Entendi</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                </View>
+              </Modal>
 
               {/* ORIENTAÇÃO DE GRAVAÇÃO - IGUAL AO FRONTEND */}
               <View className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5 mb-4">

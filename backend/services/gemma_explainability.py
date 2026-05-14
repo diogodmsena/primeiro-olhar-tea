@@ -37,8 +37,11 @@ import tempfile
 
 from google import genai
 from google.genai import types
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
 
 from utils.logger import get_logger
+from services.audio_extractor import AudioFeatureExtractor
 
 logger = get_logger(__name__)
 
@@ -67,6 +70,38 @@ def _get_client() -> genai.Client:
             "Adicione sua chave do Google AI Studio no arquivo .env."
         )
     return genai.Client(api_key=api_key)
+
+
+# ---------------------------------------------------------------------------
+# Pydantic Schemas for Structured Output
+# ---------------------------------------------------------------------------
+
+class VideoFeatures(BaseModel):
+    avg_gaze_score: float
+    eye_contact_ratio: float
+    head_movement_pattern: str
+    facial_expressivity: str
+
+class AudioFeatures(BaseModel):
+    prosody_variation: float
+    speech_presence: bool
+    audio_reactivity: str
+
+class TextFeatures(BaseModel):
+    parent_concerns: List[str]
+    contextual_flags: List[str]
+
+class RiskScore(BaseModel):
+    score: float
+    level: str
+
+class ScreeningReport(BaseModel):
+    video_features: VideoFeatures
+    audio_features: AudioFeatures
+    text_features: TextFeatures
+    risk_score: RiskScore
+    clinical_reasoning: str = Field(description="Cadeia de raciocínio clínico fundamentada.")
+    gemma_report: str = Field(description="Relatório empático formatado em Markdown.")
 
 
 # ---------------------------------------------------------------------------
@@ -115,13 +150,13 @@ _SYSTEM_INSTRUCTION = (
 )
 
 
-def _build_prompt(cv_metrics: dict, parent_answers: dict) -> str:
+def _build_prompt(cv_metrics: dict, audio_metrics: dict, parent_answers: dict) -> str:
     """
     Construct the full Chain-of-Thought prompt that:
-    1. Describes CV metrics in natural language.
+    1. Describes CV and Audio metrics in natural language.
     2. Provides the full anamnesis.
     3. Instructs Gemma 4 to reason step-by-step (Thinking Mode).
-    4. Mandates a single JSON output matching the pipeline schema.
+    4. Mandates a structured output matching the Pydantic schema.
     """
     child_name = parent_answers.get("child_name", "Criança")
     
@@ -151,6 +186,15 @@ def _build_prompt(cv_metrics: dict, parent_answers: dict) -> str:
 
 Estes valores são objetivos e devem ancorar sua análise clínica.
 Interprete-os clinicamente — NÃO os copie literalmente no relatório."""
+
+    prosody = audio_metrics.get("prosody_variation", 0.5)
+    speech  = "detectada" if audio_metrics.get("speech_presence", False) else "não detectada ou mínima"
+    react   = audio_metrics.get("audio_reactivity", "normal")
+
+    audio_section = f"""═══ DADOS TÉCNICOS DE ÁUDIO (fonte: análise local, CPU) ═══
+• Presença de fala/vocalização: {speech}
+• Índice de variação de prosódia (melodia da voz): {prosody:.2f} (0.0 = monótona, 1.0 = variada)
+• Reatividade sonora detectada: {react}"""
 
     anamnesis_section = f"""═══ ANAMNESE (Relato dos Pais) ═══
 • Nome da criança: {parent_answers.get('child_name', 'Não informado')}
@@ -199,35 +243,7 @@ PASSO 4 — Redação do Relatório Empático:
 
 Realize esses passos internamente. Coloque APENAS o JSON no output final."""
 
-    schema_comment = f"""═══ SCHEMA DE SAÍDA OBRIGATÓRIO ═══
-Retorne EXATAMENTE este JSON, substituindo todos os valores placeholder por dados reais.
-NÃO envolva o JSON em blocos de código markdown. NÃO adicione texto antes ou depois.
-
-{{
-    "video_features": {{
-        "avg_gaze_score": {avg_gaze:.4f},
-        "eye_contact_ratio": {eye_ratio:.4f},
-        "head_movement_pattern": "{head_pat}",
-        "facial_expressivity": "{express}"
-    }},
-    "audio_features": {{
-        "prosody_variation": 0.5,
-        "speech_presence": true,
-        "audio_reactivity": "normal"
-    }},
-    "text_features": {{
-        "parent_concerns": ["liste aqui as preocupações reais dos pais"],
-        "contextual_flags": ["liste aqui os marcadores clínicos identificados"]
-    }},
-    "risk_score": {{
-        "score": 0.5,
-        "level": "MÉDIO"
-    }},
-    "clinical_reasoning": "Texto em PT-BR com a cadeia de raciocínio clínico: por que este score foi atribuído, correlacionando dados visuais e anamnese.",
-    "gemma_report": "**Análise do Comportamento Observado:**\\n(descreva empaticamente o que o sistema identificou)\\n\\n**Correlação com as Preocupações Familiares:**\\n(conecte os achados com o relato dos pais)\\n\\n**Nível de Atenção Recomendado e Próximos Passos:**\\n(oriente a família com clareza e acolhimento)"
-}}"""
-
-    return "\n\n".join([cv_section, anamnesis_section, chain_of_thought_instruction, schema_comment])
+    return "\n\n".join([cv_section, audio_section, anamnesis_section, chain_of_thought_instruction])
 
 
 # ---------------------------------------------------------------------------
@@ -256,6 +272,7 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
     config = types.GenerateContentConfig(
         system_instruction=_SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
+        response_schema=ScreeningReport,
         temperature=0.2,   # deterministic for clinical output
         max_output_tokens=4096,
     )
@@ -300,12 +317,16 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     logger.info("Fase 1: Visão computacional em '%s'...", video_path)
     cv_metrics = _run_cv_analysis(video_path)
 
-    # ─ Phase 2: Strip Audio and Upload video to Files API ────────────────
+    # ─ Phase 2: Audio Extraction and Strip Audio ────────────────────────
+    logger.info("Fase 2: Extração de áudio local e preparação para upload...")
+    audio_extractor = AudioFeatureExtractor()
+    audio_metrics = audio_extractor.extract_features(video_path)
+    
     client = _get_client()
     
     # Gemma 4 models on Google SDK currently do not support audio modality.
     # We strip the audio track locally via ffmpeg before uploading.
-    logger.info("Fase 2: Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
+    logger.info("Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
     stripped_video_path = _strip_audio_from_video(video_path)
     
     logger.info("Upload do vídeo mudo para a Files API do Google...")
@@ -316,7 +337,7 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
 
     # ─ Phase 3: Build prompt and call Gemma 4 ─────────────────────────────
     logger.info("Fase 3: Construindo prompt CoT e invocando Gemma 4...")
-    prompt = _build_prompt(cv_metrics, parent_answers)
+    prompt = _build_prompt(cv_metrics, audio_metrics, parent_answers)
     raw_text = _infer_with_gemma4(client, prompt, video_ref)
 
     # Clean up the uploaded files (best-effort)
@@ -347,6 +368,14 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         "eye_contact_ratio":     round(cv_metrics["eye_contact_ratio"], 4),
         "head_movement_pattern": cv_metrics["head_movement_pattern"],
         "facial_expressivity":   cv_metrics["facial_expressivity"],
+    })
+
+    # Enforce Audio ground truth
+    parsed.setdefault("audio_features", {})
+    parsed["audio_features"].update({
+        "prosody_variation": round(audio_metrics["prosody_variation"], 2),
+        "speech_presence":   audio_metrics["speech_presence"],
+        "audio_reactivity":  audio_metrics["audio_reactivity"],
     })
 
     logger.info("Gemma 4 — inferência concluída com sucesso.")

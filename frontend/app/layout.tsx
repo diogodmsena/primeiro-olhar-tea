@@ -17,6 +17,30 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "Primeiro Olhar | Triagem Precoce do Autismo",
   description: "Plataforma amigável e acessível para triagem precoce de sinais de autismo utilizando Inteligência Artificial.",
+  keywords: ["autismo", "triagem precoce", "IA", "saúde infantil", "desenvolvimento"],
+  authors: [{ name: "Primeiro Olhar Team" }],
+  openGraph: {
+    title: "Primeiro Olhar | Triagem Precoce do Autismo",
+    description: "Plataforma amigável e acessível para triagem precoce de sinais de autismo utilizando Inteligência Artificial.",
+    url: "https://primeiroolhar.com.br",
+    siteName: "Primeiro Olhar",
+    images: [
+      {
+        url: "/logo_v4.png",
+        width: 800,
+        height: 600,
+        alt: "Logo Primeiro Olhar",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Primeiro Olhar | Triagem Precoce do Autismo",
+    description: "Plataforma amigável e acessível para triagem precoce de sinais de autismo utilizando Inteligência Artificial.",
+    images: ["/logo_v4.png"],
+  },
 };
 
 export default function RootLayout({

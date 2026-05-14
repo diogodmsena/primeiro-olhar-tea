@@ -1,11 +1,12 @@
-from fastapi import APIRouter, File, UploadFile, Form, BackgroundTasks, HTTPException
+from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 import uuid
 import json
 import tempfile
-from api.models import ProcessJobResponse, ProcessJobResponse, FinalReportResponse, ParentQuestions
+from api.models import ProcessJobResponse, FinalReportResponse, ParentQuestions
 from utils.storage import start_job, get_job, update_job_success, update_job_error, reset_job_to_processing
 from utils.logger import get_logger
-from services.gemma_explainability import analyze_multimodal_case, translate_report
+from services.worker import process_video_task
+from services.gemma_explainability import translate_report
 import os
 import shutil
 from pydantic import BaseModel
@@ -13,40 +14,17 @@ from pydantic import BaseModel
 router = APIRouter()
 logger = get_logger(__name__)
 
-def orchestration_pipeline(job_id: str, parent_json: str, video_path: str):
-    try:
-        logger.info(f"Starting Gemma 4 pipeline for job {job_id}")
-        parent_answers = json.loads(parent_json)
-        
-        # Hybrid pipeline: local CV analysis → Gemma 4 multimodal inference
-        report_data = analyze_multimodal_case(video_path, parent_answers)
-        
-        update_job_success(job_id, {
-            "child_name": parent_answers.get("child_name", ""),
-            "video_features": report_data.get("video_features", {"avg_gaze_score": 1.0, "eye_contact_ratio": 1.0, "head_movement_pattern": "normal", "facial_expressivity": "normal"}),
-            "audio_features": report_data.get("audio_features", {"prosody_variation": 1.0, "speech_presence": True, "audio_reactivity": "normal"}),
-            "text_features": report_data.get("text_features", {"parent_concerns": [], "contextual_flags": []}),
-            "risk_score": report_data.get("risk_score", {"score": 0.0, "level": "Indefinido"}),
-            "gemma_report": report_data.get("gemma_report", "Relatório Indisponível."),
-            "clinical_reasoning": report_data.get("clinical_reasoning", ""),
-        })
-        logger.info(f"Job {job_id} completed successfully")
-    except Exception as e:
-        logger.error(f"Error processing job {job_id}: {str(e)}")
-        update_job_error(job_id, str(e))
-
 @router.post("/triagem", response_model=ProcessJobResponse)
 async def create_triagem(
-    background_tasks: BackgroundTasks,
     video: UploadFile = File(...),
     parent_answers: str = Form(...) 
 ):
     """
-    Receives video and parent questionnaire, starts background processing.
+    Receives video and parent questionnaire, enqueues Celery task.
     """
     job_id = str(uuid.uuid4())
     
-    # Save the physical payload to temp space for file-uploading
+    # Save the physical payload to temp space for worker access
     video_dir = os.path.join(tempfile.gettempdir(), "triagem_videos")
     os.makedirs(video_dir, exist_ok=True)
     video_path = os.path.join(video_dir, f"{job_id}_{video.filename}")
@@ -56,19 +34,18 @@ async def create_triagem(
         
     start_job(job_id, metadata={"parent_answers": parent_answers, "video_path": video_path})
     
-    # Enqueue background task
-    background_tasks.add_task(orchestration_pipeline, job_id, parent_answers, video_path)
+    # Enqueue Celery task
+    process_video_task.delay(job_id, parent_answers, video_path)
     
     return ProcessJobResponse(job_id=job_id, status="processing", message="Triagem iniciada.")
 
 
 @router.post("/triagem/{job_id}/retry", response_model=ProcessJobResponse)
 async def retry_triagem(
-    job_id: str,
-    background_tasks: BackgroundTasks
+    job_id: str
 ):
     """
-    Retries an existing job that failed, using the same stored video and answers.
+    Retries an existing job that failed, using the same stored video and answers via Celery.
     """
     job_data = get_job(job_id)
     if not job_data:
@@ -82,7 +59,7 @@ async def retry_triagem(
         raise HTTPException(status_code=400, detail="Cannot retry: Original files or payload missing from memory")
         
     reset_job_to_processing(job_id)
-    background_tasks.add_task(orchestration_pipeline, job_id, parent_answers, video_path)
+    process_video_task.delay(job_id, parent_answers, video_path)
     
     return ProcessJobResponse(job_id=job_id, status="processing", message="Triagem reiniciada.")
 

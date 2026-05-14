@@ -19,7 +19,26 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    @apply transition-colors duration-300;
+    line-height: 1.6; /* Improved readability */
+    @apply transition-colors duration-300 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    @apply tracking-tight font-bold;
+  }
+}
+
+/* Fluid Typography Utility */
+@layer utilities {
+  .text-fluid-base {
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  }
+  .text-fluid-lg {
+    font-size: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
+  }
+  .text-fluid-xl {
+    font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
   }
 }
 
@@ -58,5 +77,18 @@
 
 .large-font {
   font-size: 115% !important;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+    transition-delay: -1ms !important;
+  }
 }
 

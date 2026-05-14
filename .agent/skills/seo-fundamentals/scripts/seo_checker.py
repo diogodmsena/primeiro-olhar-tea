@@ -34,7 +34,8 @@ except:
 SKIP_DIRS = {
     'node_modules', '.next', 'dist', 'build', '.git', '.github',
     '__pycache__', '.vscode', '.idea', 'coverage', 'test', 'tests',
-    '__tests__', 'spec', 'docs', 'documentation', 'examples'
+    '__tests__', 'spec', 'docs', 'documentation', 'examples',
+    'venv', '.venv'
 }
 
 # Files to skip (not pages)
@@ -76,21 +77,29 @@ def is_page_file(file_path: Path) -> bool:
 
 
 def find_pages(project_path: Path) -> list:
-    """Find page files to check."""
-    patterns = ['**/*.html', '**/*.htm', '**/*.jsx', '**/*.tsx']
+    """Find page files to check while efficiently skipping excluded directories."""
+    pages = []
     
-    files = []
-    for pattern in patterns:
-        for f in project_path.glob(pattern):
-            # Skip excluded directories
-            if any(skip in f.parts for skip in SKIP_DIRS):
-                continue
-            
-            # Check if it's likely a page
-            if is_page_file(f):
-                files.append(f)
-    
-    return files[:50]  # Limit to 50 files
+    # We use a manual walk to avoid rglob entering node_modules which can cause WinError 3
+    def walk_safe(current_path: Path):
+        try:
+            for item in current_path.iterdir():
+                if item.is_dir():
+                    if item.name in SKIP_DIRS:
+                        continue
+                    walk_safe(item)
+                elif item.is_file():
+                    if item.suffix.lower() in {'.html', '.htm', '.jsx', '.tsx'}:
+                        if is_page_file(item):
+                            pages.append(item)
+                
+                if len(pages) >= 50:
+                    return
+        except (PermissionError, FileNotFoundError):
+            pass
+
+    walk_safe(project_path)
+    return pages
 
 
 def check_page(file_path: Path) -> dict:

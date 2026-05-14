@@ -7,6 +7,7 @@ import { Header } from '../components/Header';
 import { useI18n } from '../contexts/I18nContext';
 import { BrainCircuit, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
 import { LOGO_BASE64 } from '../components/LogoBase64';
+import { RadarChart } from '../components/RadarChart';
 // axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
@@ -329,7 +330,7 @@ export default function ResultadoScreen() {
           <body>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
               <div style="display: flex; align-items: center;">
-                ${logoBase64 ? `<img src="${logoBase64}" style="width: 32px; height: 32px; margin-right: 8px;" />` : ''}
+                ${logoBase64 ? `<img src="${logoBase64}" alt="Logo" style="width: 32px; height: 32px; margin-right: 8px;" />` : ''}
                 <span style="font-size: 24px; font-weight: 900; color: #1e293b; margin-right: 4px;">Primeiro</span>
                 <span style="font-size: 24px; font-weight: 900; color: #3b82f6;">Olhar</span>
               </div>
@@ -549,31 +550,72 @@ export default function ResultadoScreen() {
            </View>
         </View>
 
-        {/* Avaliação em Barras */}
+        {/* Visualização de Gráfico Radial (Radar) */}
+        <View className="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-6 shadow-sm shadow-slate-200 items-center">
+           <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider self-start">{t('report.radarChartTitle') || 'Perfil Multimodal'}</Text>
+           
+           <RadarChart 
+             size={width - 80}
+             data={[
+               { label: t('report.eyeContact') || 'Olhar', value: (data.video_features?.eye_contact_ratio || 0) * 100 },
+               { label: t('report.facialExp') || 'Expressão', value: data.video_features?.facial_expressivity === 'low' ? 30 : 90 },
+               { label: t('report.auditory') || 'Áudio', value: (data.audio_features?.prosody_variation || 0) * 100 },
+               { label: 'Risco', value: (data.risk_score?.score || 0) * 100 },
+               { label: 'Incidência', value: (data.risk_score?.score || 0) * 100 },
+             ]}
+           />
+
+           <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100 w-full">
+             <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpEye')}</Text>
+             <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpExp')}</Text>
+             <Text className="text-sm text-slate-500 leading-tight">• {t('report.dimHelpAud')}</Text>
+           </View>
+        </View>
+
+        {/* Avaliação em Barras (Detalhada) */}
         <View className="bg-white border-2 border-slate-100 p-6 rounded-3xl mb-6 shadow-sm shadow-slate-200">
            <Text className="text-slate-500 font-bold mb-4 uppercase text-xs tracking-wider">{t('report.dimensions')}</Text>
 
            <View className="mb-4">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text></View>
-             <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} /></View>
+             <View className="flex-row justify-between mb-1">
+               <Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text>
+               <Text className="text-slate-400 text-xs font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</Text>
+             </View>
+             <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+               <Animated.View 
+                 entering={FadeInDown.delay(200).duration(1000)}
+                 className="h-full bg-blue-500 rounded-full" 
+                 style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} 
+               />
+             </View>
            </View>
+
            <View className="mb-4">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.facialExp')}</Text>
+               <Text className="text-slate-400 text-xs font-bold">{data.video_features?.facial_expressivity === 'low' ? '30%' : '90%'}</Text>
              </View>
-             <View className="h-3 bg-slate-100 rounded-full w-full">
-               <View className="h-full bg-emerald-500 rounded-full" style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
+             <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+               <Animated.View 
+                 entering={FadeInDown.delay(400).duration(1000)}
+                 className="h-full bg-emerald-500 rounded-full" 
+                 style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} 
+               />
              </View>
-           </View>
-           <View className="mb-2">
-             <View className="flex-row justify-between mb-1"><Text className="font-bold text-slate-700">{t('report.auditory')}</Text></View>
-             <View className="h-3 bg-slate-100 rounded-full w-full"><View className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} /></View>
            </View>
 
-           <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100">
-             <Text className="text-base text-slate-500 mb-2 leading-tight">{t('report.dimHelpEye')}</Text>
-             <Text className="text-base text-slate-500 mb-2 leading-tight">{t('report.dimHelpExp')}</Text>
-             <Text className="text-base text-slate-500 leading-tight">{t('report.dimHelpAud')}</Text>
+           <View className="mb-2">
+             <View className="flex-row justify-between mb-1">
+               <Text className="font-bold text-slate-700">{t('report.auditory')}</Text>
+               <Text className="text-slate-400 text-xs font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</Text>
+             </View>
+             <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
+               <Animated.View 
+                 entering={FadeInDown.delay(600).duration(1000)}
+                 className="h-full bg-amber-500 rounded-full" 
+                 style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} 
+               />
+             </View>
            </View>
         </View>
 

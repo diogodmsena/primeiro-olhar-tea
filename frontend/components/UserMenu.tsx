@@ -84,7 +84,7 @@ export function UserMenu() {
                 window.dispatchEvent(new Event("openGoogleLogin"));
               }
             }}
-            className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-3 pr-4 py-2 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-blue-300 transition-all shadow-sm text-slate-600"
+            className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-4 pr-5 py-3 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-blue-300 transition-all shadow-sm text-slate-600"
           >
             <LogIn className="w-4 h-4 text-blue-500" />
             {t("common.loginGoogle")}
@@ -98,7 +98,7 @@ export function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-1.5 pr-3 py-1.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+        className="flex items-center gap-2 bg-white border-2 border-slate-200 pl-2 pr-4 py-2.5 rounded-full font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
       >
         {user.picture ? (
           <Image
