@@ -34,6 +34,7 @@ import re
 import time
 import subprocess
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 from google import genai
 from google.genai import types
@@ -273,6 +274,7 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
         system_instruction=_SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=ScreeningReport,
+        thinking_config=types.ThinkingConfig(include_thoughts=False),
         temperature=0.2,   # deterministic for clinical output
         max_output_tokens=4096,
     )
@@ -313,14 +315,22 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     Raises:
         Exception on unrecoverable errors — caller transitions job to 'error'.
     """
-    # ─ Phase 1: Local Computer Vision ─────────────────────────────────────
-    logger.info("Fase 1: Visão computacional em '%s'...", video_path)
-    cv_metrics = _run_cv_analysis(video_path)
+    # ─ Phase 1 & 2: Local Computer Vision & Audio Analysis (Parallel) ─────
+    logger.info("Fase 1 & 2: Iniciando análise multimodal local em paralelo...")
+    
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_cv = executor.submit(_run_cv_analysis, video_path)
+        
+        def _run_audio():
+            audio_extractor = AudioFeatureExtractor()
+            return audio_extractor.extract_features(video_path)
+        
+        future_audio = executor.submit(_run_audio)
+        
+        cv_metrics = future_cv.result()
+        audio_metrics = future_audio.result()
 
-    # ─ Phase 2: Audio Extraction and Strip Audio ────────────────────────
-    logger.info("Fase 2: Extração de áudio local e preparação para upload...")
-    audio_extractor = AudioFeatureExtractor()
-    audio_metrics = audio_extractor.extract_features(video_path)
+    logger.info("Análise local concluída. Iniciando preparação para upload...")
     
     client = _get_client()
     
@@ -403,7 +413,7 @@ def _wait_for_file_active(client: genai.Client, video_file, max_retries: int = 3
 
     while state == "PROCESSING" and retries < max_retries:
         logger.info("Aguardando video processar na Files API... (tentativa %d)", retries + 1)
-        time.sleep(3)
+        time.sleep(1) # Optimized: 1s polling instead of 3s
         video_file = client.files.get(name=video_file.name)
         state = _state(video_file)
         retries += 1

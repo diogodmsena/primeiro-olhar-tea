@@ -75,30 +75,44 @@ class BehavioralVideoAnalyzer:
     def _extract_frames(self, video_path: str, target_fps: float = 3.0) -> list[np.ndarray]:
         """
         Open *video_path* and return frames sampled at *target_fps* fps.
-        For a 30fps 15-second clip this yields ~45 frames instead of 450.
+        Optimized: uses cap.set to jump frames and resizes to 480p for faster MediaPipe.
         """
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
             raise ValueError(f"OpenCV could not open video: {video_path}")
 
         source_fps: float = cap.get(cv2.CAP_PROP_FPS) or 30.0
-        frame_interval: int = max(1, round(source_fps / target_fps))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        duration = total_frames / source_fps if source_fps > 0 else 0
+        
+        # Calculate exactly which frame indices we want
+        num_frames_to_extract = max(1, int(duration * target_fps))
+        frame_indices = [int(i * (source_fps / target_fps)) for i in range(num_frames_to_extract)]
+        # Ensure we don't go out of bounds
+        frame_indices = [idx for idx in frame_indices if idx < total_frames]
 
         frames: list[np.ndarray] = []
-        frame_index: int = 0
-
-        while True:
+        
+        for idx in frame_indices:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
             ret, frame = cap.read()
             if not ret:
                 break
-            if frame_index % frame_interval == 0:
-                frames.append(frame)
-            frame_index += 1
+            
+            # Optimization: Resize frame to 480p (height=480, maintain aspect ratio)
+            # MediaPipe Face Mesh works perfectly at this resolution and it's much faster.
+            h, w = frame.shape[:2]
+            if h > 480:
+                scale = 480 / h
+                new_w = int(w * scale)
+                frame = cv2.resize(frame, (new_w, 480), interpolation=cv2.INTER_AREA)
+            
+            frames.append(frame)
 
         cap.release()
         logger.info(
-            "Extracted %d frames from '%s' (source %.1f fps → sample %.1f fps, interval=%d)",
-            len(frames), video_path, source_fps, target_fps, frame_interval,
+            "Extracted %d frames from '%s' (duration %.1fs, jump-seeking enabled, resized to 480p)",
+            len(frames), video_path, duration
         )
         return frames
 
