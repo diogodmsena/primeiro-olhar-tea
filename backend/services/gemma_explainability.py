@@ -115,7 +115,7 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        from video_extractor import BehavioralVideoAnalyzer
+        from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
         logger.info(
@@ -274,7 +274,6 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
         system_instruction=_SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=ScreeningReport,
-        thinking_config=types.ThinkingConfig(include_thoughts=False),
         temperature=0.2,   # deterministic for clinical output
         max_output_tokens=4096,
     )
