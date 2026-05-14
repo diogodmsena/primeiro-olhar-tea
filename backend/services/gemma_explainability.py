@@ -63,14 +63,15 @@ def _get_model() -> str:
 
 
 def _get_client() -> genai.Client:
-    """Build an authenticated google-genai client."""
+    """Build an authenticated google-genai client with robust timeout."""
     api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not api_key or api_key.lower() == "mock":
         raise ValueError(
             "GEMMA_API_KEY não configurado. "
             "Adicione sua chave do Google AI Studio no arquivo .env."
         )
-    return genai.Client(api_key=api_key)
+    # Optimized: Adding 120s timeout to prevent worker hangs on slow network
+    return genai.Client(api_key=api_key, http_options={'timeout': 120})
 
 
 # ---------------------------------------------------------------------------
@@ -276,13 +277,21 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
         response_schema=ScreeningReport,
         temperature=0.2,   # deterministic for clinical output
         max_output_tokens=4096,
+        # Optimized: Explicitly disable AFC to avoid potential loops/delays
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
     )
 
+    logger.info("Aguardando resposta do Gemma 4 (timeout de 120s)...")
+    start_time = time.time()
+    
     response = client.models.generate_content(
         model=model,
         contents=[video_ref, prompt],
         config=config,
     )
+    
+    latency = time.time() - start_time
+    logger.info("Gemma 4 respondeu com sucesso em %.2fs", latency)
 
     raw = response.text
     logger.info("Gemma 4 respondeu (%d chars). Primeiros 500: %s", len(raw), raw[:500])
