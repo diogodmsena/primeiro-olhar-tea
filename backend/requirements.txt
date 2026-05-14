@@ -7,7 +7,7 @@ google-genai>=1.15.0
 google-auth>=2.29.0
 PyJWT>=2.8.0
 # Computer vision — local video analysis (CV phase of the hybrid pipeline)
-mediapipe>=0.10.14
+mediapipe==0.10.11
 opencv-python>=4.10.0.84
 requests>=2.31.0
 celery>=5.4.0

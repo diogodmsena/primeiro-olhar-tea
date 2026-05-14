@@ -70,8 +70,8 @@ def _get_client() -> genai.Client:
             "GEMMA_API_KEY não configurado. "
             "Adicione sua chave do Google AI Studio no arquivo .env."
         )
-    # Optimized: Increasing timeout to 300s for large video uploads
-    return genai.Client(api_key=api_key, http_options={'timeout': 300})
+    # Optimized: Using float for timeout and adding request_timeout just in case
+    return genai.Client(api_key=api_key, http_options={'timeout': 300.0})
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +116,8 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
+        # Direct import of solutions to bypass potential __init__ issues
+        import mediapipe.python.solutions.face_mesh
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -356,6 +358,11 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     
     logger.info("Upload do vídeo mudo para a Files API do Google (isso pode demorar)...")
     try:
+        file_size = os.path.getsize(stripped_video_path)
+        logger.info("Tamanho do arquivo para upload: %d bytes", file_size)
+        if file_size == 0:
+            raise ValueError("O arquivo de vídeo mudo está vazio (erro no FFmpeg?).")
+            
         video_ref = client.files.upload(file=stripped_video_path)
         logger.info("Upload concluído com sucesso. Ref: %s", video_ref.name)
     except Exception as e:
