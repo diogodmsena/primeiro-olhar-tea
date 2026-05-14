@@ -140,12 +140,12 @@ export default function ComoFuncionaPage() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xs font-black text-slate-300 tracking-widest">PASSO {step.number}</span>
+                    <span className="text-xs font-black text-slate-300 tracking-widest uppercase">{t('how.stepPrefix')} {step.number}</span>
                   </div>
                   <h3 className="text-xl font-bold text-slate-800 mb-3">{step.title}</h3>
                   <p className="text-slate-500 leading-relaxed font-medium">{step.description}</p>
                   <div className="mt-4 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
-                    <p className="text-sm text-slate-500"><span className="font-bold text-blue-500">💡 Dica:</span> {step.tip}</p>
+                    <p className="text-sm text-slate-500"><span className="font-bold text-blue-500">{t('how.tipPrefix')}</span> {step.tip}</p>
                   </div>
                 </div>
               </div>

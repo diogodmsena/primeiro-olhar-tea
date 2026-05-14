@@ -40,7 +40,14 @@ export const dictionaries = {
       optYes: "Sim",
       optNo: "Não",
       submitButton: "Iniciar Avaliação",
-      submitLoading: "Analisando com Carinho..."
+      submitLoading: "Analisando com Carinho...",
+      privacyNote: "Seu vídeo é processado de forma segura e descartado imediatamente após a análise. Não armazenamos gravações.",
+      videoTipsTitle: "💡 Dicas para um vídeo eficaz:",
+      videoTip1: "Grave a criança em um ambiente tranquilo e bem iluminado",
+      videoTip2: "Posicione a câmera na altura do rosto, a cerca de 1 metro de distância",
+      videoTip3: "Chame a criança pelo nome durante a gravação e observe a reação",
+      videoTip4: "Ideal: até 30 segundos em uma interação natural (brincar, conversar)",
+      videoTip5: "Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)"
     },
     how: {
       back: "Voltar ao Início",
@@ -82,7 +89,9 @@ export const dictionaries = {
       faq5A: "Sim! Recomendamos compartilhar o relatório com o pediatra ou neuropediatra da criança como material de apoio.",
       ctaTitle: "Pronto para começar?",
       ctaDesc: "A triagem leva apenas alguns minutos e pode fazer toda a diferença.",
-      ctaButton: "Iniciar Avaliação"
+      ctaButton: "Iniciar Avaliação",
+      stepPrefix: "PASSO",
+      tipPrefix: "💡 Dica:"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Criado para acolher e transformar."
@@ -120,6 +129,7 @@ export const dictionaries = {
       sync: "Sincronizar",
       loginBannerTitle: "Acesse seus relatórios de qualquer dispositivo",
       loginBannerSubtitle: "Faça login com Google para sincronizar seu histórico entre web e mobile.",
+      triagemPrefix: "Triagem de: ",
     },
     results: {
       processingTitle: "Processamento Multimodal em Andamento",
@@ -219,7 +229,14 @@ export const dictionaries = {
       optYes: "Yes",
       optNo: "No",
       submitButton: "Start Assessment",
-      submitLoading: "Analyzing with Care..."
+      submitLoading: "Analyzing with Care...",
+      privacyNote: "Your video is processed securely and discarded immediately after analysis. We do not store recordings.",
+      videoTipsTitle: "💡 Tips for an effective video:",
+      videoTip1: "Record the child in a calm and well-lit environment",
+      videoTip2: "Position the camera at face height, about 1 meter away",
+      videoTip3: "Call the child by name during the recording and observe the reaction",
+      videoTip4: "Ideal: up to 30 seconds in a natural interaction (playing, talking)",
+      videoTip5: "Avoid too many stimuli around (TV on, other people talking)"
     },
     how: {
       back: "Back to Home",
@@ -261,7 +278,9 @@ export const dictionaries = {
       faq5A: "Yes! We encourage you to share the report with the child's pediatrician or neuropediatrician as supporting material.",
       ctaTitle: "Ready to start?",
       ctaDesc: "The screening takes only a few minutes and can make all the difference.",
-      ctaButton: "Start Assessment"
+      ctaButton: "Start Assessment",
+      stepPrefix: "STEP",
+      tipPrefix: "💡 Tip:"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Created to welcome and transform."
@@ -299,6 +318,7 @@ export const dictionaries = {
       sync: "Sync",
       loginBannerTitle: "Access your reports from any device",
       loginBannerSubtitle: "Sign in with Google to sync your history between web and mobile.",
+      triagemPrefix: "Screening for: ",
     },
     results: {
       processingTitle: "Multimodal Processing in Progress",
@@ -398,7 +418,14 @@ export const dictionaries = {
       optYes: "Sí",
       optNo: "No",
       submitButton: "Iniciar Evaluación",
-      submitLoading: "Analizando con Cariño..."
+      submitLoading: "Analizando con Cariño...",
+      privacyNote: "Su video se procesa de forma segura y se descarta inmediatamente después del análisis. No almacenamos grabaciones.",
+      videoTipsTitle: "💡 Consejos para un video eficaz:",
+      videoTip1: "Grabe al niño/a en un ambiente tranquilo y bien iluminado",
+      videoTip2: "Coloque la cámara a la altura de la cara, a aproximadamente 1 metro de distancia",
+      videoTip3: "Llame al niño/a por su nombre durante la grabación e observe la reacción",
+      videoTip4: "Ideal: hasta 30 segundos en una interacción natural (jugar, hablar)",
+      videoTip5: "Evite muchos estímulos alrededor (TV encendida, otras personas hablando)"
     },
     how: {
       back: "Volver al Inicio",
@@ -440,7 +467,9 @@ export const dictionaries = {
       faq5A: "¡Claro! Fue diseñado precisamente para que se lo muestres al pediatra/neuropediatra y ayudarle a conocer mejor al niño/a.",
       ctaTitle: "¿Listo para comenzar?",
       ctaDesc: "Son solo unos minutos y puede marcar una gran diferencia.",
-      ctaButton: "Iniciar Evaluación"
+      ctaButton: "Iniciar Evaluación",
+      stepPrefix: "PASO",
+      tipPrefix: "💡 Consejo:"
     },
     footer: {
       text: "Primeiro Olhar © {year}. Creado para acoger y transformar."
@@ -478,6 +507,7 @@ export const dictionaries = {
       sync: "Sincronizar",
       loginBannerTitle: "Accede a tus informes desde cualquier dispositivo",
       loginBannerSubtitle: "Inicia sesión con Google para sincronizar tu historial entre la web y el móvil.",
+      triagemPrefix: "Evaluación de: ",
     },
     results: {
       processingTitle: "Procesamiento Multimodal en Curso",

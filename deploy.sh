@@ -37,6 +37,14 @@ sudo ufw --force enable
 mkdir -p ~/app
 cd ~/app
 
+# 7. Atualizar e Subir (Se já houver repositório)
+if [ -d ".git" ]; then
+    echo "🔄 Atualizando código do repositório..."
+    git pull origin main
+    echo "🐳 Reiniciando containers com as novas configurações..."
+    sudo docker-compose -f docker-compose.prod.yml up -d --build
+fi
+
 echo "✅ Ambiente preparado!"
-echo "⚠️  Agora você deve clonar seu repositório neste diretório e rodar:"
+echo "⚠️  Se for a primeira vez, clone seu repositório neste diretório e rode:"
 echo "   sudo docker-compose -f docker-compose.prod.yml up -d --build"

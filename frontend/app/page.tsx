@@ -237,13 +237,13 @@ export default function Home() {
 
               {/* ORIENTAÇÃO DE GRAVAÇÃO */}
               <div className="bg-blue-50/60 border border-blue-100 rounded-2xl p-5">
-                <p className="font-bold text-blue-700 text-sm mb-2">💡 Dicas para um vídeo eficaz:</p>
-                <ul className="text-sm text-slate-600 space-y-1.5 list-disc list-inside">
-                  <li>Grave a criança em um ambiente tranquilo e bem iluminado</li>
-                  <li>Posicione a câmera na altura do rosto, a cerca de 1 metro de distância</li>
-                  <li>Chame a criança pelo nome durante a gravação e observe a reação</li>
-                  <li>Ideal: até 30 segundos em uma interação natural (brincar, conversar)</li>
-                  <li>Evite muitos estímulos ao redor (TV ligada, outras pessoas falando)</li>
+                <p className="font-bold text-blue-700 text-sm mb-2">{t('form.videoTipsTitle')}</p>
+                <ul className="text-sm text-slate-600 space-y-1.5 list-disc list-inside font-medium">
+                  <li>{t('form.videoTip1')}</li>
+                  <li>{t('form.videoTip2')}</li>
+                  <li>{t('form.videoTip3')}</li>
+                  <li>{t('form.videoTip4')}</li>
+                  <li>{t('form.videoTip5')}</li>
                 </ul>
               </div>
 

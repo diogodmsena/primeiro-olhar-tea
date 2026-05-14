@@ -8,10 +8,38 @@ services:
       - "8000:8000" 
     volumes:
       - backend_data:/app/data
+      - triagem_videos:/tmp/triagem_videos
     env_file:
       - ./backend/.env
     environment:
       - DB_PATH=/app/data/triagem.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: celery -A services.worker.celery_app worker --loglevel=info
+    restart: always
+    volumes:
+      - backend_data:/app/data
+      - triagem_videos:/tmp/triagem_videos
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_PATH=/app/data/triagem.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - backend
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
 
   frontend:
     build:
@@ -45,5 +73,6 @@ services:
 
 volumes:
   backend_data:
+  triagem_videos:
   npm_data:
-  npm_letsencrypt: 
+  npm_letsencrypt:
