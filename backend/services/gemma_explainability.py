@@ -70,8 +70,8 @@ def _get_client() -> genai.Client:
             "GEMMA_API_KEY não configurado. "
             "Adicione sua chave do Google AI Studio no arquivo .env."
         )
-    # Optimized: Adding 120s timeout to prevent worker hangs on slow network
-    return genai.Client(api_key=api_key, http_options={'timeout': 120})
+    # Optimized: Increasing timeout to 300s for large video uploads
+    return genai.Client(api_key=api_key, http_options={'timeout': 300})
 
 
 # ---------------------------------------------------------------------------
@@ -127,6 +127,13 @@ def _run_cv_analysis(video_path: str) -> dict:
         )
         return metrics
     except Exception as exc:
+        # Debugging: try to find out why mediapipe is failing
+        try:
+            import mediapipe as mp
+            has_solutions = hasattr(mp, 'solutions')
+            logger.warning("Mediapipe debug: version=%s, has_solutions=%s", getattr(mp, '__version__', 'unknown'), has_solutions)
+        except Exception:
+            pass
         logger.warning("CV analysis failed (%s) — using safe defaults.", exc)
         return {
             "avg_gaze_score": 0.0,
@@ -347,8 +354,13 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     logger.info("Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
     stripped_video_path = _strip_audio_from_video(video_path)
     
-    logger.info("Upload do vídeo mudo para a Files API do Google...")
-    video_ref = client.files.upload(file=stripped_video_path)
+    logger.info("Upload do vídeo mudo para a Files API do Google (isso pode demorar)...")
+    try:
+        video_ref = client.files.upload(file=stripped_video_path)
+        logger.info("Upload concluído com sucesso. Ref: %s", video_ref.name)
+    except Exception as e:
+        logger.error("Falha no upload para Google Files API: %s", str(e))
+        raise
 
     # Poll until the file finishes server-side processing
     _wait_for_file_active(client, video_ref)

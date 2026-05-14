@@ -5,15 +5,13 @@ WORKDIR /app
 
 # System dependencies for audio/video processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common \
-    && add-apt-repository non-free \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
     ffmpeg \
+    libsndfile1 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
-    libgl1 \
+    libxrender1 \
+    libfontconfig1 \
+    libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 

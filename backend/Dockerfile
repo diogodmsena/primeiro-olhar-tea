@@ -3,10 +3,15 @@ FROM python:3.11-slim-bullseye
 WORKDIR /app
 
 # System dependencies for audio/video processing
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    libsndfile1 \
     libsm6 \
     libxext6 \
+    libxrender1 \
+    libfontconfig1 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
