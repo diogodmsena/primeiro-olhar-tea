@@ -114,7 +114,7 @@ export default function ResultadoScreen() {
           clearInterval(intervalId);
 
           // Auto-save to local AsyncStorage
-          const jobIdStr = typeof job_id === 'string' ? job_id : job_id[0];
+          const jobIdStr = typeof job_id === 'string' ? job_id : job_id?.[0];
           try {
             const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
             const historyArray = savedHistory ? JSON.parse(savedHistory) : [];
@@ -131,8 +131,6 @@ export default function ResultadoScreen() {
               await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
               // Auto-sync to cloud if logged in
               autoSyncToBackend(responseData, jobIdStr);
-            } else {
-              setIsSaved(true);
             }
           } catch (e) {
             console.warn('Failed to auto-save history', e);
@@ -160,10 +158,11 @@ export default function ResultadoScreen() {
     // Check if already saved
     const checkIsSaved = async () => {
       try {
+        const jobIdStr = typeof job_id === 'string' ? job_id : job_id?.[0];
         const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
         if (savedHistory) {
           const historyArray = JSON.parse(savedHistory);
-          const exists = historyArray.find((item: any) => item.job_id === job_id);
+          const exists = historyArray.find((item: any) => item.job_id === jobIdStr);
           if (exists) setIsSaved(true);
         }
       } catch (e) {
@@ -220,18 +219,22 @@ export default function ResultadoScreen() {
       const savedHistory = await AsyncStorage.getItem('@historico_relatorios');
       let historyArray = savedHistory ? JSON.parse(savedHistory) : [];
       
-      const exists = historyArray.find((item: any) => item.job_id === job_id);
-      if (!exists) {
-        historyArray.push({
-          id: Date.now(),
-          job_id: typeof job_id === 'string' ? job_id : job_id[0],
-          risk_score: data.risk_score?.score || 0,
-          risk_level: data.risk_score?.level?.toUpperCase() || 'BAIXO',
-          child_name: data.child_name || '',
-          created_at: new Date().toISOString(),
-          user_id: userId
-        });
-        await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
+      const exists = historyArray.find((item: any) => item.job_id === (typeof job_id === 'string' ? job_id : job_id?.[0]));
+      
+      // If it's not in storage yet OR if it is but the UI hasn't acknowledged it yet (auto-save case)
+      if (!exists || !isSaved) {
+        if (!exists) {
+          historyArray.push({
+            id: Date.now(),
+            job_id: typeof job_id === 'string' ? job_id : job_id?.[0],
+            risk_score: data.risk_score?.score || 0,
+            risk_level: data.risk_score?.level?.toUpperCase() || 'BAIXO',
+            child_name: data.child_name || '',
+            created_at: new Date().toISOString(),
+            user_id: userId
+          });
+          await AsyncStorage.setItem('@historico_relatorios', JSON.stringify(historyArray));
+        }
 
         // Sync with backend if logged in
         if (isAuthenticated && user?.token) {
@@ -244,7 +247,7 @@ export default function ResultadoScreen() {
                 'Authorization': `Bearer ${user.token}`
               },
               body: JSON.stringify({
-                job_id: typeof job_id === 'string' ? job_id : job_id[0],
+                job_id: typeof job_id === 'string' ? job_id : job_id?.[0],
                 report_data: data
               })
             });
