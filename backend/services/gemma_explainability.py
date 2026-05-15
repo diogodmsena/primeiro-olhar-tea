@@ -117,16 +117,12 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        # Nuclear import strategy for mediapipe in restricted environments
+        import importlib
         try:
-            import mediapipe.solutions.face_mesh as fm
+            mp_solutions = importlib.import_module('mediapipe.solutions')
         except ImportError:
-            try:
-                from mediapipe.python.solutions import face_mesh as fm
-            except ImportError:
-                import mediapipe as mp
-                fm = mp.solutions.face_mesh
-                
+            mp_solutions = importlib.import_module('mediapipe.python.solutions')
+            
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -306,10 +302,23 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
         )
     ]
     
-    response = client.models.generate_content(
-        model=model,
-        contents=contents,
-        config=config,
+    # Using the stable SDK for the entire inference process
+    model_instance = legacy_genai.GenerativeModel(
+        model_name=model,
+        generation_config={
+            "temperature": config.temperature,
+            "top_p": config.top_p,
+            "top_k": config.top_k,
+            "max_output_tokens": config.max_output_tokens,
+            "response_mime_type": "application/json",
+        },
+        system_instruction=config.system_instruction
+    )
+    
+    # The stable SDK accepts the file object directly in a list
+    response = model_instance.generate_content(
+        [video_ref, prompt],
+        stream=False
     )
     
     latency = time.time() - start_time
@@ -381,14 +390,12 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
         logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
         
-        # Using direct dictionary structure to avoid SDK attribute validation bugs
-        video_ref = types.Part(
-            file_data=types.FileData(
-                file_uri=video_ref_legacy.uri,
-                mime_type=video_ref_legacy.mime_type
-            )
-        )
-        logger.info("Conteúdo preparado via FileData. URI: %s", video_ref_legacy.uri)
+        video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
+        logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
+        
+        # In the stable SDK, we use the file object returned by upload_file directly
+        video_ref = video_ref_legacy
+        logger.info("Conteúdo preparado para o SDK Estável.")
         
     except Exception as e:
         logger.error("Falha no upload para Google Files API: %s", str(e))
