@@ -11,8 +11,8 @@ google-generativeai==0.8.3
 google-api-core==2.27.0
 googleapis-common-protos==1.63.0
 google-auth==2.29.0
-# Use protobuf 3.19.6 - compatible with all dependencies
-protobuf==3.19.6
+# Use protobuf 3.20.3 - compatible with both mediapipe and google-generativeai
+protobuf==3.20.3
 
 PyJWT==2.8.0
 
