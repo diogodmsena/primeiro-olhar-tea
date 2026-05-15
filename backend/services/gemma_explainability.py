@@ -118,12 +118,6 @@ def _run_cv_analysis(video_path: str) -> dict:
     """
     try:
         import mediapipe as mp
-        # Try internal python solutions path if standard fails
-        try:
-            import mediapipe.solutions.face_mesh
-        except ImportError:
-            import mediapipe.python.solutions.face_mesh
-            
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -367,12 +361,14 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
         logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
         
-        # Correct way: use types.Part directly for the video reference
-        video_ref = types.Part.from_uri(
-            file_uri=video_ref_legacy.uri,
-            mime_type=video_ref_legacy.mime_type
+        # Using direct dictionary structure to avoid SDK attribute validation bugs
+        video_ref = types.Part(
+            file_data=types.FileData(
+                file_uri=video_ref_legacy.uri,
+                mime_type=video_ref_legacy.mime_type
+            )
         )
-        logger.info("Preparação do conteúdo concluída. Ref: %s", video_ref_legacy.name)
+        logger.info("Conteúdo preparado via FileData. URI: %s", video_ref_legacy.uri)
         
     except Exception as e:
         logger.error("Falha no upload para Google Files API: %s", str(e))
