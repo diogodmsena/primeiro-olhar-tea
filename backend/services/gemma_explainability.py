@@ -36,8 +36,6 @@ import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
-from google import genai
-from google.genai import types
 import google.generativeai as legacy_genai
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
@@ -50,29 +48,19 @@ logger = get_logger(__name__)
 # ---------------------------------------------------------------------------
 # Model selection
 # ---------------------------------------------------------------------------
-# Default: efficient 9B IT model — fast, low cost, suits hackathon demos.
-# Set GEMMA_MODEL=gemma-4-27b-it in .env for the dense 27B model that
-# produces richer clinical reasoning on complex cases.
-# ---------------------------------------------------------------------------
 _DEFAULT_MODEL = "gemma-4-26b-a4b-it"
 _DENSE_MODEL   = "gemma-4-31b-it"
-
 
 def _get_model() -> str:
     """Return the active Gemma 4 model name from env."""
     return os.getenv("GEMMA_MODEL", _DEFAULT_MODEL)
 
-
-def _get_client() -> genai.Client:
-    """Build an authenticated google-genai client with robust timeout."""
+def _configure_sdk():
+    """Configure the legacy Google AI SDK."""
     api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not api_key or api_key.lower() == "mock":
-        raise ValueError(
-            "GEMMA_API_KEY não configurado. "
-            "Adicione sua chave do Google AI Studio no arquivo .env."
-        )
-    # Optimized: Using float for timeout and adding request_timeout just in case
-    return genai.Client(api_key=api_key, http_options={'timeout': 300.0})
+        raise ValueError("GEMMA_API_KEY não configurado.")
+    legacy_genai.configure(api_key=api_key)
 
 
 # ---------------------------------------------------------------------------
@@ -117,21 +105,10 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        import importlib
-        try:
-            mp_solutions = importlib.import_module('mediapipe.solutions')
-        except ImportError:
-            mp_solutions = importlib.import_module('mediapipe.python.solutions')
-            
+        import mediapipe as mp
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
-        logger.info(
-            "CV analysis: gaze=%.3f, ratio=%.3f, head=%s",
-            metrics.get("avg_gaze_score", 0),
-            metrics.get("eye_contact_ratio", 0),
-            metrics.get("head_movement_pattern", "n/a"),
-        )
         return metrics
     except Exception as exc:
         logger.warning("CV analysis failed (%s) — using safe defaults.", exc)
@@ -259,65 +236,25 @@ Realize esses passos internamente. Coloque APENAS o JSON no output final."""
 # Phase 3 — Gemma 4 inference with thinking_config
 # ---------------------------------------------------------------------------
 
-def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File) -> str:
-    """
-    Call Gemma 4 with:
-    - Native system_instruction for expert persona.
-    - thinking_config for extended Chain-of-Thought reasoning (Thinking Mode).
-    - response_mime_type=application/json for structured output.
-    - KV cache automatically managed by the SDK for the 256k context window.
-
-    Args:
-        client:    Authenticated genai.Client.
-        prompt:    Full enriched prompt (CV + anamnesis + CoT instructions).
-        video_ref: Uploaded video file reference from Files API.
-
-    Returns:
-        Raw text response from the model.
-    """
+def _infer_with_gemma4(prompt: str, video_ref) -> str:
+    """Call Gemma 4 with stable SDK."""
     model = _get_model()
     logger.info("Rodando inferência Gemma 4 — modelo: %s", model)
 
-    config = types.GenerateContentConfig(
-        system_instruction=_SYSTEM_INSTRUCTION,
-        response_mime_type="application/json",
-        response_schema=ScreeningReport,
-        temperature=0.2,   # deterministic for clinical output
-        max_output_tokens=4096,
-        # Optimized: Explicitly disable AFC to avoid potential loops/delays
-        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
-    )
-
-    logger.info("Aguardando resposta do Gemma 4 (timeout de 120s)...")
-    start_time = time.time()
-    
-    # Building the content structure explicitly to avoid SDK normalization bugs
-    contents = [
-        types.Content(
-            role="user",
-            parts=[
-                video_ref,
-                types.Part.from_text(text=prompt)
-            ]
-        )
-    ]
-    
-    # Using the stable SDK for the entire inference process
     model_instance = legacy_genai.GenerativeModel(
         model_name=model,
-        generation_config={
-            "temperature": config.temperature,
-            "top_p": config.top_p,
-            "top_k": config.top_k,
-            "max_output_tokens": config.max_output_tokens,
-            "response_mime_type": "application/json",
-        },
-        system_instruction=config.system_instruction
+        system_instruction=_SYSTEM_INSTRUCTION
     )
     
-    # The stable SDK accepts the file object directly in a list
+    logger.info("Invocando geração de conteúdo (Multimodal)...")
+    start_time = time.time()
     response = model_instance.generate_content(
         [video_ref, prompt],
+        generation_config={
+            "temperature": 0.2,
+            "max_output_tokens": 4096,
+            "response_mime_type": "application/json",
+        },
         stream=False
     )
     
@@ -325,7 +262,7 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
     logger.info("Gemma 4 respondeu com sucesso em %.2fs", latency)
 
     raw = response.text
-    logger.info("Gemma 4 respondeu (%d chars). Primeiros 500: %s", len(raw), raw[:500])
+    logger.info("Gemma 4 respondeu (%d chars).", len(raw))
     return raw
 
 
@@ -334,117 +271,66 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
 # ---------------------------------------------------------------------------
 
 def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
-    """
-    Orchestrate the full hybrid screening pipeline.
-
-    Flow:
-        1. CV analysis (local, CPU).
-        2. File upload to Google Files API (for multimodal LLM access).
-        3. Build CoT-enhanced mega-prompt.
-        4. Gemma 4 inference with Thinking Mode.
-        5. Parse JSON; CV values applied as ground-truth override.
-
-    Args:
-        video_path:     Local path to the uploaded screening video.
-        parent_answers: Dict with anamnesis fields.
-
-    Returns:
-        Parsed result dict matching the pipeline schema.
-
-    Raises:
-        Exception on unrecoverable errors — caller transitions job to 'error'.
-    """
-    # ─ Phase 1 & 2: Local Computer Vision & Audio Analysis (Parallel) ─────
-    logger.info("Fase 1 & 2: Iniciando análise multimodal local em paralelo...")
+    """Orchestrate the full hybrid screening pipeline using stable SDK."""
+    logger.info("Fase 1 & 2: Iniciando análise multimodal local...")
     
     with ThreadPoolExecutor(max_workers=2) as executor:
         future_cv = executor.submit(_run_cv_analysis, video_path)
-        
-        def _run_audio():
-            audio_extractor = AudioFeatureExtractor()
-            return audio_extractor.extract_features(video_path)
-        
-        future_audio = executor.submit(_run_audio)
+        future_audio = executor.submit(lambda: AudioFeatureExtractor().extract_features(video_path))
         
         cv_metrics = future_cv.result()
         audio_metrics = future_audio.result()
 
-    logger.info("Análise local concluída. Iniciando preparação para upload...")
+    _configure_sdk()
     
-    client = _get_client()
-    
-    # Gemma 4 models on Google SDK currently do not support audio modality.
-    # We strip the audio track locally via ffmpeg before uploading.
-    logger.info("Removendo trilha de áudio do vídeo para compatibilidade com Gemma...")
+    logger.info("Removendo trilha de áudio do vídeo...")
     stripped_video_path = _strip_audio_from_video(video_path)
     
-    logger.info("Upload do vídeo mudo para a Files API do Google (estratégia estável)...")
+    video_ref = None
+    raw_text = ""
     try:
-        file_size = os.path.getsize(stripped_video_path)
-        logger.info("Tamanho do arquivo: %d bytes", file_size)
+        logger.info("Upload do vídeo mudo para Google Files API...")
+        video_ref = legacy_genai.upload_file(path=stripped_video_path)
+        logger.info("Upload concluído: %s", video_ref.name)
         
-        # Using legacy SDK for upload due to timeout bug in the new google-genai SDK
-        api_key = os.getenv("GEMMA_API_KEY") or os.getenv("GEMINI_API_KEY")
-        legacy_genai.configure(api_key=api_key)
+        _wait_for_file_active(video_ref)
         
-        video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
-        logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
-        
-        # In the stable SDK, we use the file object returned by upload_file directly
-        video_ref = video_ref_legacy
-        logger.info("Conteúdo preparado para o SDK Estável.")
-        
-    except Exception as e:
-        logger.error("Falha no upload para Google Files API: %s", str(e))
-        raise
+        prompt = _build_prompt(cv_metrics, audio_metrics, parent_answers)
+        raw_text = _infer_with_gemma4(prompt, video_ref)
 
-    # Poll until the file finishes server-side processing
-    _wait_for_file_active(client, video_ref)
+    finally:
+        try:
+            if video_ref:
+                legacy_genai.delete_file(video_ref.name)
+        except: pass
+        try:
+            if os.path.exists(stripped_video_path):
+                os.remove(stripped_video_path)
+        except: pass
 
-    # ─ Phase 3: Build prompt and call Gemma 4 ─────────────────────────────
-    logger.info("Fase 3: Construindo prompt CoT e invocando Gemma 4...")
-    prompt = _build_prompt(cv_metrics, audio_metrics, parent_answers)
-    raw_text = _infer_with_gemma4(client, prompt, video_ref)
-
-    # Clean up the uploaded files (best-effort)
-    try:
-        client.files.delete(name=video_ref.name)
-    except Exception:
-        pass
-    try:
-        if os.path.exists(stripped_video_path):
-            os.remove(stripped_video_path)
-    except Exception:
-        pass
-
-    # ─ Phase 4: Parse + ground-truth enforcement ──────────────────────────
     parsed = try_parse_json(raw_text)
-
     if not parsed:
-        logger.error("JSON inválido do Gemma 4: %s", raw_text[:1000])
-        raise ValueError(
-            "Não foi possível interpretar a resposta do Gemma 4. "
-            "Verifique a chave GEMMA_API_KEY e tente novamente."
-        )
+        logger.error("JSON inválido do Gemma 4: %s", raw_text[:500])
+        raise ValueError("Falha ao interpretar resposta do Gemma 4.")
 
-    # Enforce CV ground truth — prevents the LLM from inventing gaze values
+    # Enforce CV ground truth
     parsed.setdefault("video_features", {})
     parsed["video_features"].update({
-        "avg_gaze_score":        round(cv_metrics["avg_gaze_score"], 4),
-        "eye_contact_ratio":     round(cv_metrics["eye_contact_ratio"], 4),
-        "head_movement_pattern": cv_metrics["head_movement_pattern"],
-        "facial_expressivity":   cv_metrics["facial_expressivity"],
+        "avg_gaze_score": round(cv_metrics.get("avg_gaze_score", 0), 4),
+        "eye_contact_ratio": round(cv_metrics.get("eye_contact_ratio", 0), 4),
+        "head_movement_pattern": cv_metrics.get("head_movement_pattern", "normal"),
+        "facial_expressivity": cv_metrics.get("facial_expressivity", "normal"),
     })
 
     # Enforce Audio ground truth
     parsed.setdefault("audio_features", {})
     parsed["audio_features"].update({
-        "prosody_variation": round(audio_metrics["prosody_variation"], 2),
-        "speech_presence":   audio_metrics["speech_presence"],
-        "audio_reactivity":  audio_metrics["audio_reactivity"],
+        "prosody_variation": round(audio_metrics.get("prosody_variation", 0), 2),
+        "speech_presence": audio_metrics.get("speech_presence", False),
+        "audio_reactivity": audio_metrics.get("audio_reactivity", "normal"),
     })
 
-    # Normalize risk_score — ensures compatibility if LLM returns a float instead of an object
+    # Normalize risk_score
     risk_val = parsed.get("risk_score")
     if isinstance(risk_val, (int, float)):
         score = float(risk_val)
@@ -461,36 +347,20 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     return parsed
 
 
-def _wait_for_file_active(client: genai.Client, video_file, max_retries: int = 30) -> None:
-    """
-    Poll the Files API until the uploaded video reaches ACTIVE state.
-    Raises ValueError if the file ends in FAILED state.
-    """
-    def _state(f) -> str:
-        try:
-            s = f.state
-            if s is None:
-                return "ACTIVE"
-            return (s.name if hasattr(s, "name") else str(s)).upper()
-        except Exception:
-            return "ACTIVE"
-
-    time.sleep(2)
-    video_file = client.files.get(name=video_file.name)
-    state = _state(video_file)
+def _wait_for_file_active(video_file, max_retries: int = 30) -> None:
+    """Poll using stable SDK."""
     retries = 0
-
-    while state == "PROCESSING" and retries < max_retries:
-        logger.info("Aguardando video processar na Files API... (tentativa %d)", retries + 1)
-        time.sleep(1) # Optimized: 1s polling instead of 3s
-        video_file = client.files.get(name=video_file.name)
-        state = _state(video_file)
+    while retries < max_retries:
+        file = legacy_genai.get_file(video_file.name)
+        state = file.state.name
+        logger.info("Estado do vídeo: %s", state)
+        if state == "ACTIVE":
+            return
+        if state == "FAILED":
+            raise ValueError("Processamento do vídeo falhou no Google.")
+        time.sleep(2)
         retries += 1
-
-    if state == "FAILED":
-        raise ValueError("O servidor do Google não conseguiu processar o vídeo enviado.")
-
-    logger.info("Arquivo ativo na Files API. Estado: %s", state)
+    raise TimeoutError("Tempo esgotado aguardando vídeo.")
 
 
 def _strip_audio_from_video(video_path: str) -> str:
