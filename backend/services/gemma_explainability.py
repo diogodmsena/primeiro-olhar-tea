@@ -390,9 +390,6 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
         logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
         
-        video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
-        logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
-        
         # In the stable SDK, we use the file object returned by upload_file directly
         video_ref = video_ref_legacy
         logger.info("Conteúdo preparado para o SDK Estável.")
@@ -446,6 +443,19 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         "speech_presence":   audio_metrics["speech_presence"],
         "audio_reactivity":  audio_metrics["audio_reactivity"],
     })
+
+    # Normalize risk_score — ensures compatibility if LLM returns a float instead of an object
+    risk_val = parsed.get("risk_score")
+    if isinstance(risk_val, (int, float)):
+        score = float(risk_val)
+        level = "Baixo" if score < 0.35 else "Médio" if score < 0.7 else "Alto"
+        parsed["risk_score"] = {"score": score, "level": level}
+    elif isinstance(risk_val, dict):
+        if "level" not in risk_val and "score" in risk_val:
+            score = float(risk_val["score"])
+            risk_val["level"] = "Baixo" if score < 0.35 else "Médio" if score < 0.7 else "Alto"
+    else:
+        parsed["risk_score"] = {"score": 0.0, "level": "Indefinido"}
 
     logger.info("Gemma 4 — inferência concluída com sucesso.")
     return parsed
