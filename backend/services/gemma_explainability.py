@@ -105,7 +105,6 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        import mediapipe as mp
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -253,7 +252,6 @@ def _infer_with_gemma4(prompt: str, video_ref) -> str:
         generation_config={
             "temperature": 0.2,
             "max_output_tokens": 4096,
-            "response_mime_type": "application/json",
         },
         stream=False
     )

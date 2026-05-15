@@ -13,7 +13,6 @@ import math
 from typing import Optional
 
 import cv2
-import mediapipe as mp
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -59,13 +58,8 @@ class BehavioralVideoAnalyzer:
     """
 
     def __init__(self) -> None:
-        import importlib
-        try:
-            mp_solutions = importlib.import_module('mediapipe.solutions')
-        except ImportError:
-            mp_solutions = importlib.import_module('mediapipe.python.solutions')
-            
-        self._face_mesh = mp_solutions.face_mesh.FaceMesh(
+        import mediapipe.solutions.face_mesh as mp_face_mesh
+        self._face_mesh = mp_face_mesh.FaceMesh(
             static_image_mode=False,
             max_num_faces=1,
             refine_landmarks=True,
