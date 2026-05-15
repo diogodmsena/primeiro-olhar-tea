@@ -117,8 +117,6 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        # Direct import of solutions to bypass potential __init__ issues
-        import mediapipe.python.solutions.face_mesh
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -289,7 +287,7 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
     
     response = client.models.generate_content(
         model=model,
-        contents=[video_ref, prompt],
+        contents=[video_ref, prompt] if isinstance(video_ref, types.Content) else [video_ref, prompt],
         config=config,
     )
     
@@ -362,8 +360,15 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         video_ref_legacy = legacy_genai.upload_file(path=stripped_video_path)
         logger.info("Upload concluído. Ref: %s", video_ref_legacy.name)
         
-        # Convert legacy reference to a format the new SDK understands
-        video_ref = types.File(name=video_ref_legacy.name)
+        # Correct way to pass a Files API reference to the new SDK
+        video_ref = types.Content(
+            parts=[
+                types.Part.from_uri(
+                    uri=video_ref_legacy.uri,
+                    mime_type=video_ref_legacy.mime_type
+                )
+            ]
+        )
         
     except Exception as e:
         logger.error("Falha no upload para Google Files API: %s", str(e))
