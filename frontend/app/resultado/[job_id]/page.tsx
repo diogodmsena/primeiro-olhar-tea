@@ -491,7 +491,7 @@ export default function ResultadoPage() {
              </div>
         </header>
 
-        <div className="grid md:grid-cols-5 gap-6 print:gap-4 print:block">
+        <div className="relative block w-full grid md:grid-cols-5 gap-6 print:gap-4 print:block">
            
            {/* Radar Chart */}
            <div className="md:col-span-2 space-y-6 print:break-inside-avoid print:mb-8">
@@ -606,7 +606,7 @@ export default function ResultadoPage() {
         </div>
 
         {/* SAVE REPORT CTA */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 print:hidden">
+        <div className="relative block w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-6 print:hidden">
           {isAuthenticated && user ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -661,7 +661,7 @@ export default function ResultadoPage() {
         </div>
 
         {/* DISCLAIMER LEGAL */}
-        <div className="mt-8 bg-amber-50/60 border border-amber-200/60 rounded-2xl p-6 print:mt-6 print:border-amber-300">
+        <div className="relative block w-full mt-8 bg-amber-50/60 border border-amber-200/60 rounded-2xl p-6 print:mt-6 print:border-amber-300">
           <p className="text-xs text-slate-500 leading-relaxed">
             <span className="font-bold text-amber-700">{t('results.disclaimerTitle')}</span> {t('results.disclaimerDesc')}
           </p>
