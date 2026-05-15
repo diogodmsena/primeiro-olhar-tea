@@ -79,7 +79,7 @@ def get_job(job_id: str) -> Optional[dict]:
     Return job data.  Checks in-memory cache first; falls back to SQLite
     for jobs whose in-memory entry was evicted (e.g. after restart).
     """
-    if job_id in _JOBS:
+    if job_id in _JOBS and _JOBS[job_id]["status"] in ["done", "error"]:
         return _JOBS[job_id]
 
     # Fallback: reload from DB
