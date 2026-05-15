@@ -118,9 +118,11 @@ def _run_cv_analysis(video_path: str) -> dict:
     """
     try:
         import mediapipe as mp
-        # Granular check and import
-        if not hasattr(mp, 'solutions'):
+        # Try internal python solutions path if standard fails
+        try:
             import mediapipe.solutions.face_mesh
+        except ImportError:
+            import mediapipe.python.solutions.face_mesh
             
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
@@ -374,6 +376,8 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
                 )
             ]
         )
+        # Fix: Use legacy ref for logging since types.Content doesn't have .name
+        logger.info("Preparação do conteúdo concluída. Ref: %s", video_ref_legacy.name)
         
     except Exception as e:
         logger.error("Falha no upload para Google Files API: %s", str(e))

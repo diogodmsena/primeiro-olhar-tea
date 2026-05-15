@@ -59,8 +59,10 @@ class BehavioralVideoAnalyzer:
     """
 
     def __init__(self) -> None:
-        if not hasattr(mp, 'solutions'):
+        try:
             import mediapipe.solutions.face_mesh
+        except ImportError:
+            import mediapipe.python.solutions.face_mesh
             
         self._face_mesh = mp.solutions.face_mesh.FaceMesh(
             static_image_mode=False,
