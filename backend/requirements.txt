@@ -3,19 +3,20 @@ uvicorn>=0.29.0
 python-multipart>=0.0.9
 pydantic>=2.7.1
 
-# Use only the newer google-genai SDK (not both google-genai and google-generativeai)
+# Use only the newer google-genai SDK (without [grpc] extra to avoid grpcio-status conflict)
 google-genai==1.15.0
 
-# Pinned Google dependencies - compatible with mediapipe's protobuf constraint
-google-api-core[grpc]==2.27.0
+# Google dependencies - version locked for stability
+google-api-core==2.27.0
 googleapis-common-protos==1.63.0
 google-auth==2.29.0
-protobuf==3.20.3
+# Use protobuf 3.19.6 - compatible with all dependencies
+protobuf==3.19.6
 
 PyJWT==2.8.0
 
 # Computer vision — local video analysis (CV phase of the hybrid pipeline)
-# Note: mediapipe requires protobuf<4, which limits google-api-core to 2.27.x
+# mediapipe 0.10.11 requires protobuf<4
 mediapipe==0.10.11
 opencv-python==4.10.0.84
 requests==2.31.0
