@@ -117,6 +117,11 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
+        import mediapipe as mp
+        # Granular check and import
+        if not hasattr(mp, 'solutions'):
+            import mediapipe.solutions.face_mesh
+            
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -364,7 +369,7 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         video_ref = types.Content(
             parts=[
                 types.Part.from_uri(
-                    uri=video_ref_legacy.uri,
+                    file_uri=video_ref_legacy.uri,
                     mime_type=video_ref_legacy.mime_type
                 )
             ]
