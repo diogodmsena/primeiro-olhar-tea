@@ -117,7 +117,16 @@ def _run_cv_analysis(video_path: str) -> dict:
     Returns safe-default dict on any failure.
     """
     try:
-        import mediapipe as mp
+        # Nuclear import strategy for mediapipe in restricted environments
+        try:
+            import mediapipe.solutions.face_mesh as fm
+        except ImportError:
+            try:
+                from mediapipe.python.solutions import face_mesh as fm
+            except ImportError:
+                import mediapipe as mp
+                fm = mp.solutions.face_mesh
+                
         from services.video_extractor import BehavioralVideoAnalyzer
         analyzer = BehavioralVideoAnalyzer()
         metrics = analyzer.analyze_video(video_path)
@@ -286,9 +295,20 @@ def _infer_with_gemma4(client: genai.Client, prompt: str, video_ref: types.File)
     logger.info("Aguardando resposta do Gemma 4 (timeout de 120s)...")
     start_time = time.time()
     
+    # Building the content structure explicitly to avoid SDK normalization bugs
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                video_ref,
+                types.Part.from_text(text=prompt)
+            ]
+        )
+    ]
+    
     response = client.models.generate_content(
         model=model,
-        contents=[video_ref, prompt],
+        contents=contents,
         config=config,
     )
     
