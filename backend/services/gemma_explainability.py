@@ -124,14 +124,16 @@ def _run_cv_analysis(video_path: str) -> dict:
 # ---------------------------------------------------------------------------
 
 _SYSTEM_INSTRUCTION = (
-    "Você é o Gemma-4-Good, um sistema especialista em triagem precoce de Transtorno "
-    "do Espectro Autista (TEA) desenvolvido para o programa Primeiro Olhar. "
-    "Seu papel é auxiliar famílias e profissionais de saúde — especialmente em regiões "
-    "com escassez de especialistas — através de relatórios clínicos empáticos, acessíveis "
-    "e tecnicamente embasados. "
-    "Você NUNCA usa linguagem alarmista. Você sempre orienta para próximos passos concretos. "
-    "Você tem acesso a dados objetivos de visão computacional extraídos localmente do vídeo, "
-    "que servem como âncora quantitativa para seu raciocínio."
+    "Você é o especialista Gemma-4-Good do programa Primeiro Olhar. Seu papel é gerar relatórios de triagem de TEA "
+    "empáticos, técnicos e acolhedores. O tom deve ser clínico, mas nunca alarmista.\n\n"
+    "ESTRUTURA OBRIGATÓRIA DO RELATÓRIO (Markdown):\n"
+    "1. **Análise do Comportamento Observado:** (Descreva padrões de olhar, expressividade e áudio detectados)\n"
+    "2. **Correlação com as Preocupações Familiares:** (Cruze os dados técnicos com o relato da anamnese)\n"
+    "3. **Nível de Atenção Recomendado e Próximos Passos:** (Conclua com o risco e orientações práticas)\n\n"
+    "DIRETRIZES:\n"
+    "- NUNCA dê um diagnóstico. Use termos como 'sugestivo', 'indicadores' ou 'sinais'.\n"
+    "- SEMPRE utilize os três nomes de seções acima EXATAMENTE como escritos, em negrito.\n"
+    "- Os parágrafos devem ser fluidos e fáceis de ler por famílias."
 )
 
 
@@ -219,14 +221,16 @@ PASSO 3 — Justificativa do Risk Score:
   Explique o raciocínio de forma que um pediatra leigo consiga compreender.
   Encapsule essa justificativa no campo "clinical_reasoning" do JSON.
 
-PASSO 4 — Redação do Relatório Empático:
-  Escreva o gemma_report em PT-BR com tom acolhedor. Sempre inclua:
-  a) O que foi observado (sem alarmar).
-  b) O que isso pode ou não indicar.
-  c) Próximos passos sugeridos (buscar pediatra, neuropediatra, ou CAPS Infantil
-     em regiões com poucos especialistas).
+PASSO 4 — Redação do Relatório Empático (gemma_report):
+  Escreva o relatório em PT-BR usando EXATAMENTE os três tópicos obrigatórios:
+  1. **Análise do Comportamento Observado:**
+  2. **Correlação com as Preocupações Familiares:**
+  3. **Nível de Atenção Recomendado e Próximos Passos:**
 
-Realize esses passos internamente. Coloque APENAS o JSON no output final."""
+  IMPORTANTE: Utilize linguagem acolhedora. Foque no desenvolvimento e suporte.
+  Mantenha o campo risk_score como um valor numérico entre 0.0 e 1.0.
+
+Realize esses passos internamente e responda apenas com o JSON final."""
 
     return "\n\n".join([cv_section, audio_section, anamnesis_section, chain_of_thought_instruction])
 
@@ -329,17 +333,22 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
     })
 
     # Normalize risk_score
-    risk_val = parsed.get("risk_score")
-    if isinstance(risk_val, (int, float)):
-        score = float(risk_val)
-        level = "Baixo" if score < 0.35 else "Médio" if score < 0.7 else "Alto"
-        parsed["risk_score"] = {"score": score, "level": level}
-    elif isinstance(risk_val, dict):
-        if "level" not in risk_val and "score" in risk_val:
-            score = float(risk_val["score"])
-            risk_val["level"] = "Baixo" if score < 0.35 else "Médio" if score < 0.7 else "Alto"
-    else:
-        parsed["risk_score"] = {"score": 0.0, "level": "Indefinido"}
+    risk_data = parsed.get("risk_score")
+    score = 0.0
+    
+    if isinstance(risk_data, (int, float)):
+        score = float(risk_data)
+    elif isinstance(risk_data, dict):
+        score = float(risk_data.get("score", 0.0))
+    elif isinstance(risk_data, str):
+        try:
+            score = float(risk_data)
+        except ValueError:
+            score = 0.0
+            
+    # Map score to level
+    level = "Baixo" if score < 0.35 else "Médio" if score < 0.7 else "Alto"
+    parsed["risk_score"] = {"score": score, "level": level}
 
     logger.info("Gemma 4 — inferência concluída com sucesso.")
     return parsed

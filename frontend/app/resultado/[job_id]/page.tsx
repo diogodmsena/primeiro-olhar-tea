@@ -563,7 +563,7 @@ export default function ResultadoPage() {
                    </div>
                </div>
                
-               <div className="prose prose-slate prose-sky max-w-none text-slate-700 text-justify prose-p:mb-5 prose-p:leading-relaxed prose-strong:font-bold prose-strong:text-slate-900 prose-headings:font-semibold prose-h3:text-sky-800 prose-li:marker:text-sky-400">
+               <div className="prose prose-slate prose-sky max-w-none text-slate-700 prose-p:text-justify prose-p:mb-5 prose-p:leading-relaxed prose-strong:font-bold prose-strong:text-slate-900 prose-headings:font-semibold prose-h3:text-sky-800 prose-li:marker:text-sky-400 whitespace-pre-line">
                   <Markdown>{gemma_report}</Markdown>
                </div>
 
