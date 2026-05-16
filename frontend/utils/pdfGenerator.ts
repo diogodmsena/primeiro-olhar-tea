@@ -61,8 +61,18 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
         <h1 style="color: #1e40af; text-align: center; margin-bottom: 20px; font-size: 28px; font-weight: bold;">${t('report.pdfTitle')}</h1>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;" />
         
-        <h2 style="margin-top: 0;">${t('report.childName')}: ${data.child_name || t('report.unspecified')}</h2>
-        <h3>${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${riskScoreLevel}</span></h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+          <h2 style="margin: 0; font-size: 18px; color: #1e293b;">
+            ${t('report.childName')}: ${data.child_name || t('report.unspecified')}
+          </h2>
+          
+          <div style="display: flex; align-items: center;">
+            <span style="margin-right: 15px; color: #cbd5e1; font-weight: bold;">|</span>
+            <h3 style="margin: 0; font-size: 16px; color: #1e293b;">
+              ${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${riskScoreLevel}</span>
+            </h3>
+          </div>
+        </div>
         
         <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
           <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensionsTitle')}</h4>
