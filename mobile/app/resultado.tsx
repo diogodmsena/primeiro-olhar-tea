@@ -563,16 +563,10 @@ export default function ResultadoScreen() {
                { label: t('report.eyeContact') || 'Olhar', value: (data.video_features?.eye_contact_ratio || 0) * 100 },
                { label: t('report.facialExp') || 'Expressão', value: data.video_features?.facial_expressivity === 'low' ? 30 : 90 },
                { label: t('report.auditory') || 'Áudio', value: (data.audio_features?.prosody_variation || 0) * 100 },
-               { label: 'Risco', value: (data.risk_score?.score || 0) * 100 },
+               { label: 'Sintomas Narrados', value: (data.risk_score?.score || 0) * 100 },
                { label: 'Incidência', value: (data.risk_score?.score || 0) * 100 },
              ]}
            />
-
-           <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100 w-full">
-             <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpEye')}</Text>
-             <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpExp')}</Text>
-             <Text className="text-sm text-slate-500 leading-tight">• {t('report.dimHelpAud')}</Text>
-           </View>
         </View>
 
         {/* Avaliação em Barras (Detalhada) */}
@@ -582,7 +576,7 @@ export default function ResultadoScreen() {
            <View className="mb-4">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.eyeContact')}</Text>
-               <Text className="text-slate-400 text-xs font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</Text>
+               {/*<Text className="text-slate-400 text-xs font-bold">{Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}%</Text>*/}
              </View>
              <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                <Animated.View 
@@ -591,12 +585,15 @@ export default function ResultadoScreen() {
                  style={{ width: `${(data.video_features?.eye_contact_ratio || 0) * 100}%` }} 
                />
              </View>
+             <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100 w-full">
+                <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpEye')}</Text>
+              </View>
            </View>
 
            <View className="mb-4">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.facialExp')}</Text>
-               <Text className="text-slate-400 text-xs font-bold">{data.video_features?.facial_expressivity === 'low' ? '30%' : '90%'}</Text>
+               {/*<Text className="text-slate-400 text-xs font-bold">{data.video_features?.facial_expressivity === 'low' ? '30%' : '90%'}</Text>*/}
              </View>
              <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                <Animated.View 
@@ -605,12 +602,15 @@ export default function ResultadoScreen() {
                  style={{ width: data.video_features?.facial_expressivity === 'low' ? '30%' : data.video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} 
                />
              </View>
+             <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100 w-full">
+                <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpExp')}</Text>
+             </View>
            </View>
 
            <View className="mb-2">
              <View className="flex-row justify-between mb-1">
                <Text className="font-bold text-slate-700">{t('report.auditory')}</Text>
-               <Text className="text-slate-400 text-xs font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</Text>
+               {/*<Text className="text-slate-400 text-xs font-bold">{Math.round((data.audio_features?.prosody_variation || 0) * 100)}%</Text>*/}
              </View>
              <View className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                <Animated.View 
@@ -618,6 +618,9 @@ export default function ResultadoScreen() {
                  className="h-full bg-amber-500 rounded-full" 
                  style={{ width: `${(data.audio_features?.prosody_variation || 0) * 100}%` }} 
                />
+             </View>
+             <View className="mt-6 bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm shadow-slate-100 w-full">
+                <Text className="text-sm text-slate-500 mb-2 leading-tight">• {t('report.dimHelpAud')}</Text>
              </View>
            </View>
         </View>
