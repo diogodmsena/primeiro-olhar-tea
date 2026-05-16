@@ -123,18 +123,30 @@ def _run_cv_analysis(video_path: str) -> dict:
 # Phase 2 — System instruction + CoT mega-prompt
 # ---------------------------------------------------------------------------
 
-_SYSTEM_INSTRUCTION = (
-    "Você é o especialista Gemma-4-Good do programa Primeiro Olhar. Seu papel é gerar relatórios de triagem de TEA "
-    "empáticos, técnicos e acolhedores. O tom deve ser clínico, mas nunca alarmista.\n\n"
-    "ESTRUTURA OBRIGATÓRIA DO RELATÓRIO (Markdown):\n"
-    "1. **Análise do Comportamento Observado:** (Descreva padrões de olhar, expressividade e áudio detectados)\n"
-    "2. **Correlação com as Preocupações Familiares:** (Cruze os dados técnicos com o relato da anamnese)\n"
-    "3. **Nível de Atenção Recomendado e Próximos Passos:** (Conclua com o risco e orientações práticas)\n\n"
-    "DIRETRIZES:\n"
-    "- NUNCA dê um diagnóstico. Use termos como 'sugestivo', 'indicadores' ou 'sinais'.\n"
-    "- SEMPRE utilize os três nomes de seções acima EXATAMENTE como escritos, em negrito.\n"
-    "- Os parágrafos devem ser fluidos e fáceis de ler por famílias."
-)
+def _get_system_instruction(lang: str = "pt") -> str:
+    """Return a localized system instruction."""
+    lang = lang.lower()
+    
+    # Section headers mapping (must match _build_prompt)
+    headers = {
+        "pt": ("Análise do Comportamento Observado", "Correlação com as Preocupações Familiares", "Nível de Atenção Recomendado e Próximos Passos"),
+        "en": ("Analysis of Observed Behavior", "Correlation with Family Concerns", "Recommended Level of Care and Next Steps"),
+        "es": ("Análisis del Comportamento Observado", "Correlación con las Preocupaciones Familiares", "Nivel de Atención Recomendado y Próximos Pasos")
+    }
+    h1, h2, h3 = headers.get(lang, headers["pt"])
+    
+    return (
+        f"Você é o especialista Gemma-4-Good do programa Primeiro Olhar. Seu papel é gerar relatórios de triagem de TEA "
+        f"empáticos, técnicos e acolhedores. O tom deve ser clínico, mas nunca alarmista.\n\n"
+        f"ESTRUTURA OBRIGATÓRIA DO RELATÓRIO (Markdown):\n"
+        f"1. **{h1}:** (Descreva padrões detectados)\n"
+        f"2. **{h2}:** (Cruze os dados técnicos com o relato)\n"
+        f"3. **{h3}:** (Conclua com o risco e orientações)\n\n"
+        f"DIRETRIZES:\n"
+        f"- NUNCA dê um diagnóstico. Use termos como 'sugestivo', 'indicadores' ou 'sinais'.\n"
+        f"- SEMPRE utilize os três nomes de seções acima EXATAMENTE como escritos, em negrito.\n"
+        f"- Os parágrafos devem ser fluidos e fáceis de ler por famílias."
+    )
 
 
 def _build_prompt(cv_metrics: dict, audio_metrics: dict, parent_answers: dict) -> str:
@@ -201,6 +213,16 @@ Interprete-os clinicamente — NÃO os copie literalmente no relatório."""
         Mantenha um tom extremamente ACOLHEDOR e EMPÁTICO; nunca seja brusco ou alarmista. 
         Explique de forma suave que, nesta faixa etária, o suporte especializado é prioritário para aproveitar ao máximo o desenvolvimento atual, e que embora intervenções ideais comecem mais cedo, SEMPRE há tempo para agir e transformar o futuro da criança."""
 
+    # Language handling
+    lang = parent_answers.get("lang", "pt").lower()
+    lang_map = {
+        "pt": ("Português (Brasil)", "Análise do Comportamento Observado", "Correlação com as Preocupações Familiares", "Nível de Atenção Recomendado e Próximos Passos"),
+        "en": ("English", "Analysis of Observed Behavior", "Correlation with Family Concerns", "Recommended Level of Care and Next Steps"),
+        "es": ("Español", "Análisis del Comportamento Observado", "Correlación con las Preocupaciones Familiares", "Nivel de Atención Recomendado y Próximos Pasos")
+    }
+    
+    target_lang, h1, h2, h3 = lang_map.get(lang, lang_map["pt"])
+
     chain_of_thought_instruction = f"""═══ MODO DE RACIOCÍNIO CLÍNICO (Chain-of-Thought — Thinking Mode) ═══
 Antes de gerar o JSON final, execute mentalmente os seguintes passos de raciocínio:
 {urgency_note}
@@ -222,10 +244,10 @@ PASSO 3 — Justificativa do Risk Score:
   Encapsule essa justificativa no campo "clinical_reasoning" do JSON.
 
 PASSO 4 — Redação do Relatório Empático (gemma_report):
-  Escreva o relatório em PT-BR usando EXATAMENTE os três tópicos obrigatórios:
-  1. **Análise do Comportamento Observado:**
-  2. **Correlação com as Preocupações Familiares:**
-  3. **Nível de Atenção Recomendado e Próximos Passos:**
+  Escreva o relatório em {target_lang} usando EXATAMENTE os três tópicos obrigatórios:
+  1. **{h1}:**
+  2. **{h2}:**
+  3. **{h3}:**
 
   IMPORTANTE: Utilize linguagem acolhedora. Foque no desenvolvimento e suporte.
   Mantenha o campo risk_score como um valor numérico entre 0.0 e 1.0.
@@ -239,14 +261,14 @@ Realize esses passos internamente e responda apenas com o JSON final."""
 # Phase 3 — Gemma 4 inference with thinking_config
 # ---------------------------------------------------------------------------
 
-def _infer_with_gemma4(prompt: str, video_ref) -> str:
+def _infer_with_gemma4(prompt: str, video_ref, lang: str = "pt") -> str:
     """Call Gemma 4 with stable SDK."""
     model = _get_model()
     logger.info("Rodando inferência Gemma 4 — modelo: %s", model)
 
     model_instance = legacy_genai.GenerativeModel(
         model_name=model,
-        system_instruction=_SYSTEM_INSTRUCTION
+        system_instruction=_get_system_instruction(lang)
     )
     
     logger.info("Invocando geração de conteúdo (Multimodal)...")
@@ -298,7 +320,7 @@ def analyze_multimodal_case(video_path: str, parent_answers: dict) -> dict:
         _wait_for_file_active(video_ref)
         
         prompt = _build_prompt(cv_metrics, audio_metrics, parent_answers)
-        raw_text = _infer_with_gemma4(prompt, video_ref)
+        raw_text = _infer_with_gemma4(prompt, video_ref, parent_answers.get("lang", "pt"))
 
     finally:
         try:
