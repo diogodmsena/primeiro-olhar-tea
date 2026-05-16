@@ -516,7 +516,7 @@ export default function ResultadoPage() {
                        <div>
                            <div className="flex justify-between mb-2">
                                <span className="text-sm font-bold text-slate-700">{t('results.eyeContact') || 'Contato Visual'}</span>
-                               <span className="text-sm font-bold text-blue-600">{Math.round((video_features?.eye_contact_ratio || 0) * 100)}%</span>
+                               
                            </div>
                            <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                                <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${(video_features?.eye_contact_ratio || 0) * 100}%` }} />
@@ -526,7 +526,7 @@ export default function ResultadoPage() {
                        <div>
                            <div className="flex justify-between mb-2">
                                <span className="text-sm font-bold text-slate-700">{t('results.facialExp') || 'Expressividade Facial'}</span>
-                               <span className="text-sm font-bold text-emerald-600">{video_features?.facial_expressivity === 'low' ? '30%' : '90%'}</span>
+                               
                            </div>
                            <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                                <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: video_features?.facial_expressivity === 'low' ? '30%' : video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
@@ -536,7 +536,7 @@ export default function ResultadoPage() {
                        <div>
                            <div className="flex justify-between mb-2">
                                <span className="text-sm font-bold text-slate-700">{t('results.prosody') || 'Variação de Prosódia'}</span>
-                               <span className="text-sm font-bold text-amber-600">{Math.round((audio_features?.prosody_variation || 0) * 100)}%</span>
+                               
                            </div>
                            <div className="h-3 bg-slate-100 rounded-full w-full overflow-hidden">
                                <div className="h-full bg-amber-500 rounded-full transition-all duration-1000" style={{ width: `${(audio_features?.prosody_variation || 0) * 100}%` }} />

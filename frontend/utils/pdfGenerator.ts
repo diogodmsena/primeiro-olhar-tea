@@ -62,14 +62,14 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;" />
         
         <h2 style="margin-top: 0;">${t('report.childName')}: ${data.child_name || t('report.unspecified')}</h2>
-        <h3>${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${riskScoreLevel} (${riskScoreValue}%)</span></h3>
+        <h3>${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${riskScoreLevel}</span></h3>
         
         <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
           <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensionsTitle')}</h4>
           <ul style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 8px;"><strong>${t('results.radarVisual')}:</strong> ${Math.round((data.video_features?.eye_contact_ratio || 0) * 100)}/100</li>
-            <li style="margin-bottom: 8px;"><strong>${t('results.radarExpressivity')}:</strong> ${data.video_features?.facial_expressivity === 'low' ? '30' : data.video_features?.facial_expressivity === 'high' ? '90' : '70'}/100</li>
-            <li><strong>${t('results.radarProsody')}:</strong> ${Math.round((data.audio_features?.prosody_variation || 0) * 100)}/100</li>
+            <li style="margin-bottom: 8px;"><strong>${t('results.radarVisual')}</strong></li>
+            <li style="margin-bottom: 8px;"><strong>${t('results.radarExpressivity')}</strong></li>
+            <li><strong>${t('results.radarProsody')}</strong></li>
           </ul>
           <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
             <p style="margin: 0 0 5px 0;"><strong>${t('results.radarVisual')}:</strong> ${t('report.dimEyeContent')}</p>
