@@ -491,11 +491,11 @@ export default function ResultadoPage() {
              </div>
         </header>
 
-        <div className="relative block w-full grid md:grid-cols-5 gap-6 print:gap-4 print:block">
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-5 gap-6 print:gap-4 print:block">
            
            {/* Radar Chart */}
            <div className="md:col-span-2 space-y-6 print:break-inside-avoid print:mb-8">
-               <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 h-full flex flex-col print:shadow-none print:border-none print:p-0">
+               <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col print:shadow-none print:border-none print:p-0">
                    <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 border-b pb-2">{t('results.radarChartTitle')}</h3>
                    <div className="flex-grow w-full min-h-[300px]">
                       <ResponsiveContainer width="100%" height={300}>
