@@ -66,8 +66,7 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
             ${t('report.childName')}: ${data.child_name || t('report.unspecified')}
           </h2>
           
-          <div style="display: flex; align-items: center;">
-            <span style="margin-right: 15px; color: #cbd5e1; font-weight: bold;">|</span>
+          <div style="display: flex; align-items: center;">            
             <h3 style="margin: 0; font-size: 16px; color: #1e293b;">
               ${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${riskScoreLevel}</span>
             </h3>
