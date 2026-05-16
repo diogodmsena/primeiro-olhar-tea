@@ -339,20 +339,24 @@ export default function ResultadoScreen() {
               </div>
               <span style="font-size: 13px; color: #64748b; font-weight: 500;">${formattedDate}</span>
             </div>
-            
+             
             <h1 style="color: #1e40af; text-align: center; margin-bottom: 20px;">${t('report.evaluationTitle') || 'Avaliação preliminar'}</h1>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;" />
             
-            <h2 style="margin-top: 0;">${t('report.childName') || 'Criança'}: ${data.child_name || t('auth.unnamed')}</h2>
-            <h3>${t('report.riskScore')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')}</span></h3>
-            
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+              <h2 style="margin: 0; font-size: 18px; color: #1e293b;">
+                ${t('report.childName')}: ${data.child_name || t('report.unspecified')}
+              </h2>
+              
+              <div style="display: flex; align-items: center;">            
+                <h3 style="margin: 0; font-size: 16px; color: #1e293b;">
+                  ${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')}</span>
+                </h3>
+              </div>
+            </div>
+
             <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
               <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensions')}</h4>
-              <ul style="margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;"><strong>${t('report.eyeContact')}:</strong></li>
-                <li style="margin-bottom: 8px;"><strong>${t('report.facialExp')}:</strong></li>
-                <li><strong>${t('report.auditory')}:</strong></li>
-              </ul>
               <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
                 <p style="margin: 0 0 5px 0;">${t('report.dimHelpEye')}</p>
                 <p style="margin: 0 0 5px 0;">${t('report.dimHelpExp')}</p>
