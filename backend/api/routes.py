@@ -24,7 +24,7 @@ async def create_triagem(
     """
     job_id = str(uuid.uuid4())
     
-    # Save the physical payload to temp space for worker access
+    # Prepare temporary storage for worker payload
     video_dir = os.path.join(tempfile.gettempdir(), "triagem_videos")
     os.makedirs(video_dir, exist_ok=True)
     video_path = os.path.join(video_dir, f"{job_id}_{video.filename}")
@@ -34,7 +34,7 @@ async def create_triagem(
         
     start_job(job_id, metadata={"parent_answers": parent_answers, "video_path": video_path})
     
-    # Enqueue Celery task
+    # Dispatch background processing task
     process_video_task.delay(job_id, parent_answers, video_path)
     
     return ProcessJobResponse(job_id=job_id, status="processing", message="Triagem iniciada.")
@@ -102,7 +102,7 @@ async def get_triagem_status(job_id: str):
             error_message=job_data.get("error", "Erro desconhecido no processamento.")
         )
     
-    # Done state
+
     result = job_data.get("result", {})
     return FinalReportResponse(
         job_id=job_id,

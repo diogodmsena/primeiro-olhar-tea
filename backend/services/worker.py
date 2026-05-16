@@ -7,17 +7,17 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Redis configuration from environment or default
+
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
-# Initialize Celery
+
 celery_app = Celery(
     "triagem_worker",
     broker=REDIS_URL,
     backend=REDIS_URL
 )
 
-# Celery Configuration
+
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
@@ -39,7 +39,7 @@ def process_video_task(self, job_id: str, parent_json: str, video_path: str):
         # Phase 1 (Local CV) -> Phase 2 (Upload) -> Phase 3 (Gemma 4) -> Phase 4 (Parse)
         report_data = analyze_multimodal_case(video_path, parent_answers)
         
-        # Update database/storage with success
+
         update_job_success(job_id, {
             "child_name": parent_answers.get("child_name", ""),
             "video_features": report_data.get("video_features", {}),
@@ -55,7 +55,7 @@ def process_video_task(self, job_id: str, parent_json: str, video_path: str):
 
     except Exception as exc:
         logger.error(f"Error processing job {job_id} in worker: {str(exc)}")
-        # Optional: retry logic if it's a transient failure (like network)
+        # Transient errors (e.g., network timeout) can be retried here.
         # self.retry(exc=exc, countdown=60)
         update_job_error(job_id, str(exc))
         return {"status": "error", "job_id": job_id, "error": str(exc)}

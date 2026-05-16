@@ -18,7 +18,7 @@ class AudioFeatureExtractor:
         try:
             logger.info(f"Extracting audio features from {video_path}")
             
-            # Load audio using librosa
+
             # Note: librosa uses audioread which handles most video formats if ffmpeg is present
             y, sr = librosa.load(video_path, sr=None)
             
@@ -36,7 +36,7 @@ class AudioFeatureExtractor:
             # 2. Prosody Variation (Pitch variance as a proxy)
             # We use the standard deviation of the fundamental frequency (F0)
             pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-            # Extract dominant pitches
+
             pitch_values = []
             for i in range(pitches.shape[1]):
                 index = magnitudes[:, i].argmax()

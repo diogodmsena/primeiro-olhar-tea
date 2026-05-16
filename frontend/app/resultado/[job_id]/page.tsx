@@ -190,7 +190,7 @@ export default function ResultadoPage() {
   };
 
   const handleCopyLink = async () => {
-    // Gerar e baixar PDF
+    // Generate and download PDF
     await generateAndDownloadPDF(data, params.job_id as string, t);
 
     try {

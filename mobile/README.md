@@ -1,59 +1,58 @@
-# Primeiro Olhar - Mobile App 📱
+# Mobile App - Primeiro Olhar 📱
 
-O **Primeiro Olhar Mobile** é o aplicativo desenvolvido em React Native (Expo) que serve como a fronteira móvel voltada para as famílias e cuidadores submeterem vídeos e questionários focados em triagem comportamental e de neurodivergências (TEA). O aplicativo processa os uploads encaminhando-os nativamente para o nosso Backend impulsionado por Inteligência Artificial (Google Gemini Flash Multimodal).
+The "Primeiro Olhar Mobile" is a React Native (Expo) application serving as the mobile frontier for families and caregivers to submit screening videos and questionnaires focusing on behavioral and neurodivergence (ASD) signs. The app processes uploads and seamlessly forwards them to our AI-powered Backend (Google Gemini Flash Multimodal).
 
-## 🚀 Tecnologias
+## Quick Start
 
-- **Framework:** [React Native](https://reactnative.dev) + [Expo SDK 54](https://expo.dev/)
-- **Estilo:** NativeWind (Tailwind CSS Mobile) com interóp nativa robusta.
-- **Navegação:** Expo Router (File-based navigation).
-- **Componentes Físicos:** `expo-camera` para captura de vídeo segura e sem compressões pesadas em ambiente de desenvolvimento.
-- **Renderização e Parser Gráfico:** `react-native-markdown-display` (para processamento de markdown e negritos injetados do Laudo da inteligência artifical).
+To run the app on an emulator or physical device:
 
-## 🛠 Como Executar Para Testes (Emulador e Físico)
-
-### 1. Pré-Requisitos
-- Ter o Backend Python e Banco de Dados rodando através do Docker paralelamente.
-- Aplicativo **Expo Go** instalado no seu telefone iOS ou Android.
-
-### 2. Configurando as Pontes de Rede
-As requisições no aplicativo Mobile (como o pacote multipartes da Triagem) precisam chegar ao Backend. Por rodar na Sandbox de um celular físico via Wi-Fi, o aplicativo desconhece as rotas `localhost` do seu computador.
-
-1. Crie o arquivo `.env` na raiz da pasta `/mobile`.
-2. Oculte o IP Dinâmico de rede (IPv4 da sua Máquina no Wi-Fi local onde roda o Docker):
-```env
-EXPO_PUBLIC_API_URL=http://<SEU_IP_LOCAL_DE_REDE>:8000
-```
-> **Aviso Crítico:** Emuladores do Android Studio usam `10.0.2.2`. Aparelhos físicos via Expo Go exigem IP explícito de rede (Exemplo: `192.168.x.x`).
-
-### 3. Rodando o Bundler do Expo
-Baixe a árvore garantindo que sem dependências peer de versões obsoletas quebrem a UI:
 ```bash
+# 1. Navigate to the mobile directory
+cd mobile
+
+# 2. Install dependencies (ensuring exact versions to avoid UI breaks)
 npm install
-```
 
-Sempre inicie o motor do Metro Bundler limpando o cache, especialmente ao inserir tokens ou alterar o `.env`:
-```bash
+# 3. Start the Expo bundler
 npx expo start -c
 ```
-Em seguida, encoste a câmera natural (iOS) ou a leitura nativa do Expo Go (Android) no QR Code para parear via Tunelamento Local.
+*Note: Scan the generated QR code with the Expo Go app (Android) or your native Camera (iOS) to launch the app.*
 
-## 📂 Arquitetura do App
+## Features
+
+- **Native File Handling**: Securely captures and uploads videos using `expo-camera` without aggressive compression that could harm AI analysis.
+- **Rich Result Display**: Parses and renders markdown (including bolding and structures injected by Gemini) using `react-native-markdown-display`.
+- **Dynamic Theming**: Utilizes NativeWind (Tailwind CSS Mobile) for responsive, highly adaptable native styling.
+- **Cross-Device Compatibility**: File-based routing via Expo Router ensures robust navigation patterns on both iOS and Android.
+
+## Configuration
+
+You must bridge the network gap between your physical device/emulator and the local backend server. 
+
+Create a `.env` file in the `mobile/` directory:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `EXPO_PUBLIC_API_URL` | Local network IP pointing to the Backend | Yes |
+
+> [!WARNING]
+> Android Studio emulators typically use `10.0.2.2` to resolve localhost. However, physical devices using Expo Go via Wi-Fi **require** your machine's explicit IPv4 address (e.g., `http://192.168.x.x:8000`).
+
+## Architecture Overview
 
 ```text
 /mobile
-  ├── app/                  # Core de Rotas do celular (Expo Router)
-  │    ├── _layout.tsx      # Wrappers Maestrais da aplicação (Auth, i18n, SafeArea)
-  │    ├── index.tsx        # Splash Screen Inicial do Primeiro Olhar
-  │    ├── triagem.tsx      # Multi-STEP form complexo (Cam -> Forms -> Upload)
-  │    ├── resultado.tsx    # Parsing de Score Bars e Laudo do Gemini
-  │    └── historico.tsx    # Flatlist Nativo listando avaliações antigas ativas
-  ├── components/           # Componentes injetáveis globais
-  │    ├── Header.tsx       
-  │    └── LucideIcons.tsx  # Proxy blindado de ícones Expo p/ mitigar falhas ESM
-  ├── contexts/             # Camada Singleton de Memória (Estados de UI)
-  └── global.css            # Ponto de Injeção das chaves Tailwind para CSS Nativo
+  ├── app/                  # Expo Router core
+  │    ├── _layout.tsx      # App wrappers (Auth, i18n, SafeArea)
+  │    ├── index.tsx        # Splash Screen
+  │    ├── triagem.tsx      # Multi-step screening form
+  │    ├── resultado.tsx    # Radar charts and Gemini report parser
+  │    └── historico.tsx    # Native FlatList for historical reports
+  ├── components/           # Global injectable components
+  ├── contexts/             # Singleton Memory Layer (UI States)
+  └── global.css            # Tailwind key injection for Native CSS
 ```
 
----
-Desenvolvido com carinho sob a bandeira de inovação acelerada. 💙
+## License
+
+MIT

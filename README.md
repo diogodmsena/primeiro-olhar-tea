@@ -1,28 +1,54 @@
 # Primeiro Olhar 🧩
 
-**Primeiro Olhar** é uma plataforma inovadora, lúdica e acolhedora voltada para a triagem precoce de sinais de Transtorno do Espectro Autista (TEA) com o apoio de Inteligência Artificial.
+A welcoming, AI-powered platform for early behavioral screening and identification of Autism Spectrum Disorder (ASD) signs in children.
 
-## O Projeto
+## Quick Start
 
-Nossa missão é oferecer às famílias um ambiente digital seguro e livre de barreiras de usabilidade, onde elas podem subir pequenos vídeos caseiros de comportamentos cotidianos da criança (10-15s). Através de um motor de processamento multimodal baseado em modelos modernos, o sistema traduz essas interações (contato visual, resposta não verbal) em um relatório compreensível, auxiliando pais e profissionais de saúde a intervir rapidamente.
-
-### Principais Funcionalidades
-
-- **Layout Acolhedor & Neutro**: Design construído rigorosamente para evitar sobrecarga auditiva e visual (Estética Lúdica & Neurodivergente).
-- **IA Empática**: Os retornos e os laudos gerados não utilizam linguagem ameaçadora.
-- **Triagem em Vídeo Facilitada**: Integração rápida e anônima de upload focado no comportamento em habitat natural.
-
----
-
-## Para Desenvolvedores e Jurados (Hackathon)
-
-Para iniciar o módulo frontend localmente:
+You can easily run the core components of the platform locally using Docker.
 
 ```bash
+# Clone the repository
+git clone https://github.com/diogodmsena/primeiro-olhar-tea.git
+cd primeiro-olhar-tea
+
+# Start the Backend, AI Worker, and Frontend using Docker Compose
 docker-compose up --build -d
-# ou localmente via npm:
-npm install
-npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+Once the containers are running:
+- **Frontend Web:** [http://localhost:3000](http://localhost:3000)
+- **Backend API:** [http://localhost:8000](http://localhost:8000)
+
+*Note: For the mobile application, please see the [Mobile Documentation](./mobile/README.md).*
+
+## Features
+
+- **Multimodal AI Analysis**: Processes video, audio, and parental text responses using Google Gemini Flash to identify behavioral patterns (eye contact, facial expressivity, prosody).
+- **Welcoming Interface**: Carefully designed UI to avoid sensory overload (playful & neurodivergent-friendly aesthetics).
+- **Asynchronous Processing**: Scalable video analysis powered by Celery and Redis.
+- **Cross-Platform Access**: Available as a responsive Web Application and a Mobile App (React Native).
+- **Multi-language Support**: Fully internationalized (English, Portuguese, Spanish) for a global reach.
+
+## Configuration
+
+The platform relies on several environment variables. Make sure to configure your `.env` files appropriately based on the module you are running. 
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GEMINI_API_KEY` | API key for Google Gemini model | Yes (Backend) |
+| `REDIS_URL` | Redis connection string for Celery | Yes (Backend) |
+| `EXPO_PUBLIC_API_URL`| Backend URL for the Mobile app | Yes (Mobile) |
+
+*For detailed configuration, refer to the specific module documentation.*
+
+## Documentation
+
+The project is structured into three main modules. Please refer to their specific documentations for deep dives:
+
+- [Backend & AI Engine](./backend/README.md)
+- [Frontend Web App](./frontend/README.md)
+- [Mobile Application](./mobile/README.md)
+
+## License
+
+MIT

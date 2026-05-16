@@ -8,7 +8,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { BrainCircuit, ArrowLeft, Loader2, Sparkles, Share as ShareIcon, Save, Eye, Smile, Ear, Info } from '../components/LucideIcons';
 import { LOGO_BASE64 } from '../components/LogoBase64';
 import { RadarChart } from '../components/RadarChart';
-// axios removido — usando fetch nativo para evitar bloqueio do Cloudflare
+// Axios removed - using native fetch to avoid Cloudflare blocking
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';

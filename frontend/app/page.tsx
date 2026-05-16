@@ -12,7 +12,7 @@ import { UserMenu } from "../components/UserMenu";
 
 import Image from "next/image";
 
-// Logo com logo_v4 e texto
+// Primary Application Logo
 const CSSLogo = () => (
   <div className="flex items-center gap-2">
     <Image 
@@ -29,14 +29,14 @@ const CSSLogo = () => (
   </div>
 );
 
-// Símbolo do Autismo usando Lucide Puzzle para o Hero Section
+// Hero Section Animated Symbol
 const AutismPuzzleSymbol = () => (
   <div className="relative w-80 h-80 flex items-center justify-center">
-      {/* Background flutuante */}
+
       <div className="absolute inset-0 bg-white rounded-[4rem] shadow-soft-hover animate-float"></div>
       <div className="absolute w-64 h-64 rounded-full border-8 border-dashed border-amber-400/20 animate-[spin_60s_linear_infinite]"></div>
       
-      {/* Quebra-cabeça Múltiplo (As 4 cores clássicas do autismo) */}
+      {/* Animated multiple puzzle pieces representing the autism spectrum */}
       <div className="grid grid-cols-2 gap-0 relative z-10 animate-float-delayed scale-110">
         <Puzzle className="w-16 h-16 text-blue-500 fill-blue-500/20" />
         <Puzzle className="w-16 h-16 text-amber-400 fill-amber-400/20 rotate-90" />
@@ -93,7 +93,7 @@ export default function Home() {
         responds_to_name: responds,
         pretend_play: pretendPlay,
         object_lining: objectLining,
-        lang: locale // Passa o idioma atual para o backend
+        lang: locale
       };
       
       formData.append("parent_answers", JSON.stringify(parentAnswers));
