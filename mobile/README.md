@@ -1,6 +1,12 @@
-# Mobile App - Primeiro Olhar 📱
+# Mobile App — Primeiro Olhar 📱
 
-The "Primeiro Olhar Mobile" is a React Native (Expo) application serving as the mobile frontier for families and caregivers to submit screening videos and questionnaires focusing on behavioral and neurodivergence (ASD) signs. The app processes uploads and seamlessly forwards them to our AI-powered Backend (Google Gemini Flash Multimodal).
+The React Native (Expo) application for on-the-go behavioral screening, built for families and caregivers.
+
+## Role in the Mission
+
+Access to a computer is a privilege — not everyone has one. The mobile app ensures that **Primeiro Olhar reaches families where they are**: on their phones, in their homes, in their daily routines. A mother can record a 30-second video of her child playing, answer a few simple questions, and receive an AI-powered behavioral screening report — all from her phone, in her native language, without needing to create an account or share personal data. This is inclusion by design.
+
+---
 
 ## Quick Start
 
@@ -27,7 +33,7 @@ npx expo start -c
 
 ## Configuration
 
-You must bridge the network gap between your physical device/emulator and the local backend server. 
+You must bridge the network gap between your physical device/emulator and the local backend server.
 
 Create a `.env` file in the `mobile/` directory:
 

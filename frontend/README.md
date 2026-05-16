@@ -1,6 +1,12 @@
-# Frontend Web - Primeiro Olhar
+# Frontend Web — Primeiro Olhar 🌐
 
 The responsive Web Application for the "Primeiro Olhar" platform, built with Next.js and Tailwind CSS.
+
+## Role in the Mission
+
+This is the **face** of Primeiro Olhar — the interface that a worried parent sees when they take their first step. Every design decision here was made with one question in mind: *"Will this make a family feel safe enough to continue?"*. The UI avoids alarming colors, clinical jargon, and sensory overload. Instead, it uses warm illustrations, gentle animations, and clear language to guide caregivers through the screening process. From uploading a simple 30-second video to reading the AI-generated report, the experience is designed to be **welcoming, non-judgmental, and empowering**.
+
+---
 
 ## Quick Start
 

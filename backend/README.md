@@ -1,6 +1,12 @@
-# Backend - Primeiro Olhar
+# Backend & AI Engine — Primeiro Olhar 🧠
 
-The Python-based API and asynchronous processing engine for the "Primeiro Olhar" platform.
+The Python-based API and asynchronous AI processing engine that powers the "Primeiro Olhar" screening platform.
+
+## Role in the Mission
+
+This module is the **brain** of Primeiro Olhar. When a family uploads a 30-second video of their child, it is this engine that orchestrates the entire analysis pipeline — from extracting visual gaze metrics and audio prosody patterns locally, to dispatching the multimodal data to **Gemma 4** for clinical-grade behavioral reasoning. The result is a structured, empathetic report generated in seconds, breaking down what would normally require weeks of specialist appointments into an accessible, immediate first look.
+
+---
 
 ## Quick Start
 
@@ -27,8 +33,8 @@ celery -A services.worker.celery_app worker --loglevel=info
 ## Features
 
 - **Asynchronous Pipeline**: Uses Celery and Redis to handle heavy video processing without blocking the HTTP thread.
-- **Multimodal AI Integration**: Interacts directly with Google Gemini 1.5 Flash to analyze videos and parental texts.
-- **Computer Vision & Audio Processing**: Extracts audio tracks (FFmpeg) and analyzes visual frames directly from user uploads.
+- **Multimodal AI Integration**: Interacts directly with Gemma 4 to analyze videos and parental texts using Chain-of-Thought reasoning.
+- **Computer Vision & Audio Processing**: Extracts eye contact metrics (MediaPipe), audio prosody (Librosa), and facial expressivity locally before AI inference.
 - **REST API**: Provides structured endpoints for the frontend and mobile apps.
 
 ## Configuration
