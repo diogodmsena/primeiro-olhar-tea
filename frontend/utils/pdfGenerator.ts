@@ -39,7 +39,7 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
         (rawLevel.includes("moderado") || rawLevel.includes("moderate") || rawLevel.includes("médio")) ? t('results.indicatorModerado') :
         (rawLevel.includes("alto") || rawLevel.includes("high") || rawLevel.includes("forte") || rawLevel.includes("strong")) ? t('results.indicatorForte') :
         rawLevel || t('report.unspecified');
-  const riskScoreValue = Math.round((data.risk_score?.score || 0) * 100);
+  // const riskScoreValue = Math.round((data.risk_score?.score || 0) * 100);
   
   const htmlContent = `
     <html>
@@ -66,11 +66,6 @@ export const generateAndDownloadPDF = async (data: TriagemData, jobId: string | 
         
         <div style="margin-top: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
           <h4 style="margin-top: 0; margin-bottom: 15px; color: #475569;">${t('report.dimensionsTitle')}</h4>
-          <ul style="margin: 0; padding-left: 20px;">
-            <li style="margin-bottom: 8px;"><strong>${t('results.radarVisual')}</strong></li>
-            <li style="margin-bottom: 8px;"><strong>${t('results.radarExpressivity')}</strong></li>
-            <li><strong>${t('results.radarProsody')}</strong></li>
-          </ul>
           <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;">
             <p style="margin: 0 0 5px 0;"><strong>${t('results.radarVisual')}:</strong> ${t('report.dimEyeContent')}</p>
             <p style="margin: 0 0 5px 0;"><strong>${t('results.radarExpressivity')}:</strong> ${t('report.dimExpContent')}</p>

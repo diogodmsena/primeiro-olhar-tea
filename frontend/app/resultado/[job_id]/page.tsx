@@ -522,6 +522,9 @@ export default function ResultadoPage() {
                                <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${(video_features?.eye_contact_ratio || 0) * 100}%` }} />
                            </div>
                        </div>
+                       <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 leading-relaxed">
+                            <p className="mb-2 italic">• {t('results.dimHelpEye')}</p>
+                        </div>
 
                        <div>
                            <div className="flex justify-between mb-2">
@@ -532,6 +535,9 @@ export default function ResultadoPage() {
                                <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: video_features?.facial_expressivity === 'low' ? '30%' : video_features?.facial_expressivity === 'high' ? '90%' : '70%' }} />
                            </div>
                        </div>
+                       <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 leading-relaxed">
+                            <p className="mb-2 italic">• {t('results.dimHelpExp')}</p>
+                        </div>
 
                        <div>
                            <div className="flex justify-between mb-2">
@@ -542,12 +548,9 @@ export default function ResultadoPage() {
                                <div className="h-full bg-amber-500 rounded-full transition-all duration-1000" style={{ width: `${(audio_features?.prosody_variation || 0) * 100}%` }} />
                            </div>
                        </div>
-                   </div>
-
-                   <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 leading-relaxed">
-                       <p className="mb-2 italic">• {t('results.dimHelpEye')}</p>
-                       <p className="mb-2 italic">• {t('results.dimHelpExp')}</p>
-                       <p className="italic">• {t('results.dimHelpAud')}</p>
+                       <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 text-[11px] text-slate-400 leading-relaxed">
+                            <p className="italic">• {t('results.dimHelpAud')}</p>
+                        </div>
                    </div>
                </div>
            </div>
