@@ -55,4 +55,4 @@ Create a `.env` file in the `mobile/` directory:
 
 ## License
 
-MIT
+This Writeup has been released under the Attribution 4.0 International (CC BY 4.0) license.

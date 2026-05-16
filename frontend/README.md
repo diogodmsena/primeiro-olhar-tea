@@ -43,4 +43,4 @@ Create a `.env.local` file in the `frontend/` directory:
 
 ## License
 
-MIT
+This Writeup has been released under the Attribution 4.0 International (CC BY 4.0) license.

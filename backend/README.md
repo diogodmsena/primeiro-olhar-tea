@@ -64,4 +64,4 @@ Retrieves the status and result of a specific screening job.
 
 ## License
 
-MIT
+This Writeup has been released under the Attribution 4.0 International (CC BY 4.0) license.
