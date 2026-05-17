@@ -237,7 +237,7 @@ export default function TriagemScreen() {
                 <Text className="font-bold text-slate-700">{t('form.childNameLabel')}</Text>
                 <TextInput
                   className="bg-white p-4 rounded-xl border border-slate-200 focus:border-blue-500 font-medium text-slate-700"
-                  placeholder="Nome da criança"
+                  placeholder={t('form.childNamePlaceholder')}
                   value={childName}
                   onChangeText={setChildName}
                 />
@@ -262,10 +262,10 @@ export default function TriagemScreen() {
 
                 <View className="flex-column gap-4 mt-4">
                   <TouchableOpacity onPress={handleNext} className="bg-blue-500 p-4 rounded-xl items-center mt-4">
-                    <Text className="text-white font-bold">Próximo Passo</Text>
+                    <Text className="text-white font-bold">{t('form.btnNext')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => router.push('/')} className="flex-1 bg-slate-200 p-4 rounded-xl items-center">
-                    <Text className="text-slate-600 font-bold">Voltar</Text>
+                    <Text className="text-slate-600 font-bold">{t('form.btnBack')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -282,7 +282,7 @@ export default function TriagemScreen() {
                   className="bg-blue-50 px-3 py-1.5 rounded-full flex-row items-center border border-blue-100"
                 >
                   <Info color="#3b82f6" size={18} />
-                  <Text className="text-blue-600 font-bold ml-2 text-base">Ver Guia</Text>
+                  <Text className="text-blue-600 font-bold ml-2 text-base">{t('form.btnViewGuide')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -296,7 +296,7 @@ export default function TriagemScreen() {
                 <View className="flex-1 bg-black/50 justify-center p-6">
                   <Animated.View entering={FadeInDown} className="bg-white rounded-3xl overflow-hidden">
                     <View className="bg-blue-500 p-6 flex-row justify-between items-center">
-                      <Text className="text-white font-black text-xl">Guia de Gravação</Text>
+                      <Text className="text-white font-black text-xl">{t('form.guideTitle')}</Text>
                       <TouchableOpacity onPress={() => setShowGuide(false)}>
                         <XCircle color="#fff" size={24} />
                       </TouchableOpacity>
@@ -309,8 +309,8 @@ export default function TriagemScreen() {
                             <Eye color="#3b82f6" size={20} />
                           </View>
                           <View className="flex-1">
-                            <Text className="font-bold text-slate-800 text-lg">Enquadramento</Text>
-                            <Text className="text-slate-500">Mantenha a câmera na altura dos olhos da criança, a cerca de 1 metro.</Text>
+                            <Text className="font-bold text-slate-800 text-lg">{t('form.guideFramingTitle')}</Text>
+                            <Text className="text-slate-500">{t('form.guideFramingDesc')}</Text>
                           </View>
                         </View>
 
@@ -319,8 +319,8 @@ export default function TriagemScreen() {
                             <Smile color="#10b981" size={20} />
                           </View>
                           <View className="flex-1">
-                            <Text className="font-bold text-slate-800 text-lg">Interação</Text>
-                            <Text className="text-slate-500">Chame pelo nome e observe se ela olha para você ou para a câmera.</Text>
+                            <Text className="font-bold text-slate-800 text-lg">{t('form.guideInteractionTitle')}</Text>
+                            <Text className="text-slate-500">{t('form.guideInteractionDesc')}</Text>
                           </View>
                         </View>
 
@@ -329,14 +329,14 @@ export default function TriagemScreen() {
                             <Ear color="#f59e0b" size={20} />
                           </View>
                           <View className="flex-1">
-                            <Text className="font-bold text-slate-800 text-lg">Ambiente</Text>
-                            <Text className="text-slate-500">Evite barulhos externos, TV ou muitas pessoas falando ao mesmo tempo.</Text>
+                            <Text className="font-bold text-slate-800 text-lg">{t('form.guideEnvironmentTitle')}</Text>
+                            <Text className="text-slate-500">{t('form.guideEnvironmentDesc')}</Text>
                           </View>
                         </View>
 
                         <View className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                            <Text className="text-slate-600 font-medium leading-relaxed">
-                             O sistema analisa o contato visual e a melodia da voz da criança para fornecer os indicadores.
+                             {t('form.guideAiNote')}
                            </Text>
                         </View>
                       </View>
@@ -346,7 +346,7 @@ export default function TriagemScreen() {
                       onPress={() => setShowGuide(false)}
                       className="m-6 bg-blue-500 p-4 rounded-2xl items-center"
                     >
-                      <Text className="text-white font-bold text-lg">Entendi</Text>
+                      <Text className="text-white font-bold text-lg">{t('form.guideDismiss')}</Text>
                     </TouchableOpacity>
                   </Animated.View>
                 </View>
@@ -355,12 +355,12 @@ export default function TriagemScreen() {
               {videoUri ? (
                 <View className="bg-emerald-50 items-center justify-center rounded-2xl border-2 border-emerald-500 border-dashed py-12 gap-4">
                   <Video color="#10b981" size={48} />
-                  <Text className="text-emerald-700 font-bold text-lg">Vídeo Pronto para Envio</Text>
+                  <Text className="text-emerald-700 font-bold text-lg">{t('form.videoReady')}</Text>
                   <TouchableOpacity
                     onPress={() => setVideoUri(null)}
                     className="px-6 py-2 bg-emerald-100 rounded-full"
                   >
-                    <Text className="text-emerald-700 font-bold">Remover e Escolher Outro</Text>
+                    <Text className="text-emerald-700 font-bold">{t('form.videoRemove')}</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -370,14 +370,14 @@ export default function TriagemScreen() {
                     className="w-full bg-blue-500 p-4 rounded-xl flex-row items-center justify-center gap-2"
                   >
                     <Camera color="#fff" size={20} />
-                    <Text className="text-white font-bold ml-2">Gravar Vídeo Agora</Text>
+                    <Text className="text-white font-bold ml-2">{t('form.videoRecord')}</Text>
                   </TouchableOpacity>
                   
                   <Text className="text-slate-600 text-center font-medium">OU</Text>
                   
                   <TouchableOpacity onPress={pickVideo} className="w-full bg-slate-200 p-4 rounded-xl items-center flex-row justify-center border border-slate-200">
                     <ImageIcon color="#64748b" size={20} />
-                    <Text className="font-bold text-slate-600 ml-2">Escolher da Galeria</Text>
+                    <Text className="font-bold text-slate-600 ml-2">{t('form.videoPickGallery')}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -391,14 +391,14 @@ export default function TriagemScreen() {
 
               <View className="flex-row gap-4 mt-4">
                 <TouchableOpacity onPress={handlePrev} className="flex-1 bg-slate-200 p-4 rounded-xl items-center">
-                  <Text className="text-slate-600 font-bold">Voltar</Text>
+                  <Text className="text-slate-600 font-bold">{t('form.btnBack')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={handleNext}
                   disabled={!videoUri}
                   className={`flex-1 p-4 rounded-xl items-center ${videoUri ? 'bg-blue-500' : 'bg-blue-300'}`}
                 >
-                  <Text className="text-white font-bold">Próximo</Text>
+                  <Text className="text-white font-bold">{t('form.btnNextShort')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -460,7 +460,7 @@ export default function TriagemScreen() {
 
               <View className="flex-row gap-4 mt-8">
                 <TouchableOpacity onPress={handlePrev} className="flex-1 bg-slate-200 p-4 rounded-xl items-center justify-center">
-                  <Text className="text-slate-600 font-bold">Voltar</Text>
+                  <Text className="text-slate-600 font-bold">{t('form.btnBack')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
