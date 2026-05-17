@@ -57,7 +57,7 @@ export const dictionaries = {
       titleEnd: " funciona?",
       subtitle: "Em 4 passos simples, nossa plataforma utiliza inteligência artificial multimodal para auxiliar na identificação precoce de sinais de neurodivergência.",
       step1Title: "Grave um vídeo curto",
-      step1Desc: "Registre 1 a 3 minutos de interação natural da criança. Pode ser brincando, olhando para a câmera ou interagindo com outra pessoa. O vídeo não precisa ser perfeito — o importante é capturar o cotidiano.",
+      step1Desc: "Registre até 30 segundos de interação natural da criança. Pode ser brincando, olhando para a câmera ou interagindo com outra pessoa. O vídeo não precisa ser perfeito — o importante é capturar o cotidiano.",
       step1Tip: "Ambientes calmos e iluminados ajudam na análise.",
       step2Title: "Responda o questionário",
       step2Desc: "Preencha algumas perguntas simples sobre o dia a dia da criança: se ela responde ao nome, se brinca de faz de conta, se alinha objetos. São perguntas rápidas baseadas em instrumentos clínicos validados.",
@@ -253,7 +253,7 @@ export const dictionaries = {
       titleEnd: " work?",
       subtitle: "In 4 simple steps, our platform uses multimodal AI to assist in the early identification of signs of neurodivergence.",
       step1Title: "Record a short video",
-      step1Desc: "Record 1 to 3 minutes of natural interaction with the child. It can be playing, looking at the camera, or interacting with someone else. The video does not need to be perfect — capturing everyday life is what matters.",
+      step1Desc: "Record up to 30 seconds of natural interaction with the child. It can be playing, looking at the camera, or interacting with someone else. The video does not need to be perfect — capturing everyday life is what matters.",
       step1Tip: "Calm and well-lit environments help with the analysis.",
       step2Title: "Answer the questionnaire",
       step2Desc: "Answer a few simple questions about the child's daily life: whether they respond to their name, pretend play, or line up objects. These are quick questions based on validated clinical instruments.",
@@ -449,7 +449,7 @@ export const dictionaries = {
       titleEnd: "?",
       subtitle: "En 4 simples pasos, nuestra plataforma utiliza IA multimodal para ayudar en la identificación temprana de señales de neurodivergencia.",
       step1Title: "Graba un video corto",
-      step1Desc: "Graba de 1 a 3 minutos de interacción natural del niño/a. Puede ser jugando, mirando a la cámara o interactuando con otra persona. El video no necesita ser perfecto, lo importante es capturar su día a día.",
+      step1Desc: "Graba hasta 30 segundos de interacción natural del niño/a. Puede ser jugando, mirando a la cámara o interactuando con otra persona. El video no necesita ser perfecto, lo importante es capturar su día a día.",
       step1Tip: "Un entorno tranquilo y bien iluminado mejora el análisis.",
       step2Title: "Responde el cuestionario",
       step2Desc: "Responde preguntas sencillas sobre la rutina del niño/a: si responde al nombre, si juega a 'hacer de cuenta' o si alínea objetos. Estas preguntas rápidas se basan en instrumentos clínicos validados.",
@@ -571,12 +571,12 @@ export const dictionaries = {
         eyeAlert: "En el Autismo: Es común evitar el contacto visual prolongado o desviar la mirada del interlocutor debido a la sobrecarga de estímulos.",
         expTitle: "Expresividad",
         expDesc: "Analiza la flexibilidad e intensidad de las emociones (ej. si el niño sonríe al ser elogiado, si demuestra asombro o reflejo empático).",
-        expAlert: "En el Autismo: Se observa un afecto más \"plano\", es decir, expresiones reducidas/rígidas que tardan más en activarse em contextos sociales.",
+        expAlert: "En el Autismo: Se observa un afecto más \"plano\", es decir, expresiones reducidas/rígidas que tardan más en activarse en contextos sociales.",
         proTitle: "Prosodia / Auditivo",
         proDesc: "La Prosodia es la melodía del habla. Observa cómo el niño reacciona a llamadas sonoras y las variaciones de tono vocal.",
         proAlert: "En el Autismo: Los retrasos en la respuesta al nombre y un habla más monotónica son signos clásicos.",
         infoTitle: "Acerca de los Resultados",
-        infoDesc: "Recuerde que los algoritmos de Inteligência Artificial procesan métricas no definitivas. Ningún informe sustituye el análisis exhaustivo por parte de neuropediatras y especialistas em desarrollo."
+        infoDesc: "Recuerde que los algoritmos de Inteligencia Artificial procesan métricas no definitivas. Ningún informe sustituye el análisis exhaustivo por parte de neuropediatras y especialistas en desarrollo."
       }
     },
     report: {
