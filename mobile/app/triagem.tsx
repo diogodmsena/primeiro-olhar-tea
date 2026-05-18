@@ -16,7 +16,7 @@ import { useToast } from '../contexts/ToastContext';
 type Step = 1 | 2 | 3;
 
 export default function TriagemScreen() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const router = useRouter();
 
   // Estados
