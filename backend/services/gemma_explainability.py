@@ -166,25 +166,29 @@ def _build_prompt(cv_metrics: dict, audio_metrics: dict, parent_answers: dict) -
     except (ValueError, TypeError):
         age_num = 0
 
-    avg_gaze   = cv_metrics.get("avg_gaze_score", 0.0)
-    eye_ratio  = cv_metrics.get("eye_contact_ratio", 0.0)
-    head_pat   = cv_metrics.get("head_movement_pattern", "normal")
-    express    = cv_metrics.get("facial_expressivity", "normal")
+    avg_gaze   = cv_metrics.get("avg_gaze_score", -1.0)
+    eye_ratio  = cv_metrics.get("eye_contact_ratio", -1.0)
+    head_pat   = cv_metrics.get("head_movement_pattern", "inconclusivo")
+    express    = cv_metrics.get("facial_expressivity", "inconclusivo")
 
     gaze_label = (
+        "inconclusivo (rosto não detectado)" if avg_gaze < 0.0 else
         "alto (≥ 0.70)"        if avg_gaze >= 0.70 else
         "moderado (0.40–0.69)" if avg_gaze >= 0.40 else
         "baixo (< 0.40)"
     )
+    
+    ratio_str = f"{eye_ratio * 100:.1f}%" if eye_ratio >= 0 else "inconclusivo"
+    gaze_str = f"{avg_gaze:.4f}" if avg_gaze >= 0 else "inconclusivo"
 
     cv_section = f"""═══ DADOS TÉCNICOS DE VISÃO COMPUTACIONAL (fonte: análise local, CPU) ═══
-• Índice médio de contato visual (avg_gaze_score): {avg_gaze:.4f} — nível {gaze_label}
-• Proporção de frames com engajamento ocular (> 0.60): {eye_ratio * 100:.1f}%
+• Índice médio de contato visual (avg_gaze_score): {gaze_str} — nível {gaze_label}
+• Proporção de frames com engajamento ocular (> 0.60): {ratio_str}
 • Padrão de movimentação cefálica (variância do ângulo yaw): {head_pat}
 • Expressividade facial detectada: {express}
 
 Estes valores são objetivos e devem ancorar sua análise clínica.
-Interprete-os clinicamente — NÃO os copie literalmente no relatório."""
+Interprete-os clinicamente — NÃO os copie literalmente no relatório. Se o rosto não foi detectado, avalie apenas com base na anamnese sem penalizar a falta de vídeo."""
 
     prosody = audio_metrics.get("prosody_variation", 0.5)
     speech  = "detectada" if audio_metrics.get("speech_presence", False) else "não detectada ou mínima"

@@ -212,10 +212,10 @@ class BehavioralVideoAnalyzer:
         Returns safe defaults on corrupt files or videos with no detected face.
         """
         safe_defaults: dict = {
-            "avg_gaze_score": 0.0,
-            "eye_contact_ratio": 0.0,
-            "head_movement_pattern": "normal",
-            "facial_expressivity": "normal",
+            "avg_gaze_score": -1.0,
+            "eye_contact_ratio": -1.0,
+            "head_movement_pattern": "inconclusivo",
+            "facial_expressivity": "inconclusivo",
         }
 
         try:
