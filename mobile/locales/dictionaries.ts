@@ -73,7 +73,11 @@ export const dictionaries = {
       guideInteractionDesc: "Chame pelo nome e observe se ela olha para você ou para a câmera.",
       guideEnvironmentTitle: "Ambiente",
       guideEnvironmentDesc: "Evite barulhos externos, TV ou muitas pessoas falando ao mesmo tempo.",
-      guideAiNote: "O sistema analisa o contato visual e a melodia da voz da criança para fornecer os indicadores."
+      guideAiNote: "O sistema analisa o contato visual e a melodia da voz da criança para fornecer os indicadores.",
+      toastCameraPermission: "Permissão de câmera necessária para gravar o vídeo.",
+      toastVideoTooLong: "Vídeo muito longo. Grave no máximo 30 segundos.",
+      toastVideoRequired: "Por favor, escolha um vídeo para a triagem.",
+      toastVideoTooLarge: "Vídeo muito grande. Use um vídeo de até {max}MB."
     },
     how: {
       back: "Voltar ao Início",
@@ -245,7 +249,11 @@ export const dictionaries = {
       guideInteractionDesc: "Call by name and observe if they look at you or the camera.",
       guideEnvironmentTitle: "Environment",
       guideEnvironmentDesc: "Avoid background noise, TV, or multiple people talking at once.",
-      guideAiNote: "The system analyzes the child's eye contact and voice melody to provide the indicators."
+      guideAiNote: "The system analyzes the child's eye contact and voice melody to provide the indicators.",
+      toastCameraPermission: "Camera permission is required to record the video.",
+      toastVideoTooLong: "Video too long. Please record up to 30 seconds.",
+      toastVideoRequired: "Please select a video for the screening.",
+      toastVideoTooLarge: "Video too large. Please use a video up to {max}MB."
     },
     how: {
       back: "Back to Home",
@@ -417,7 +425,11 @@ export const dictionaries = {
       guideInteractionDesc: "Llámalo por su nombre y observa si te mira a ti o a la cámara.",
       guideEnvironmentTitle: "Entorno",
       guideEnvironmentDesc: "Evita ruidos externos, TV u otras personas hablando al mismo tiempo.",
-      guideAiNote: "El sistema analiza el contacto visual y la melodía de la voz del niño/a para ofrecer los indicadores."
+      guideAiNote: "El sistema analiza el contacto visual y la melodía de la voz del niño/a para ofrecer los indicadores.",
+      toastCameraPermission: "Se necesita permiso de cámara para grabar el video.",
+      toastVideoTooLong: "Video demasiado largo. Graba máximo 30 segundos.",
+      toastVideoRequired: "Por favor, selecciona un video para la evaluación.",
+      toastVideoTooLarge: "Video demasiado grande. Usa un video de hasta {max}MB."
     },
     how: {
       back: "Volver al Inicio",

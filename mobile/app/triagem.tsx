@@ -53,7 +53,7 @@ export default function TriagemScreen() {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     
     if (permissionResult.granted === false) {
-      showToast("Permissão de câmera necessária para gravar o vídeo.", "warning");
+      showToast(t('form.toastCameraPermission'), "warning");
       return;
     }
 
@@ -70,7 +70,7 @@ export default function TriagemScreen() {
       // duration vem em milissegundos. Colocamos 32000 (32s) para dar uma pequena 
       // margem de tolerância caso o usuário demore 1 segundo a mais para apertar o stop.
       if (videoAsset.duration && videoAsset.duration > 32000) {
-        showToast("Vídeo muito longo. Grave no máximo 30 segundos.", "warning");
+        showToast(t('form.toastVideoTooLong'), "warning");
         return; // Impede que o vídeo seja carregado no app
       }
 
@@ -89,9 +89,9 @@ export default function TriagemScreen() {
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const videoAsset = result.assets[0];
 
-      // Aqui você limitava a 3 minutos (180 segundos) no código original
-      if (videoAsset.duration && videoAsset.duration > 185000) {
-        showToast("Por favor, escolha um vídeo de até 3 minutos.", "warning");
+      // Duration is in milliseconds. 35000ms (35s) gives a small tolerance buffer over the 30s guideline.
+      if (videoAsset.duration && videoAsset.duration > 35000) {
+        showToast(t('form.toastVideoTooLong'), "warning");
         return;
       }
 
@@ -99,13 +99,13 @@ export default function TriagemScreen() {
     }
   };
 
-  const MAX_VIDEO_SIZE_MB = 50;
+  const MAX_VIDEO_SIZE_MB = 100;
 
   // ── ENVIO DOS DADOS ──
   const submitTriagem = async () => {
     Keyboard.dismiss();
     if (!videoUri) {
-      showToast("Por favor, escolha um vídeo para a triagem.", "warning");
+      showToast(t('form.toastVideoRequired'), "warning");
       return;
     }
     setIsSubmitting(true);
@@ -116,7 +116,7 @@ export default function TriagemScreen() {
         if (fileInfo.exists && fileInfo.size) {
           const fileSizeMB = fileInfo.size / (1024 * 1024);
           if (fileSizeMB > MAX_VIDEO_SIZE_MB) {
-            showToast(`Vídeo muito grande. Use um vídeo de até ${MAX_VIDEO_SIZE_MB}MB.`, "warning");
+            showToast(t('form.toastVideoTooLarge').replace('{max}', String(MAX_VIDEO_SIZE_MB)), "warning");
             setIsSubmitting(false);
             return;
           }
