@@ -131,8 +131,12 @@ export default function TriagemScreen() {
         const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
         formData.append('video', file);
       } else {
+        let uriToUpload = videoUri;
+        if (Platform.OS === 'android' && !videoUri.startsWith('file://') && !videoUri.startsWith('content://')) {
+          uriToUpload = `file://${videoUri}`;
+        }
         formData.append('video', {
-          uri: videoUri,
+          uri: uriToUpload,
           name: 'video.mp4',
           type: 'video/mp4',
         } as any);
@@ -145,7 +149,7 @@ export default function TriagemScreen() {
         communication_delays: communicationDelays,
         responds_to_name: respondsToName,
         pretend_play: pretendPlay,
-        repetitive_behaviors: repetitiveBehaviors,
+        object_lining: repetitiveBehaviors,
         lang: locale,
       };
 
