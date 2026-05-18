@@ -146,9 +146,11 @@ export default function TriagemScreen() {
         responds_to_name: respondsToName,
         pretend_play: pretendPlay,
         repetitive_behaviors: repetitiveBehaviors,
+        lang: locale,
       };
 
       formData.append('parent_answers', JSON.stringify(parentData));
+      formData.append('lang', locale);
 
       const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
       const endpoint = `${apiUrl}/api/triagem`;
@@ -166,9 +168,9 @@ export default function TriagemScreen() {
 
       if (!fetchResponse.ok) {
         const status = fetchResponse.status;
-        let msg: string = `Erro ${status}: ${responseData?.detail || 'Erro desconhecido'}`;
-        if (status === 403) msg = 'Acesso bloqueado (403). Verifique WAF/Cloudflare.';
-        else if (status === 413) msg = 'Vídeo muito grande. Use um vídeo de até 100MB.';
+        let msg: string = `Error ${status}: ${responseData?.detail || 'Unknown error'}`;
+        if (status === 403) msg = t('form.toastVideoTooLarge').replace('{max}', '100'); // WAF block reuses size label as closest match
+        else if (status === 413) msg = t('form.toastVideoTooLarge').replace('{max}', '100');
         
         showToast(msg, 'error');
         return;
@@ -179,9 +181,9 @@ export default function TriagemScreen() {
         return;
       }
 
-      showToast('Resposta inesperada do servidor. Tente novamente.', 'error');
+      showToast(t('form.toastVideoRequired'), 'error');
     } catch (e: any) {
-      showToast(`Erro de conexão: ${e.message}`, 'error');
+      showToast(`${e.message}`, 'error');
     } finally {
       setIsSubmitting(false);
     }

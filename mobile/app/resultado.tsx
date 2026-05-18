@@ -93,7 +93,7 @@ export default function ResultadoScreen() {
     const fetchStatus = async () => {
       try {
         const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000';
-        const response = await fetch(`${apiUrl}/api/triagem/${job_id}`, {
+        const response = await fetch(`${apiUrl}/api/triagem/${job_id}?lang=${locale}`, {
           method: 'GET',
           headers: {
             'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
