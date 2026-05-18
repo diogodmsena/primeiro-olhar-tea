@@ -95,9 +95,9 @@ export default function SobreOAutorPage() {
           <h1 className="text-4xl md:text-5xl font-black text-slate-800 mb-3 leading-tight">
             Diogo Sena
           </h1>
-          <p className="text-lg text-blue-500 font-bold mb-4">Analista de Sistemas &amp; Desenvolvedor Full Stack</p>
+          <p className="text-lg text-blue-500 font-bold mb-4">{t("author.role")}</p>
           <p className="text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">
-            Pai do Heitor e da Elisa. Desenvolvedor apaixonado por tecnologia com propósito social.
+            {t("author.tagline")}
           </p>
 
           {/* Social links */}
@@ -129,14 +129,10 @@ export default function SobreOAutorPage() {
             <div className="w-10 h-10 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
               <Heart className="w-5 h-5 text-emerald-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Introdução</h2>
+            <h2 className="text-xl font-bold text-slate-800">{t("author.introTitle")}</h2>
           </div>
           <p className="text-slate-600 leading-relaxed font-medium">
-            Meu nome é Diogo Sena. Antes de qualquer título profissional, eu sou pai do{" "}
-            <strong className="text-slate-800">Heitor, de 6 anos</strong>, e da{" "}
-            <strong className="text-slate-800">Elisa, de 3</strong>. É justamente nesse lugar — o de pai que ama, observa,
-            se preocupa e busca respostas — que começa a minha história e também a razão pela qual o{" "}
-            <strong className="text-blue-500">Primeiro Olhar</strong> existe.
+            {t("author.introText")}
           </p>
         </section>
 
@@ -146,29 +142,12 @@ export default function SobreOAutorPage() {
             <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">A Jornada Pessoal</h2>
+            <h2 className="text-xl font-bold text-slate-800">{t("author.journeyTitle")}</h2>
           </div>
           <div className="space-y-4 text-slate-600 leading-relaxed font-medium">
-            <p>
-              A nossa caminhada com o Heitor começou muito cedo. Ainda no primeiro ano de vida, eu e minha esposa já
-              percebíamos que havia algo diferente em seu desenvolvimento. Não era falta de amor, de atenção ou de
-              estímulo. Era aquele sentimento silencioso que só quem convive de perto consegue entender: o coração dos
-              pais percebe antes mesmo de o mundo conseguir nomear.
-            </p>
-            <p>
-              Um dos maiores desafios foi acompanhar o desenvolvimento da fala. O Heitor só conseguiu avançar de forma
-              mais significativa por volta dos 4 anos, e esse processo exigiu de nós paciência, força e, acima de tudo,
-              esperança. Houve momentos de insegurança, cansaço e dúvidas, mas também houve algo essencial: a
-              oportunidade de buscar ajuda no tempo certo.
-            </p>
-            <p>
-              A intervenção precoce e o acompanhamento terapêutico fizeram toda a diferença. Com cuidado, constância e
-              apoio especializado, vimos o Heitor evoluir de maneira muito bonita. Cada pequeno avanço passou a ter um
-              significado enorme. O que antes era medo foi se transformando em aprendizado. O que parecia dor ganhou
-              espaço para a superação. Hoje, olhar para a trajetória dele é lembrar que{" "}
-              <strong className="text-slate-800">desenvolvimento é caminho</strong>, e que cada conquista merece ser
-              celebrada.
-            </p>
+            <p>{t("author.journeyP1")}</p>
+            <p>{t("author.journeyP2")}</p>
+            <p>{t("author.journeyP3")}</p>
           </div>
         </section>
 
@@ -181,21 +160,11 @@ export default function SobreOAutorPage() {
               <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
                 <Brain className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-white">A Missão</h2>
+              <h2 className="text-xl font-bold text-white">{t("author.missionTitle")}</h2>
             </div>
             <div className="space-y-4 text-blue-100 leading-relaxed font-medium">
-              <p>
-                Foi dessa vivência que nasceu o{" "}
-                <strong className="text-white">Primeiro Olhar</strong>. Não como um projeto apenas, mas como uma missão
-                de vida. Como analista de sistemas e desenvolvedor full stack, decidi unir aquilo que sei fazer com
-                aquilo que mais move o meu coração: ajudar outras famílias.
-              </p>
-              <p>
-                Eu sei o peso que existe entre a primeira dúvida e o acesso a um especialista. Sei o quanto o tempo
-                importa e o quanto a informação certa, no momento certo, pode mudar uma história. O Primeiro Olhar
-                nasceu para diminuir essa distância, oferecendo um apoio inicial mais{" "}
-                <strong className="text-white">acessível, humano e orientado pela tecnologia</strong>.
-              </p>
+              <p>{t("author.missionP1")}</p>
+              <p>{t("author.missionP2")}</p>
             </div>
           </div>
         </section>
@@ -206,7 +175,7 @@ export default function SobreOAutorPage() {
             <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
               <Code2 className="w-5 h-5 text-amber-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Stack Técnico do Projeto</h2>
+            <h2 className="text-xl font-bold text-slate-800">{t("author.techTitle")}</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {techStack.map((tech) => (
@@ -220,18 +189,9 @@ export default function SobreOAutorPage() {
           <div className="flex items-start gap-4">
             <div className="text-4xl shrink-0">🏆</div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-3">Gemma 4 Good Hackathon</h2>
-              <p className="text-slate-600 leading-relaxed font-medium mb-3">
-                O <strong className="text-slate-800">Primeiro Olhar</strong> foi desenvolvido exclusivamente para o{" "}
-                <strong className="text-amber-700">Gemma 4 Good Hackathon</strong> — uma iniciativa do Google para
-                incentivar projetos de impacto social construídos com o modelo de linguagem aberto Gemma 4.
-              </p>
-              <p className="text-slate-600 leading-relaxed font-medium">
-                Para este hackathon, construímos um motor híbrido de triagem multimodal: combinando Visão Computacional
-                local via <strong className="text-slate-800">MediaPipe</strong> com o raciocínio clínico estruturado do{" "}
-                <strong className="text-slate-800">Google Gemma 4 (26B MoE)</strong> via Chain-of-Thought — gerando
-                relatórios explicáveis, acessíveis e eticamente responsáveis.
-              </p>
+              <h2 className="text-xl font-bold text-slate-800 mb-3">{t("author.hackathonTitle")}</h2>
+              <p className="text-slate-600 leading-relaxed font-medium mb-3">{t("author.hackathonP1")}</p>
+              <p className="text-slate-600 leading-relaxed font-medium">{t("author.hackathonP2")}</p>
             </div>
           </div>
         </section>
@@ -239,26 +199,16 @@ export default function SobreOAutorPage() {
         {/* CONCLUSÃO */}
         <section className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 md:p-10 mb-8">
           <div className="space-y-4 text-slate-600 leading-relaxed font-medium">
-            <p>
-              Se você é pai, mãe ou responsável e está vivendo esse momento de incerteza, quero dizer algo importante:{" "}
-              <strong className="text-blue-500">você não está sozinho</strong>. Buscar respostas cedo é um gesto de
-              amor. O diagnóstico precoce pode abrir portas, encurtar caminhos e ampliar possibilidades.
-            </p>
-            <p>
-              O Primeiro Olhar nasceu do amor pelo meu filho, mas carrega o desejo sincero de facilitar a vida de muitas
-              outras famílias. Porque, quando há acolhimento, informação e esperança,{" "}
-              <strong className="text-slate-800">
-                o futuro deixa de ser um medo — e passa a ser uma construção possível.
-              </strong>
-            </p>
+            <p>{t("author.closingP1")}</p>
+            <p>{t("author.closingP2")}</p>
           </div>
         </section>
 
         {/* CTA */}
         <section className="text-center">
           <div className="bg-blue-50 rounded-3xl p-10 border border-blue-100">
-            <h2 className="text-2xl font-bold text-slate-800 mb-3">Pronto para começar?</h2>
-            <p className="text-slate-500 font-medium mb-6">A triagem leva apenas alguns minutos e pode fazer toda a diferença.</p>
+            <h2 className="text-2xl font-bold text-slate-800 mb-3">{t("author.ctaTitle")}</h2>
+            <p className="text-slate-500 font-medium mb-6">{t("author.ctaDesc")}</p>
             <Link
               href="/"
               id="about-start-screening-cta"

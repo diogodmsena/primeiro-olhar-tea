@@ -196,6 +196,27 @@ export const dictionaries = {
       dimEyeContent: "Mede a atenção direcionada no olhar durante as interações.",
       dimExpContent: "Analisa reações afetivas ligadas à interações sociais no vídeo.",
       dimProContent: "Avalia a entonação na reposta auditiva e chamados vocais."
+    },
+    author: {
+      role: "Analista de Sistemas & Desenvolvedor Full Stack",
+      tagline: "Pai do Heitor e da Elisa. Desenvolvedor apaixonado por tecnologia com propósito social.",
+      introTitle: "Introdução",
+      introText: "Meu nome é Diogo Sena. Antes de qualquer título profissional, eu sou pai do Heitor, de 6 anos, e da Elisa, de 3. É justamente nesse lugar — o de pai que ama, observa, se preocupa e busca respostas — que começa a minha história e também a razão pela qual o Primeiro Olhar existe.",
+      journeyTitle: "A Jornada Pessoal",
+      journeyP1: "A nossa caminhada com o Heitor começou muito cedo. Ainda no primeiro ano de vida, eu e minha esposa já percebíamos que havia algo diferente em seu desenvolvimento. Não era falta de amor, de atenção ou de estímulo. Era aquele sentimento silencioso que só quem convive de perto consegue entender: o coração dos pais percebe antes mesmo de o mundo conseguir nomear.",
+      journeyP2: "Um dos maiores desafios foi acompanhar o desenvolvimento da fala. O Heitor só conseguiu avançar de forma mais significativa por volta dos 4 anos, e esse processo exigiu de nós paciência, força e, acima de tudo, esperança. Houve momentos de insegurança, cansaço e dúvidas, mas também houve algo essencial: a oportunidade de buscar ajuda no tempo certo.",
+      journeyP3: "A intervenção precoce e o acompanhamento terapêutico fizeram toda a diferença. Com cuidado, constância e apoio especializado, vimos o Heitor evoluir de maneira muito bonita. Cada pequeno avanço passou a ter um significado enorme. O que antes era medo foi se transformando em aprendizado. O que parecia dor ganhou espaço para a superação. Hoje, olhar para a trajetória dele é lembrar que desenvolvimento é caminho, e que cada conquista merece ser celebrada.",
+      missionTitle: "A Missão",
+      missionP1: "Foi dessa vivência que nasceu o Primeiro Olhar. Não como um projeto apenas, mas como uma missão de vida. Como analista de sistemas e desenvolvedor full stack, decidi unir aquilo que sei fazer com aquilo que mais move o meu coração: ajudar outras famílias.",
+      missionP2: "Eu sei o peso que existe entre a primeira dúvida e o acesso a um especialista. Sei o quanto o tempo importa e o quanto a informação certa, no momento certo, pode mudar uma história. O Primeiro Olhar nasceu para diminuir essa distância, oferecendo um apoio inicial mais acessível, humano e orientado pela tecnologia.",
+      techTitle: "Stack Técnico do Projeto",
+      hackathonTitle: "Gemma 4 Good Hackathon",
+      hackathonP1: "O Primeiro Olhar foi desenvolvido exclusivamente para o Gemma 4 Good Hackathon — uma iniciativa do Google para incentivar projetos de impacto social construídos com o modelo de linguagem aberto Gemma 4.",
+      hackathonP2: "Para este hackathon, construímos um motor híbrido de triagem multimodal: combinando Visão Computacional local via MediaPipe com o raciocínio clínico estruturado do Google Gemma 4 (26B MoE) via Chain-of-Thought — gerando relatórios explicáveis, acessíveis e eticamente responsáveis.",
+      closingP1: "Se você é pai, mãe ou responsável e está vivendo esse momento de incerteza, quero dizer algo importante: você não está sozinho. Buscar respostas cedo é um gesto de amor. O diagnóstico precoce pode abrir portas, encurtar caminhos e ampliar possibilidades.",
+      closingP2: "O Primeiro Olhar nasceu do amor pelo meu filho, mas carrega o desejo sincero de facilitar a vida de muitas outras famílias. Porque, quando há acolhimento, informação e esperança, o futuro deixa de ser um medo — e passa a ser uma construção possível.",
+      ctaTitle: "Pronto para começar?",
+      ctaDesc: "A triagem leva apenas alguns minutos e pode fazer toda a diferença."
     }
   },
   en: {
@@ -393,6 +414,27 @@ export const dictionaries = {
       dimEyeContent: "Measures directed gaze attention during interactions.",
       dimExpContent: "Analyzes affective reactions linked to social interactions in the video.",
       dimProContent: "Evaluates intonation in auditory response and vocal calls."
+    },
+    author: {
+      role: "Systems Analyst & Full Stack Developer",
+      tagline: "Father of Heitor and Elisa. Developer passionate about technology with social purpose.",
+      introTitle: "Introduction",
+      introText: "My name is Diogo Sena. Before any professional title, I am the father of Heitor, 6 years old, and Elisa, 3. It is precisely in that place — as a father who loves, observes, worries and seeks answers — that my story begins, and also the reason why Primeiro Olhar exists.",
+      journeyTitle: "The Personal Journey",
+      journeyP1: "Our journey with Heitor began very early. Still in his first year of life, my wife and I could already sense there was something different in his development. It was not a lack of love, attention, or stimulation. It was that silent feeling that only those who live it closely can understand: a parent's heart knows before the world can put a name to it.",
+      journeyP2: "One of the greatest challenges was following the development of his speech. Heitor was only able to make more significant progress around age 4, and that process demanded from us patience, strength, and above all, hope. There were moments of insecurity, exhaustion, and doubt — but there was also something essential: the opportunity to seek help at the right time.",
+      journeyP3: "Early intervention and therapeutic support made all the difference. With care, consistency, and specialized support, we watched Heitor grow in a truly beautiful way. Every small step gained enormous meaning. What was once fear turned into learning. What seemed like pain made room for overcoming. Today, looking at his journey is a reminder that development is a path — and every achievement deserves to be celebrated.",
+      missionTitle: "The Mission",
+      missionP1: "It was from this experience that Primeiro Olhar was born. Not just as a project, but as a life mission. As a systems analyst and full stack developer, I decided to unite what I know how to do with what moves my heart the most: helping other families.",
+      missionP2: "I know the weight that exists between the first doubt and access to a specialist. I know how much time matters, and how the right information, at the right moment, can change a story. Primeiro Olhar was born to bridge that distance, offering more accessible, human, and technology-guided initial support.",
+      techTitle: "Project Tech Stack",
+      hackathonTitle: "Gemma 4 Good Hackathon",
+      hackathonP1: "Primeiro Olhar was developed exclusively for the Gemma 4 Good Hackathon — a Google initiative to encourage social impact projects built with the open-source Gemma 4 language model.",
+      hackathonP2: "For this hackathon, we built a hybrid multimodal screening engine: combining local Computer Vision via MediaPipe with the structured clinical reasoning of Google Gemma 4 (26B MoE) via Chain-of-Thought — generating explainable, accessible, and ethically responsible reports.",
+      closingP1: "If you are a parent or guardian and are living through this moment of uncertainty, I want to say something important: you are not alone. Seeking answers early is an act of love. Early diagnosis can open doors, shorten paths, and expand possibilities.",
+      closingP2: "Primeiro Olhar was born from love for my son, but it carries a sincere desire to make life easier for many other families. Because when there is care, information, and hope — the future stops being a fear, and becomes something we can build together.",
+      ctaTitle: "Ready to get started?",
+      ctaDesc: "The screening takes just a few minutes and can make all the difference."
     }
   },
   es: {
@@ -590,6 +632,27 @@ export const dictionaries = {
       dimEyeContent: "Mide la atención dirigida en la mirada durante las interacciones.",
       dimExpContent: "Analiza reacciones afectivas ligadas a interacciones sociales en el video.",
       dimProContent: "Evalúa la entonación en respuesta auditiva y llamadas vocales."
+    },
+    author: {
+      role: "Analista de Sistemas & Desarrollador Full Stack",
+      tagline: "Padre de Heitor y Elisa. Desarrollador apasionado por la tecnología con propósito social.",
+      introTitle: "Introducción",
+      introText: "Mi nombre es Diogo Sena. Antes de cualquier título profesional, soy padre de Heitor, de 6 años, y de Elisa, de 3. Es precisamente en ese lugar — el de un padre que ama, observa, se preocupa y busca respuestas — donde comienza mi historia y también la razón por la que existe Primeiro Olhar.",
+      journeyTitle: "El Camino Personal",
+      journeyP1: "Nuestro camino con Heitor comenzó muy temprano. Aún en su primer año de vida, mi esposa y yo ya notábamos que había algo diferente en su desarrollo. No era falta de amor, atención o estimulación. Era ese sentimiento silencioso que solo quienes conviven de cerca pueden entender: el corazón de los padres percibe antes de que el mundo pueda nombrarlo.",
+      journeyP2: "Uno de los mayores desafíos fue acompañar el desarrollo del habla. Heitor solo logró avanzar de forma más significativa alrededor de los 4 años, y ese proceso nos exigió paciencia, fuerza y, sobre todo, esperanza. Hubo momentos de inseguridad, cansancio y dudas, pero también algo esencial: la oportunidad de buscar ayuda a tiempo.",
+      journeyP3: "La intervención temprana y el seguimiento terapéutico marcaron toda la diferencia. Con cuidado, constancia y apoyo especializado, vimos a Heitor crecer de una manera muy hermosa. Cada pequeño avance adquirió un significado enorme. Lo que antes era miedo se fue transformando en aprendizaje. Lo que parecía dolor abrió espacio para la superación. Hoy, mirar su trayectoria es recordar que el desarrollo es un camino, y que cada logro merece ser celebrado.",
+      missionTitle: "La Misión",
+      missionP1: "Fue de esa vivencia que nació Primeiro Olhar. No solo como un proyecto, sino como una misión de vida. Como analista de sistemas y desarrollador full stack, decidí unir lo que sé hacer con lo que más mueve mi corazón: ayudar a otras familias.",
+      missionP2: "Sé el peso que existe entre la primera duda y el acceso a un especialista. Sé cuánto importa el tiempo y cuánto puede cambiar una historia la información correcta en el momento adecuado. Primeiro Olhar nació para reducir esa distancia, ofreciendo un apoyo inicial más accesible, humano y orientado por la tecnología.",
+      techTitle: "Stack Técnico del Proyecto",
+      hackathonTitle: "Gemma 4 Good Hackathon",
+      hackathonP1: "Primeiro Olhar fue desarrollado exclusivamente para el Gemma 4 Good Hackathon — una iniciativa de Google para fomentar proyectos de impacto social construidos con el modelo de lenguaje abierto Gemma 4.",
+      hackathonP2: "Para este hackathon, construimos un motor híbrido de cribado multimodal: combinando Visión Computacional local mediante MediaPipe con el razonamiento clínico estructurado de Google Gemma 4 (26B MoE) vía Chain-of-Thought — generando informes explicables, accesibles y éticamente responsables.",
+      closingP1: "Si eres padre, madre o tutor y estás viviendo este momento de incertidumbre, quiero decirte algo importante: no estás solo. Buscar respuestas temprano es un acto de amor. El diagnóstico precoz puede abrir puertas, acortar caminos y ampliar posibilidades.",
+      closingP2: "Primeiro Olhar nació del amor por mi hijo, pero lleva el sincero deseo de facilitar la vida de muchas otras familias. Porque cuando hay acogida, información y esperanza, el futuro deja de ser un miedo — y se convierte en una construcción posible.",
+      ctaTitle: "¿Listo para empezar?",
+      ctaDesc: "El cribado tarda solo unos minutos y puede marcar toda la diferencia."
     }
   }
 };
