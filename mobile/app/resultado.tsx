@@ -23,6 +23,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CheckCircle, XCircle, AlertTriangle } from '../components/LucideIcons';
 
+// Maps any backend-returned risk level string to a stable canonical key.
+// Backend always returns PT strings: "Baixo", "Médio", "Alto".
+// .normalize('NFD') strips accents so "Médio" -> "Medio" -> matches 'medio'.
+const normalizeLevelKey = (raw: string | undefined): 'BAIXO' | 'MODERADO' | 'ALTO' => {
+  const s = (raw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (s.includes('alto') || s.includes('high') || s.includes('forte') || s.includes('strong')) return 'ALTO';
+  if (s.includes('medio') || s.includes('moder') || s.includes('medium')) return 'MODERADO';
+  return 'BAIXO';
+};
+
 export default function ResultadoScreen() {
   const { t, locale } = useI18n();
   const router = useRouter();
@@ -350,7 +360,11 @@ export default function ResultadoScreen() {
               
               <div style="display: flex; align-items: center;">            
                 <h3 style="margin: 0; font-size: 16px; color: #1e293b;">
-                  ${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${data.risk_score?.level || t('report.undefined')}</span>
+                   ${t('results.indicatorsLevel')}: <span style="color: #ef4444;">${(() => {
+                    const k = normalizeLevelKey(data.risk_score?.level);
+                    const labels: Record<string, string> = { BAIXO: t('report.riskLow'), MODERADO: t('report.riskModerate'), ALTO: t('report.riskHigh') };
+                    return labels[k] || data.risk_score?.level || '';
+                  })()}</span>
                 </h3>
               </div>
             </div>
@@ -501,13 +515,14 @@ export default function ResultadoScreen() {
     );
   }
 
+  // normalizeLevelKey is defined at module level above the component
   const scoreMap = {
-    'BAIXO': { color: 'text-emerald-500', bg: 'bg-emerald-500', label: t('report.riskLow') || 'Risco Baixo' },
-    'MODERADO': { color: 'text-amber-500', bg: 'bg-amber-500', label: t('report.riskModerate') || 'Risco Moderado' },
-    'ALTO': { color: 'text-rose-500', bg: 'bg-rose-500', label: t('report.riskHigh') || 'Risco Alto' }
+    'BAIXO':    { color: 'text-emerald-500', bg: 'bg-emerald-500', label: t('report.riskLow')      || 'Risco Baixo' },
+    'MODERADO': { color: 'text-amber-500',   bg: 'bg-amber-500',   label: t('report.riskModerate') || 'Risco Moderado' },
+    'ALTO':     { color: 'text-rose-500',    bg: 'bg-rose-500',    label: t('report.riskHigh')     || 'Risco Alto' }
   };
-  const level = data.risk_score?.level?.toUpperCase() || 'BAIXO';
-  const displayScore = scoreMap[level as keyof typeof scoreMap] || { color: 'text-slate-500', bg: 'bg-slate-500', label: data.risk_score?.level || t('report.undefined') };
+  const level = normalizeLevelKey(data.risk_score?.level);
+  const displayScore = scoreMap[level];
   const scoreValue = data.risk_score?.score ? Math.round(data.risk_score.score * 100) : 0;
 
   return (
