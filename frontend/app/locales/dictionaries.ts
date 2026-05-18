@@ -6,6 +6,7 @@ export const dictionaries = {
       home: "Início",
       howItWorks: "Como Funciona",
       myHistory: "Meu Histórico",
+      about: "Sobre o Autor",
       community: "Comunidade",
       professionalArea: "Área do Profissional"
     },
@@ -202,6 +203,7 @@ export const dictionaries = {
       home: "Home",
       howItWorks: "How It Works",
       myHistory: "My History",
+      about: "About the Author",
       community: "Community",
       professionalArea: "Professional Area"
     },
@@ -398,6 +400,7 @@ export const dictionaries = {
       home: "Inicio",
       howItWorks: "Cómo Funciona",
       myHistory: "Mi Historial",
+      about: "Sobre el Autor",
       community: "Comunidad",
       professionalArea: "Área Profesional"
     },

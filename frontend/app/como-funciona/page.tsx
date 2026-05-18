@@ -93,17 +93,15 @@ export default function ComoFuncionaPage() {
         <div onClick={() => router.push('/')} className="cursor-pointer">
           <CSSLogo />
         </div>
-        <div className="flex items-center gap-6">
-          <button 
-            onClick={() => router.push('/')} 
-            className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors px-4 py-3"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" /> {t('how.back')}
-          </button>
-          <div className="flex items-center gap-4">
-            <LanguageSelector />
-            <UserMenu />
-          </div>
+        <nav className="hidden md:flex gap-6 font-semibold text-slate-500">
+          <button onClick={() => router.push('/')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.home')}</button>
+          <button onClick={() => router.push('/como-funciona')} className="px-3 py-3 text-blue-500 font-bold transition-colors">{t('nav.howItWorks')}</button>
+          <button onClick={() => router.push('/historico')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.myHistory')}</button>
+          <button onClick={() => router.push('/sobre-o-autor')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.about')}</button>
+        </nav>
+        <div className="flex items-center gap-4">
+          <LanguageSelector />
+          <UserMenu />
         </div>
       </header>
 

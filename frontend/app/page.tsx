@@ -127,8 +127,9 @@ export default function Home() {
         <CSSLogo />
         <nav className="hidden md:flex gap-8 font-semibold text-slate-500">
           <Link href="/" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.home')}</Link>
-          <Link href="/historico" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.myHistory')}</Link>
           <Link href="/como-funciona" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</Link>
+          <Link href="/historico" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.myHistory')}</Link>
+          <Link href="/sobre-o-autor" className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.about')}</Link>
         </nav>
         <div className="flex items-center gap-4">
           <LanguageSelector />

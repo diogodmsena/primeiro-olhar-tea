@@ -252,13 +252,13 @@ export default function HistoricoPage() {
         {/* Header */}
         <header className="w-full px-6 py-5 lg:px-12 flex justify-between items-center max-w-7xl mx-auto">
           <Logo onClick={() => router.push('/')} />
+          <nav className="hidden md:flex gap-6 font-semibold text-slate-500">
+            <button onClick={() => router.push('/')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.home')}</button>
+            <button onClick={() => router.push('/como-funciona')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.howItWorks')}</button>
+            <button onClick={() => router.push('/historico')} className="px-3 py-3 text-blue-500 font-bold transition-colors">{t('nav.myHistory')}</button>
+            <button onClick={() => router.push('/sobre-o-autor')} className="px-3 py-3 hover:text-blue-500 transition-colors">{t('nav.about')}</button>
+          </nav>
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push('/')}
-              className="text-slate-500 hover:text-blue-500 hidden md:flex items-center text-sm font-semibold transition-colors px-4 py-3"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" /> {t('history.backHome')}
-            </button>
             <LanguageSelector />
             <UserMenu />
           </div>
